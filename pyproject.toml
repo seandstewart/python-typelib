@@ -1,0 +1,137 @@
+[tool.poetry]
+name = "typelib-py"
+version = "0.1.0"
+description = "A toolkit for marshalling, unmarshalling, and runtime validation leveraging type annotations."
+authors = ["Sean Stewart <sean.stewart@hey.com>"]
+readme = "README.md"
+packages = [
+    {include = "typelib", from = "src"},
+]
+repository = "https://github.com/seandstewart/typelib"
+keywords = ["typing", "data", "annotations", "validation", "serdes"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+inflection = "^0.5"
+pendulum = "^3"
+orjson = {version = "^3", optional = true}
+typing-extensions = {version = "^4.10"}
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8"
+pytest-cov = "^4"
+pytest-parametrize-suite = "^23.1.1"
+
+[tool.poetry.group.benchmarks.dependencies]
+
+
+[tool.poetry.group.lint.dependencies]
+mypy = "^1"
+ruff = "^0.4"
+# mypy needs these....
+types-python-dateutil = "*"
+types-setuptools = "*"
+types-toml = "*"
+types-typed-ast = "*"
+types-ujson = "*"
+
+[tool.poetry.group.docs.dependencies]
+
+
+[tool.poetry.group.dev.dependencies]
+orjson = "^3"
+
+[tool.coverage]
+[run]
+branch = true
+data_file = "coverage.db"
+include = [
+    "src/**/*",
+]
+
+[paths]
+source = [
+    "src/*",
+]
+
+[report]
+skip_empty = true
+sort = "Cover"
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "def __str__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class\\s\\w+\\((typing\\.)?Protocol(\\[.*\\])?\\):",
+    "@(abc\\.)?abstractmethod",
+    "@(typing\\.)?overload",
+    "\\.\\.\\."
+]
+omit = [
+    "dist/*",
+    "tests/*",
+    "docs/*",
+    ".venv/*",
+    "benchmark/*",
+]
+
+
+[tool.ruff.lint]
+extend-select = [
+    # Bugbear
+    "B",
+    # McCabe Complexity
+    "C9",
+    # isort
+    "I",
+    # flake8-simplify
+    "SIM",
+    # Future annotation
+    "FA"
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore `E402` (import violations) in all `__init__.py` files
+"__init__.py" = ["E402"]
+
+[tool.ruff.lint.isort]
+extra-standard-library = ["typing_extensions"]
+
+[tool.mypy]
+mypy_path = "$MYPY_CONFIG_FILE_DIR/src/"
+no_namespace_packages = true
+python_version = "3.12"
+install_types = true
+non_interactive = true
+ignore_missing_imports = true
+no_strict_optional = true
+follow_imports = "silent"
+exclude = ".*tests/.*|.*docs/.*"
+
+[build-system]
+requires = ["poetry-core>=1.8.0"]
+build-backend = "poetry.core.masonry.api"
