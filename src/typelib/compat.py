@@ -11,6 +11,7 @@ __all__ = (
     "Self",
     "TypeGuard",
     "TypeIs",
+    "TypeVarTuple",
     "DATACLASS_KW_ONLY",
     "DATACLASS_MATCH_ARGS",
     "DATACLASS_NATIVE_SLOTS",
@@ -26,7 +27,14 @@ if TYPE_CHECKING:
     DATACLASS_MATCH_ARGS: Final[bool] = True
     KW_ONLY: Final[object] = object()
 
-    from typing_extensions import TypeIs, ParamSpec, Self, Final
+    from typing_extensions import (
+        TypeIs,
+        ParamSpec,
+        Self,
+        Final,
+        TypeVarTuple,
+        TypeGuard,
+    )
 
     import orjson as json
 
@@ -54,10 +62,10 @@ else:
         from typing_extensions import TypeIs
 
     if sys.version_info >= (3, 11):
-        from typing import ParamSpec, Self, Final
+        from typing import ParamSpec, Self, Final, TypeVarTuple
 
     else:
-        from typing_extensions import ParamSpec, Self, Final
+        from typing_extensions import ParamSpec, Self, Final, TypeVarTuple
 
     if sys.version_info >= (3, 10):
         from typing import TypeGuard

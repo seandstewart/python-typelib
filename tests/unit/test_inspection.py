@@ -696,7 +696,7 @@ def test_isnamedtuple(given_type, expected_is_namedtuple):
 )
 def test_isfixedtuple(given_type, expected_is_fixed_tuple):
     # When
-    is_fixed_tuple = inspection.isfixedtuple(given_type)
+    is_fixed_tuple = inspection.isfixedtupletype(given_type)
     # Then
     assert is_fixed_tuple == expected_is_fixed_tuple
 

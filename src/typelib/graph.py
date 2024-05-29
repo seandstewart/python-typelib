@@ -2,18 +2,16 @@ from __future__ import annotations
 
 import collections
 import dataclasses
-import functools
+import graphlib
 import inspect
 import typing
 
-import graphlib
+from typelib import classes, compat, constants, inspection, refs
 
-from typelib import classes, constants, inspection, refs
-
-__all__ = ("itertypes",)
+__all__ = ("static_order", "itertypes", "get_type_graph")
 
 
-@functools.cache
+@compat.cache
 def static_order(t: type | str | refs.ForwardRef) -> typing.Iterable[TypeNode]:
     """Get an ordered iterable of types which resolve into the root type provided.
 

@@ -54,7 +54,7 @@ __all__ = (
     "isdescriptor",
     "isenumtype",
     "isfinal",
-    "isfixedtuple",
+    "isfixedtupletype",
     "isforwardref",
     "isfromdictclass",
     "isfrozendataclass",
@@ -795,6 +795,29 @@ _COLLECTIONS = {list, set, tuple, frozenset, dict, str, bytes}
 
 
 @compat.cache
+def issubscriptedcollectiontype(
+    obj: type[Generic[_ArgsT]],  # type: ignore[valid-type]
+) -> compat.TypeIs[type[Collection[_ArgsT]]]:
+    """Test whether this annotation is a collection type and is subscripted.
+
+    Examples:
+        >>> from typing import Collection, Mapping, NewType
+        >>> issubscriptedcollectiontype(Collection)
+        False
+        >>> issubscriptedcollectiontype(Mapping[str, str])
+        True
+        >>> issubscriptedcollectiontype(str)
+        False
+        >>> issubscriptedcollectiontype(NewType("Foo", Collection[int]))
+        True
+    """
+    return iscollectiontype(obj) and issubscriptedgeneric(obj)
+
+
+_ArgsT = TypeVar("_ArgsT")
+
+
+@compat.cache
 def ismappingtype(obj: type) -> compat.TypeIs[type[Mapping]]:
     """Test whether this annotation is a subtype of :py:class:`typing.Mapping`.
 
@@ -974,7 +997,7 @@ def isnamedtuple(obj: type) -> compat.TypeIs[type[NamedTuple]]:
 
 
 @compat.cache
-def isfixedtuple(obj: type) -> compat.TypeIs[type[tuple]]:
+def isfixedtupletype(obj: type) -> compat.TypeIs[type[tuple]]:
     """Check whether an object is a "fixed" tuple, e.g., tuple[int, int].
 
     Examples:
@@ -982,9 +1005,9 @@ def isfixedtuple(obj: type) -> compat.TypeIs[type[tuple]]:
         >>> from typing import Tuple
         >>>
         >>>
-        >>> isfixedtuple(Tuple[str, int])
+        >>> isfixedtupletype(Tuple[str, int])
         True
-        >>> isfixedtuple(Tuple[str, ...])
+        >>> isfixedtupletype(Tuple[str, ...])
         False
     """
     args = get_args(obj)
@@ -1191,7 +1214,7 @@ def isstructuredtype(t: type[Any]) -> bool:
         False
     """
     return (
-        isfixedtuple(t)
+        isfixedtupletype(t)
         or isnamedtuple(t)
         or istypeddict(t)
         or (not isstdlibsubtype(origin(t)) and not isuniontype(t) and not isliteral(t))

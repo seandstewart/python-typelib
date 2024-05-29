@@ -1,53 +1,86 @@
 from __future__ import annotations
 
-import abc
-import struct
-from typing import Any, Generic, Mapping, TypeVar
+import collections.abc as cabc
+import inspect
+import re
+import typing as t
 
-T = TypeVar("T")
+from typelib import compat, constants, graph
+from typelib.unmarshal import routines
 
-
-def deserializer(t: type[T]) -> AbstractDeserializer[T]:
-    # nodes = graph.static_order(t)
-    # context = {}
-    ...
+T = t.TypeVar("T")
 
 
-class AbstractDeserializer(abc.ABC, Generic[T]):
-    t: type[T]
-    context: Mapping[type, AbstractDeserializer]
+@compat.cache
+def unmarshaller(typ: type[T]) -> routines.AbstractUnmarshaller[T]:
+    nodes = graph.static_order(typ)
+    context: dict[type, routines.AbstractUnmarshaller] = {}
+    for node in nodes:
+        context[node.type] = _get_unmarshaller(node.type, context=context)
 
-    __slots__ = ("t", "context")
-
-    def __init__(self, t: type[T], context: Mapping[type, AbstractDeserializer]):
-        self.t = t
-        self.context = context
-
-    @abc.abstractmethod
-    def __call__(self, val: Any) -> T: ...
+    return context[typ]
 
 
-StrT = TypeVar("StrT", bound=str)
+def _get_unmarshaller(  # type: ignore[return]
+    typ: type[T], context: dict[type, routines.AbstractUnmarshaller[T]]
+) -> routines.AbstractUnmarshaller[T]:
+    if typ in context:
+        return context[typ]
+
+    for check, unmarshaller_cls in _HANDLERS.items():
+        if check(typ):
+            return unmarshaller_cls(typ, context=context)
+
+    # TODO: fields unmarshaller
 
 
-class StringDeserializer(AbstractDeserializer[StrT], Generic[StrT]):
-    def __call__(self, val: Any) -> StrT:
-        if isinstance(val, (bytes, bytearray)):
-            return self.t(val.decode("utf8"))
-        if isinstance(val, memoryview):
-            return self.t(val.tobytes().decode("utf8"))
-        return self.t(val)
+_T = t.TypeVar("_T")
 
 
-BytesT = TypeVar("BytesT", bound=bytes)
+_UNRESOLVABLE = frozenset(
+    (
+        t.Any,
+        re.Match,
+        type(None),
+        constants.empty,
+        t.Callable,
+        cabc.Callable,
+        inspect.Parameter.empty,
+    )
+)
 
 
-class BytesDeserializer(AbstractDeserializer[BytesT], Generic[BytesT]):
-    def __call__(self, val: Any) -> BytesT:
-        if isinstance(val, str):
-            return self.t(val.encode("utf8"))
-        if isinstance(val, int):
-            return self.t(val.to_bytes())
-        if isinstance(val, float):
-            return self.t(struct.pack("!f", val))
-        return self.t(val)
+# Order is IMPORTANT! This is a FIFO queue.
+_HANDLERS: t.Mapping[
+    t.Callable[[type[T]], bool], type[routines.AbstractUnmarshaller]
+] = {
+    # # Short-circuit forward refs
+    # inspection.isforwardref: ...,
+    # # Special handler for Literals
+    # inspection.isliteral: ...,
+    # # Special handler for Unions...
+    # inspection.isuniontype: ...,
+    # # Non-intersecting types (order doesn't matter here.
+    # inspection.isdatetimetype: ...,
+    # inspection.isdatetype: ...,
+    # inspection.istimetype: ...,
+    # inspection.istimedeltatype: ...,
+    # inspection.isuuidtype: ...,
+    # inspection.ispatterntype: ...,
+    # inspection.ispathtype: ...,
+    # inspection.isdecimaltype: ...,
+    # inspection.istexttype: ...,
+    # # MUST come before subtype check.
+    # inspection.isbuiltintype: ...,
+    # # Psuedo-structured containers, should check before generics.
+    # inspection.istypeddict: ...,
+    # inspection.istypedtuple: ...,
+    # inspection.isnamedtuple: ...,
+    # inspection.isfixedtupletype: ...,
+    # # A mapping is a collection so must come before that check.
+    # inspection.ismappingtype: ...,
+    # # A tuple is a collection so must come before that check.
+    # inspection.istupletype: ...,
+    # # Generic collection handler
+    # inspection.iscollectiontype: ...,
+}
