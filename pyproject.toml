@@ -10,7 +10,7 @@ packages = [
 repository = "https://github.com/seandstewart/typelib"
 keywords = ["typing", "data", "annotations", "validation", "serdes"]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Natural Language :: English",
     "License :: OSI Approved :: MIT License",
