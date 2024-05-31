@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import ast
+import contextlib
 import datetime
+import functools
+import operator
 import time
 import typing as t
 
 import pendulum
+from more_itertools import peekable
 
-from typelib import compat
+from typelib import compat, inspection
 
 
 @t.overload
@@ -99,43 +104,144 @@ DateTimeT = t.TypeVar("DateTimeT", datetime.date, datetime.time, datetime.timede
 
 
 @compat.lru_cache(maxsize=100_000)
-def dateparse(val: str, t: type[DateTimeT]) -> DateTimeT:
+def dateparse(val: str, td: type[DateTimeT]) -> DateTimeT:
     """Parse a date string into a datetime object.
 
     Args:
         val: The date string to parse.
-        t: The target datetime type.
+        td: The target datetime type.
 
     Returns:
         The parsed datetime object.
     """
     try:
+        # When `exact=False`, the only two possibilities are DateTime and Duration.
         parsed: pendulum.DateTime | pendulum.Duration = pendulum.parse(val)  # type: ignore[assignment]
-        if isinstance(parsed, pendulum.DateTime):
-            if issubclass(t, datetime.time):
-                return parsed.time().replace(tzinfo=parsed.tzinfo)
-            if issubclass(t, datetime.datetime):
-                return parsed
-            if issubclass(t, datetime.date):
-                return parsed.date()
-        if not isinstance(parsed, t):
-            raise ValueError(f"Cannot parse {val!r} as {t.__qualname__!r}")
-        return parsed
+        normalized = _nomalize_dt(val=val, parsed=parsed, td=td)
+        return normalized
     except ValueError:
         if val.isdigit() or val.isdecimal():
-            numval = float(val)
-            # Assume the number value is seconds - same logic as time-since-epoch
-            if issubclass(t, datetime.timedelta):
-                return datetime.timedelta(seconds=numval)
-            # Parse a datetime from the time-since-epoch as indicated by the value.
-            dt = datetime.datetime.fromtimestamp(numval, tz=datetime.timezone.utc)
-            # Return the datetime if the target type is a datetime
-            if issubclass(t, datetime.datetime):
-                return dt
-            # If the target type is a time object, just return the time.
-            if issubclass(t, datetime.time):
-                return dt.time().replace(tzinfo=dt.tzinfo)
-            # If the target type is a date object, just return the date.
-            return dt.date()
-
+            return _normalize_number(numval=float(val), td=td)
         raise
+
+
+def _nomalize_dt(
+    *, val: str, parsed: pendulum.DateTime | pendulum.Duration, td: type[DateTimeT]
+) -> DateTimeT:
+    if isinstance(parsed, pendulum.DateTime):
+        if issubclass(td, datetime.time):
+            return parsed.time().replace(tzinfo=parsed.tzinfo)
+        if issubclass(td, datetime.datetime):
+            return parsed
+        if issubclass(td, datetime.date):
+            return parsed.date()
+    if not isinstance(parsed, td):
+        raise ValueError(f"Cannot parse {val!r} as {td.__qualname__!r}")
+    return parsed
+
+
+def _normalize_number(*, numval: float, td: type[DateTimeT]) -> DateTimeT:
+    # Assume the number value is seconds - same logic as time-since-epoch
+    if issubclass(td, datetime.timedelta):
+        return datetime.timedelta(seconds=numval)
+    # Parse a datetime from the time-since-epoch as indicated by the value.
+    dt = datetime.datetime.fromtimestamp(numval, tz=datetime.timezone.utc)
+    # Return the datetime if the target type is a datetime
+    if issubclass(td, datetime.datetime):
+        return dt
+    # If the target type is a time object, just return the time.
+    if issubclass(td, datetime.time):
+        return dt.time().replace(tzinfo=dt.tzinfo)
+    # If the target type is a date object, just return the date.
+    return dt.date()
+
+
+def iteritems(val: t.Any) -> t.Iterable[tuple[t.Any, t.Any]]:
+    if _is_iterable_of_pairs(val):
+        return iter(val)
+
+    iterate = get_items_iter(val.__class__)
+    return iterate(val)
+
+
+def _is_iterable_of_pairs(val: t.Any) -> bool:
+    if not inspection.isiterabletype(val.__class__):
+        return False
+    peek = peekable(val).peek()
+    return inspection.iscollectiontype(peek.__class__) and len(peek) == 2
+
+
+def itervalues(val: t.Any) -> t.Iterator[t.Any]:
+    iterate = get_items_iter(val.__class__)
+    return (v for k, v in iterate(val))
+
+
+@functools.cache
+def get_items_iter(tp: type) -> t.Callable[[t.Any], t.Iterable[tuple[t.Any, t.Any]]]:
+    ismapping, isnamedtuple, isiterable, isstructured = (
+        inspection.ismappingtype(tp),
+        inspection.isnamedtuple(tp),
+        inspection.isiterabletype(tp),
+        inspection.isstructuredtype(tp),
+    )
+    if ismapping:
+        return _itemscaller
+    if isnamedtuple:
+        return _namedtupleitems
+    if isiterable:
+        return enumerate
+    if isstructured:
+        return _make_fields_iterator(tp)
+    raise TypeError(f"Cannot iterate items of type {tp.__qualname__!r}")
+
+
+def _namedtupleitems(val: t.NamedTuple) -> t.Iterable[tuple[str, t.Any]]:
+    return val._asdict().items()
+
+
+def _make_fields_iterator(
+    tp: type,
+) -> t.Callable[[t.Any], t.Iterator[tuple[t.Any, t.Any]]]:
+    attribs = inspection.get_type_hints(tp)
+    public_attribs = [k for k in attribs if not k.startswith("_")]
+    if not public_attribs and hasattr(tp, "__slots__"):
+        public_attribs = [s for s in tp.__slots__ if not s.startswith("_")]
+
+    if public_attribs:
+
+        def _iterfields(val: t.Any) -> t.Iterator[tuple[str, t.Any]]:
+            return (getattr(val, a) for a in public_attribs)
+
+        return _iterfields
+
+    def _itervars(val: t.Any) -> t.Iterator[tuple[str, t.Any]]:
+        return ((k, v) for k, v in val.__dict__.items() if not k.startswith("_"))
+
+    return _itervars
+
+
+@compat.lru_cache(maxsize=100_000)
+def strload(val: str | bytes | bytearray | memoryview) -> PythonValueT:
+    """Attempt to load"""
+    with contextlib.suppress(ValueError):
+        return compat.json.loads(val)
+
+    decoded = decode(val)
+    with contextlib.suppress(ValueError, TypeError, SyntaxError):
+        return ast.literal_eval(decoded)
+
+    return decoded
+
+
+PythonPrimitiveT: t.TypeAlias = bool | int | float | str | None
+PythonValueT: t.TypeAlias = (
+    "PythonPrimitiveT | "
+    "dict[PythonPrimitiveT, PythonValueT] | "
+    "list[PythonValueT] | "
+    "tuple[PythonValueT, ...] | "
+    "set[PythonValueT]"
+)
+
+
+_itemscaller = operator.methodcaller("items")
+_valuescaller = operator.methodcaller("values")

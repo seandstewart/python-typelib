@@ -5,7 +5,6 @@ import collections
 import functools
 import sys
 import typing
-from ast import unparse
 
 __all__ = ("transform_annotation",)
 
@@ -26,7 +25,7 @@ def transform(annotation: str, *, union: str = "Union") -> str:
     """
     parsed = ast.parse(annotation, mode="eval")
     transformed = TransformUnion().generic_visit(parsed)
-    unparsed = unparse(transformed).strip()
+    unparsed = ast.unparse(transformed).strip()
     return unparsed
 
 

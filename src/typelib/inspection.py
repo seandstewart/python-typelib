@@ -9,11 +9,13 @@ import dataclasses
 import datetime
 import decimal
 import enum
+import fractions
 import functools
 import inspect
 import ipaddress
 import numbers
 import pathlib
+import re
 import sqlite3
 import types
 import typing
@@ -39,7 +41,7 @@ from typing import (
     overload,
 )
 
-from typelib import compat, contrib, refs
+from typelib import compat, constants, contrib, refs
 
 __all__ = (
     "BUILTIN_TYPES",
@@ -47,6 +49,7 @@ __all__ = (
     "isbuiltininstance",
     "isbuiltintype",
     "isbuiltinsubtype",
+    "isbytestype",
     "isclassvartype",
     "iscollectiontype",
     "isdatetype",
@@ -70,6 +73,7 @@ __all__ = (
     "isstdlibinstance",
     "isstdlibtype",
     "isstdlibsubtype",
+    "isstringtype",
     "istexttype",
     "istimetype",
     "istimedeltatype",
@@ -77,6 +81,7 @@ __all__ = (
     "istypeddict",
     "istypedtuple",
     "isuniontype",
+    "isunresolvable",
     "isuuidtype",
     "should_unwrap",
 )
@@ -101,7 +106,7 @@ def origin(annotation: Any) -> Any:
         >>> class Foo: ...
         ...
         >>> origin(Foo)
-    <class 'typelib.Foo'>
+        <class 'typelib.Foo'>
     """
     # Resolve custom NewTypes.
     actual = resolve_supertype(annotation)
@@ -164,14 +169,14 @@ def get_args(annotation: Any) -> Tuple[Any, ...]:
 
     Examples:
         >>> from typelib import inspection
-        >>> from typing import Dict, TypeVar
+        >>> from typing import Dict, TypeVar, Any
         >>> T = TypeVar("T")
         >>> get_args(Dict)
         ()
         >>> get_args(Dict[str, int])
         (<class 'str'>, <class 'int'>)
         >>> get_args(Dict[str, T])
-        (<class 'str'>,)
+        (<class 'str'>, typing.Any)
     """
     args = typing.get_args(annotation)
     if not args:
@@ -682,6 +687,22 @@ def isdecimaltype(obj: type) -> compat.TypeIs[type[decimal.Decimal]]:
 
 
 @compat.cache
+def isfractiontype(obj: type) -> compat.TypeIs[type[fractions.Fraction]]:
+    """Test whether this annotation is a Decimal object.
+
+    Examples:
+
+        >>> import fractions
+        >>> from typing import NewType
+        >>> isdecimaltype(fractions.Fraction)
+        True
+        >>> isdecimaltype(NewType("Foo", fractions.Fraction))
+        True
+    """
+    return builtins.issubclass(origin(obj), fractions.Fraction)
+
+
+@compat.cache
 def isuuidtype(obj: type) -> compat.TypeIs[type[uuid.UUID]]:
     """Test whether this annotation is a a date/datetime object.
 
@@ -1167,7 +1188,35 @@ def istexttype(t: type[Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
         >>> istexttype(MyStr)
         True
     """
-    return issubclass(t, (str, bytes, bytearray))
+    return issubclass(t, (str, bytes, bytearray, memoryview))
+
+
+@compat.cache
+def isstringtype(t: type[Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
+    """Test whether the given type is a subclass of text or bytes.
+
+    Examples:
+
+        >>> class MyStr(str): ...
+        ...
+        >>> istexttype(MyStr)
+        True
+    """
+    return issubclass(t, str)
+
+
+@compat.cache
+def isbytestype(t: type[Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
+    """Test whether the given type is a subclass of text or bytes.
+
+    Examples:
+
+        >>> class MyStr(str): ...
+        ...
+        >>> istexttype(MyStr)
+        True
+    """
+    return issubclass(t, (bytes, bytearray))
 
 
 @compat.cache
@@ -1274,7 +1323,61 @@ def issubscriptedgeneric(t: Any) -> bool:
 
 @compat.cache  # type: ignore[arg-type]
 def iscallable(t: Any) -> compat.TypeIs[Callable]:
+    """Test whether the given type is a callable.
+
+    Examples:
+        >>> import typing
+        >>> import collections.abc
+        >>> iscallable(lambda: None)
+        True
+        >>> iscallable(typing.Callable)
+        True
+        >>> iscallable(collections.abc.Callable)
+        True
+        >>> iscallable(1)
+        False
+    """
     return inspect.isroutine(t) or t is Callable or _safe_issubclass(t, abc_Callable)  # type: ignore[arg-type]
+
+
+@compat.cache
+def isunresolvable(t: Any) -> bool:
+    """Test whether the given type is unresolvable.
+
+    Examples:
+        >>> import typing
+        >>> isunresolvable(int)
+        False
+        >>> isunresolvable(typing.Any)
+        True
+        >>> isunresolvable(...)
+        True
+    """
+    return t in _UNRESOLVABLE
+
+
+_UNRESOLVABLE = (
+    Any,
+    re.Match,
+    type(None),
+    None,
+    constants.empty,
+    Callable,
+    abc_Callable,
+    inspect.Parameter.empty,
+    type(Ellipsis),
+    Ellipsis,
+)
+
+
+@compat.cache
+def ispatterntype(t: Any) -> compat.TypeIs[re.Pattern]:
+    return issubclass(t, re.Pattern)
+
+
+@compat.cache
+def ispathtype(t: Any) -> compat.TypeIs[pathlib.Path]:
+    return issubclass(t, pathlib.PurePath)
 
 
 def _safe_issubclass(__cls: type, __class_or_tuple: type | tuple[type, ...]) -> bool:

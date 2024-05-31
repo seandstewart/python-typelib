@@ -32,6 +32,7 @@ inflection = "^0.5"
 pendulum = "^3"
 orjson = {version = "^3", optional = true}
 typing-extensions = {version = "^4.10"}
+more-itertools = "^10.2.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8"
@@ -112,8 +113,6 @@ extend-select = [
     # Future annotation
     "FA"
 ]
-[tool.ruff.lint.mccabe]
-max-complexity = 15
 
 [tool.ruff.lint.per-file-ignores]
 # Ignore `E402` (import violations) in all `__init__.py` files
