@@ -7,11 +7,31 @@ from typelib.unmarshal import routines
 
 T = tp.TypeVar("T")
 
+__all__ = (
+    "unmarshal",
+    "unmarshaller",
+    "DelayedUnmarshaller",
+    "NoOpUnmarshaller",
+)
+
+
+def unmarshal(typ: type[T] | refs.ForwardRef | str, value: tp.Any) -> T:
+    """Unmarshal :py:param:`value` into :py:param:`typ`."""
+    routine = unmarshaller(typ)
+    unmarshalled = routine(value)
+    return unmarshalled
+
 
 @compat.cache
 def unmarshaller(
     typ: type[T] | refs.ForwardRef | str,
 ) -> routines.AbstractUnmarshaller[T]:
+    """Get an un-marshaller routine for a given type.
+
+    Args:
+        typ: The type annotation to generate an unmarshaller for.
+             May be a type, a :py:class:`typing.ForwardRef`, or string reference.
+    """
     nodes = graph.static_order(typ)
     context: dict[type, routines.AbstractUnmarshaller] = {}
     if not nodes:
