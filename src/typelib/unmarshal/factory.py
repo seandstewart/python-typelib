@@ -9,11 +9,13 @@ T = tp.TypeVar("T")
 
 
 @compat.cache
-def unmarshaller(typ: type[T]) -> routines.AbstractUnmarshaller[T]:
+def unmarshaller(
+    typ: type[T] | refs.ForwardRef | str,
+) -> routines.AbstractUnmarshaller[T]:
     nodes = graph.static_order(typ)
     context: dict[type, routines.AbstractUnmarshaller] = {}
     if not nodes:
-        return NoOpUnmarshaller(t=typ, context=context, var=None)
+        return NoOpUnmarshaller(t=typ, context=context, var=None)  # type: ignore[arg-type]
 
     # "root" type will always be the final node in the sequence.
     root = nodes[-1].type
@@ -46,7 +48,7 @@ class DelayedUnmarshaller(routines.AbstractUnmarshaller[T]):
     @property
     def resolved(self) -> routines.AbstractUnmarshaller[T]:
         if self._resolved is None:
-            self._resolved = self._resolve_unmarshaller()
+            self._resolved = unmarshaller(self.t)
             self._resolved.__class__.__init__(
                 self,  # type: ignore[arg-type]
                 self._resolved.t,  # type: ignore[arg-type]
@@ -54,11 +56,6 @@ class DelayedUnmarshaller(routines.AbstractUnmarshaller[T]):
                 var=self.var,
             )
         return self._resolved
-
-    def _resolve_unmarshaller(self) -> routines.AbstractUnmarshaller[T]:
-        typ = refs.evaluate(self.t)  # type: ignore[arg-type]
-        um = unmarshaller(typ)
-        return um
 
     def __call__(self, val: tp.Any) -> T:
         return self.resolved(val)
