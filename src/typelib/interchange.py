@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import contextlib
+import dataclasses
 import datetime
 import functools
 import operator
@@ -204,15 +205,21 @@ def _namedtupleitems(val: t.NamedTuple) -> t.Iterable[tuple[str, t.Any]]:
 def _make_fields_iterator(
     tp: type,
 ) -> t.Callable[[t.Any], t.Iterator[tuple[t.Any, t.Any]]]:
-    attribs = inspection.get_type_hints(tp)
-    public_attribs = [k for k in attribs if not k.startswith("_")]
+    if dataclasses.is_dataclass(tp):
+        public_attribs = [
+            f.name for f in dataclasses.fields(tp) if not f.name.startswith("_")
+        ]
+    else:
+        attribs = inspection.get_type_hints(tp)
+        public_attribs = [k for k in attribs if not k.startswith("_")]
+
     if not public_attribs and hasattr(tp, "__slots__"):
         public_attribs = [s for s in tp.__slots__ if not s.startswith("_")]
 
     if public_attribs:
 
         def _iterfields(val: t.Any) -> t.Iterator[tuple[str, t.Any]]:
-            return (getattr(val, a) for a in public_attribs)
+            return ((a, getattr(val, a)) for a in public_attribs)
 
         return _iterfields
 
@@ -222,9 +229,22 @@ def _make_fields_iterator(
     return _itervars
 
 
+def load(val: _T) -> PythonValueT | _T:
+    """Attempt to decode :py:param:`val` if it is a text-like object.
+
+    Args:
+        val: The value to decode.
+    """
+    return strload(val) if inspection.istexttype(val.__class__) else val  # type: ignore[arg-type]
+
+
 @compat.lru_cache(maxsize=100_000)
 def strload(val: str | bytes | bytearray | memoryview) -> PythonValueT:
-    """Attempt to load"""
+    """Attempt to decode a string-like input into a Python value.
+
+    Args:
+        val: The string-like input to be decoded.
+    """
     with contextlib.suppress(ValueError):
         return compat.json.loads(val)
 

@@ -74,9 +74,9 @@ _HANDLERS: tp.Mapping[
     inspection.isforwardref: DelayedUnmarshaller,
     inspection.isunresolvable: NoOpUnmarshaller,
     # Special handler for Literals
-    # inspection.isliteral: ...,
+    inspection.isliteral: routines.LiteralUnmarshaller,
     # Special handler for Unions...
-    # inspection.isuniontype: ...,
+    inspection.isuniontype: routines.UnionUnmarshaller,
     # Non-intersecting types (order doesn't matter here.
     inspection.isdatetimetype: routines.DateTimeUnmarshaller,
     inspection.isdatetype: routines.DateUnmarshaller,
@@ -87,7 +87,7 @@ _HANDLERS: tp.Mapping[
     inspection.ispathtype: routines.PathUnmarshaller,
     inspection.isdecimaltype: routines.DecimalUnmarshaller,
     inspection.isfractiontype: routines.FractionUnmarshaller,
-    inspection.isstringtype: routines.StrUnmarshaller,
+    inspection.isstringtype: routines.StringUnmarshaller,
     inspection.isbytestype: routines.BytesUnmarshaller,
     # Psuedo-structured containers, should check before generics.
     inspection.istypeddict: routines.StructuredTypeUnmarshaller,

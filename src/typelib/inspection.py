@@ -154,7 +154,6 @@ GENERIC_TYPE_MAP: dict[type, type] = {
 }
 
 
-@compat.cache
 def get_args(annotation: Any) -> Tuple[Any, ...]:
     """Get the args supplied to an annotation, normalizing :py:class:`typing.TypeVar`.
 

@@ -19,7 +19,7 @@ __all__ = (
     "AbstractUnmarshaller",
     "ContextT",
     "BytesUnmarshaller",
-    "StrUnmarshaller",
+    "StringUnmarshaller",
     "NumberUnmarshaller",
     "DecimalUnmarshaller",
     "FractionUnmarshaller",
@@ -49,7 +49,10 @@ class AbstractUnmarshaller(abc.ABC, tp.Generic[T]):
 
     __slots__ = ("t", "origin", "context", "var")
 
-    def __init__(self, t: type[T], context: ContextT, *, var: str | None):
+    def __repr__(self):
+        return f"<{self.__class__.__name__}(type={self.t!r}, origin={self.origin!r}, var={self.var!r})>"
+
+    def __init__(self, t: type[T], context: ContextT, *, var: str | None = None):
         self.t = t
         self.origin = inspection.origin(self.t)
         self.context = context
@@ -73,11 +76,11 @@ class BytesUnmarshaller(AbstractUnmarshaller[BytesT], tp.Generic[BytesT]):
         return self.t(str(val).encode("utf8"))
 
 
-StrT = tp.TypeVar("StrT", bound=str)
+StringT = tp.TypeVar("StringT", bound=str)
 
 
-class StrUnmarshaller(AbstractUnmarshaller[StrT], tp.Generic[StrT]):
-    def __call__(self, val: tp.Any) -> StrT:
+class StringUnmarshaller(AbstractUnmarshaller[StringT], tp.Generic[StringT]):
+    def __call__(self, val: tp.Any) -> StringT:
         # Always decode bytes.
         decoded = interchange.decode(val)
         if isinstance(decoded, self.t):
@@ -264,12 +267,12 @@ UUIDT = tp.TypeVar("UUIDT", bound=uuid.UUID)
 
 class UUIDUnmarshaller(AbstractUnmarshaller[UUIDT], tp.Generic[UUIDT]):
     def __call__(self, val: tp.Any) -> UUIDT:
-        decoded = (
-            interchange.strload(val) if inspection.istexttype(val.__class__) else val
-        )
+        decoded = interchange.load(val)
         if isinstance(decoded, int):
             return self.t(int=decoded)
-        return self.t(decoded)
+        if isinstance(decoded, self.t):
+            return decoded
+        return self.t(decoded)  # type: ignore[arg-type]
 
 
 PatternT = tp.TypeVar("PatternT", bound=re.Pattern)
@@ -284,17 +287,15 @@ class PatternUnmarshaller(AbstractUnmarshaller[PatternT], tp.Generic[PatternT]):
 class CastUnmarshaller(AbstractUnmarshaller[T]):
     __slots__ = ("caster",)
 
-    def __init__(self, t: type[T], context: ContextT, *, var: str | None):
+    def __init__(self, t: type[T], context: ContextT, *, var: str | None = None):
         super().__init__(t, context, var=var)
         self.caster: tp.Callable[[tp.Any], T] = self.origin  # type: ignore[assignment]
 
     def __call__(self, val: tp.Any) -> T:
         # Try to load the string, if this is JSON or a literal expression.
-        decoded = (
-            interchange.strload(val) if inspection.istexttype(val.__class__) else val
-        )
+        decoded = interchange.load(val)
         # Short-circuit cast if we have the type we want.
-        if decoded.__class__ is self.origin:
+        if isinstance(decoded, self.t):
             return decoded
         # Cast the decoded value to the type.
         return self.caster(decoded)
@@ -311,18 +312,16 @@ LiteralT = tp.TypeVar("LiteralT")
 class LiteralUnmarshaller(AbstractUnmarshaller[LiteralT], tp.Generic[LiteralT]):
     __slots__ = ("values",)
 
-    def __init__(self, t: type[LiteralT], context: ContextT, *, var: str | None):
+    def __init__(self, t: type[LiteralT], context: ContextT, *, var: str | None = None):
         super().__init__(t, context, var=var)
         self.values = inspection.get_args(t)
 
     def __call__(self, val: tp.Any) -> LiteralT:
         if val in self.values:
             return val
-        decoded = (
-            interchange.strload(val) if inspection.istexttype(val.__class__) else val
-        )
+        decoded = interchange.load(val)
         if decoded in self.values:
-            return decoded
+            return decoded  # type: ignore[return-value]
 
         raise ValueError(f"{decoded!r} is not one of {self.values!r}")
 
@@ -333,7 +332,7 @@ UnionT = tp.TypeVar("UnionT")
 class UnionUnmarshaller(AbstractUnmarshaller[UnionT], tp.Generic[UnionT]):
     __slots__ = ("stack", "ordered_routines")
 
-    def __init__(self, t: type[UnionT], context: ContextT, *, var: str | None):
+    def __init__(self, t: type[UnionT], context: ContextT, *, var: str | None = None):
         super().__init__(t, context, var=var)
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[typ] for typ in self.stack]
@@ -362,7 +361,7 @@ class SubscriptedMappingUnmarshaller(
         "values",
     )
 
-    def __init__(self, t: type[MappingT], context: ContextT, *, var: str | None):
+    def __init__(self, t: type[MappingT], context: ContextT, *, var: str | None = None):
         super().__init__(t, context, var=var)
         key_t, value_t = inspection.get_args(t)
         self.keys = context[key_t]
@@ -370,7 +369,7 @@ class SubscriptedMappingUnmarshaller(
 
     def __call__(self, val: tp.Any) -> MappingT:
         # Always decode bytes.
-        decoded = interchange.strload(val)
+        decoded = interchange.load(val)
         keys = self.keys
         values = self.values
         return self.origin(
@@ -386,14 +385,17 @@ class SubscriptedIterableUnmarshaller(
 ):
     __slots__ = ("values",)
 
-    def __init__(self, t: type[IterableT], context: ContextT, *, var: str | None):
+    def __init__(
+        self, t: type[IterableT], context: ContextT, *, var: str | None = None
+    ):
         super().__init__(t=t, context=context, var=var)
-        (value_t,) = inspection.get_args(t)
+        # supporting tuple[str, ...]
+        (value_t, *_) = inspection.get_args(t)
         self.values = context[value_t]
 
     def __call__(self, val: tp.Any) -> IterableT:
         # Always decode bytes.
-        decoded = interchange.strload(val)
+        decoded = interchange.load(val)
         values = self.values
         return self.origin((values(v) for v in interchange.itervalues(decoded)))
 
@@ -406,14 +408,16 @@ class SubscriptedIteratorUnmarshaller(
 ):
     __slots__ = ("values",)
 
-    def __init__(self, t: type[IteratorT], context: ContextT, *, var: str | None):
+    def __init__(
+        self, t: type[IteratorT], context: ContextT, *, var: str | None = None
+    ):
         super().__init__(t, context, var=var)
         (value_t,) = inspection.get_args(t)
         self.values = context[value_t]
 
     def __call__(self, val: tp.Any) -> IteratorT:
         # Always decode bytes.
-        decoded = interchange.strload(val)
+        decoded = interchange.load(val)
         values = self.values
         it: IteratorT = (values(v) for v in interchange.itervalues(decoded))  # type: ignore[assignment]
         return it
@@ -425,13 +429,15 @@ _TVT = tp.TypeVarTuple("_TVT")
 class FixedTupleUnmarshaller(AbstractUnmarshaller[tuple[*_TVT]]):
     __slots__ = ("ordered_routines", "stack")
 
-    def __init__(self, t: type[tuple[*_TVT]], context: ContextT, *, var: str | None):
+    def __init__(
+        self, t: type[tuple[*_TVT]], context: ContextT, *, var: str | None = None
+    ):
         super().__init__(t, context, var=var)
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
     def __call__(self, val: tp.Any) -> tuple[*_TVT]:
-        decoded = interchange.strload(val)
+        decoded = interchange.load(val)
         return self.origin(
             routine(v)
             for routine, v in zip(
@@ -446,14 +452,12 @@ _ST = tp.TypeVar("_ST")
 class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
     __slots__ = ("fields_by_var",)
 
-    def __init__(self, t: type[_ST], context: ContextT, *, var: str | None):
+    def __init__(self, t: type[_ST], context: ContextT, *, var: str | None = None):
         super().__init__(t, context, var=var)
         self.fields_by_var = {m.var: m for m in self.context.values()}
 
     def __call__(self, val: tp.Any) -> _ST:
-        decoded = (
-            interchange.strload(val) if inspection.istexttype(val.__class__) else val
-        )
+        decoded = interchange.load(val)
         fields = self.fields_by_var
         kwargs = {
             f: fields[f](v) for f, v in interchange.iteritems(decoded) if f in fields

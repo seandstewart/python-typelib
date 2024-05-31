@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+import dataclasses
 import datetime
 import decimal
 import fractions
+import pathlib
+import re
+import typing
+import uuid
 
 import pytest
 from typelib.unmarshal import routines
@@ -17,9 +22,9 @@ from typelib.unmarshal import routines
 )
 def test_bytes_unmarshaller(given_input, expected_output):
     # Given
-    given_unmarhaller = routines.BytesUnmarshaller(bytes, {})
+    given_unmarshaller = routines.BytesUnmarshaller(bytes, {})
     # When
-    output = given_unmarhaller(given_input)
+    output = given_unmarshaller(given_input)
     # Then
     assert output == expected_output
 
@@ -33,9 +38,9 @@ def test_bytes_unmarshaller(given_input, expected_output):
 )
 def test_str_unmarshaller(given_input, expected_output):
     # Given
-    given_unmarhaller = routines.StrUnmarshaller(str, {})
+    given_unmarshaller = routines.StringUnmarshaller(str, {})
     # When
-    output = given_unmarhaller(given_input)
+    output = given_unmarshaller(given_input)
     # Then
     assert output == expected_output
 
@@ -55,10 +60,10 @@ def test_str_unmarshaller(given_input, expected_output):
 )
 def test_number_unmarshaller(given_input, given_type, expected_output):
     # Given
-    given_unmarhaller = routines.NumberUnmarshaller(given_type, {})
+    given_unmarshaller = routines.NumberUnmarshaller(given_type, {})
     expected_output = given_type(expected_output)
     # When
-    output = given_unmarhaller(given_input)
+    output = given_unmarshaller(given_input)
     # Then
     assert output == expected_output
     assert isinstance(output, given_type)
@@ -95,9 +100,9 @@ def test_number_unmarshaller(given_input, given_type, expected_output):
 )
 def test_date_unmarshaller(given_input, expected_output):
     # Given
-    given_unmarhaller = routines.DateUnmarshaller(datetime.date, {})
+    given_unmarshaller = routines.DateUnmarshaller(datetime.date, {})
     # When
-    output = given_unmarhaller(given_input)
+    output = given_unmarshaller(given_input)
     # Then
     assert output == expected_output
 
@@ -150,9 +155,9 @@ def test_date_unmarshaller(given_input, expected_output):
 )
 def test_datetime_unmarshaller(given_input, expected_output):
     # Given
-    given_unmarhaller = routines.DateTimeUnmarshaller(datetime.datetime, {})
+    given_unmarshaller = routines.DateTimeUnmarshaller(datetime.datetime, {})
     # When
-    output = given_unmarhaller(given_input)
+    output = given_unmarshaller(given_input)
     # Then
     assert output == expected_output
 
@@ -205,9 +210,9 @@ def test_datetime_unmarshaller(given_input, expected_output):
 )
 def test_time_unmarshaller(given_input, expected_output):
     # Given
-    given_unmarhaller = routines.TimeUnmarshaller(datetime.time, {})
+    given_unmarshaller = routines.TimeUnmarshaller(datetime.time, {})
     # When
-    output = given_unmarhaller(given_input)
+    output = given_unmarshaller(given_input)
     # Then
     assert output == expected_output
 
@@ -236,8 +241,602 @@ def test_time_unmarshaller(given_input, expected_output):
 )
 def test_timedelta_unmarshaller(given_input, expected_output):
     # Given
-    given_unmarhaller = routines.TimeDeltaUnmarshaller(datetime.timedelta, {})
+    given_unmarshaller = routines.TimeDeltaUnmarshaller(datetime.timedelta, {})
     # When
-    output = given_unmarhaller(given_input)
+    output = given_unmarshaller(given_input)
     # Then
     assert output == expected_output
+
+
+@pytest.mark.suite(
+    bytes_number=dict(
+        given_input=b"1",
+        expected_output=uuid.UUID(int=1),
+    ),
+    string_number=dict(
+        given_input="1",
+        expected_output=uuid.UUID(int=1),
+    ),
+    number=dict(
+        given_input=1,
+        expected_output=uuid.UUID(int=1),
+    ),
+    string=dict(
+        given_input="00000000-0000-0000-0000-000000000001",
+        expected_output=uuid.UUID(int=1),
+    ),
+    bytes=dict(
+        given_input=b"00000000-0000-0000-0000-000000000001",
+        expected_output=uuid.UUID(int=1),
+    ),
+    uuid=dict(
+        given_input=uuid.UUID(int=1),
+        expected_output=uuid.UUID(int=1),
+    ),
+)
+def test_uuid_unmarshaller(given_input, expected_output):
+    # Given
+    given_unmarshaller = routines.UUIDUnmarshaller(uuid.UUID, {})
+    # When
+    output = given_unmarshaller(given_input)
+    # Then
+    assert output == expected_output
+
+
+@pytest.mark.suite(
+    bytes=dict(
+        given_input=b"1",
+        expected_output=re.compile(r"1"),
+    ),
+    string=dict(
+        given_input="1",
+        expected_output=re.compile(r"1"),
+    ),
+    pattern=dict(
+        given_input=re.compile(r"1"),
+        expected_output=re.compile(r"1"),
+    ),
+)
+def test_pattern_unmarshaller(given_input, expected_output):
+    # Given
+    given_unmarshaller = routines.PatternUnmarshaller(re.Pattern, {})
+    # When
+    output = given_unmarshaller(given_input)
+    # Then
+    assert output == expected_output
+
+
+@pytest.mark.suite(
+    bytes=dict(
+        given_input=b"/my/path",
+        expected_output=pathlib.Path("/my/path"),
+    ),
+    string=dict(
+        given_input="/my/path",
+        expected_output=pathlib.Path("/my/path"),
+    ),
+    path=dict(
+        given_input=pathlib.Path("/my/path"),
+        expected_output=pathlib.Path("/my/path"),
+    ),
+)
+def test_path_unmarshaller(given_input, expected_output):
+    # Given
+    given_unmarshaller = routines.PathUnmarshaller(pathlib.Path, {})
+    # When
+    output = given_unmarshaller(given_input)
+    # Then
+    assert output == expected_output
+
+
+@pytest.mark.suite(
+    bytes_literal=dict(
+        given_input=b"{'field': 'value'}",
+        expected_output={"field": "value"},
+    ),
+    string_literal=dict(
+        given_input="{'field': 'value'}",
+        expected_output={"field": "value"},
+    ),
+    bytes_json=dict(
+        given_input=b'{"field": "value"}',
+        expected_output={"field": "value"},
+    ),
+    string_json=dict(
+        given_input='{"field": "value"}',
+        expected_output={"field": "value"},
+    ),
+    dict=dict(
+        given_input={"field": "value"},
+        expected_output={"field": "value"},
+    ),
+)
+def test_mapping_unmarshaller(given_input, expected_output):
+    # Given
+    given_unmarshaller = routines.MappingUnmarshaller(typing.Mapping, {})
+    # When
+    output = given_unmarshaller(given_input)
+    # Then
+    assert output == expected_output
+
+
+@pytest.mark.suite(
+    bytes_literal=dict(
+        given_input=b"{'field', 'value'}",
+        expected_output={"field", "value"},
+    ),
+    string_literal=dict(
+        given_input="('field', 'value')",
+        expected_output=("field", "value"),
+    ),
+    bytes_json=dict(
+        given_input=b'["field", "value"]',
+        expected_output=["field", "value"],
+    ),
+    string_json=dict(
+        given_input='["field", "value"]',
+        expected_output=["field", "value"],
+    ),
+    dict=dict(
+        given_input={"field": "value"},
+        expected_output={"field": "value"},
+    ),
+    list=dict(
+        given_input=["field", "value"],
+        expected_output=["field", "value"],
+    ),
+)
+def test_iterable_unmarshaller(given_input, expected_output):
+    # Given
+    given_unmarshaller = routines.IterableUnmarshaller(typing.Iterable, {})
+    # When
+    output = given_unmarshaller(given_input)
+    # Then
+    assert output == expected_output
+
+
+@pytest.mark.suite(
+    bytes=dict(
+        given_input=b"1",
+        given_literal=typing.Literal[1],
+        given_context={},
+        expected_output=1,
+    ),
+    string=dict(
+        given_input="1",
+        given_literal=typing.Literal[1],
+        given_context={},
+        expected_output=1,
+    ),
+    integer=dict(
+        given_input=1,
+        given_literal=typing.Literal[1],
+        given_context={},
+        expected_output=1,
+    ),
+    json=dict(
+        given_input="true",
+        given_literal=typing.Literal[True],
+        given_context={},
+        expected_output=True,
+    ),
+)
+def test_literal_unmarshaller(
+    given_input, given_literal, given_context, expected_output
+):
+    # Given
+    given_unmarshaller = routines.LiteralUnmarshaller(given_literal, given_context)
+    # When
+    output = given_unmarshaller(given_input)
+    # Then
+    assert output == expected_output
+
+
+@pytest.mark.suite(
+    bytes_number=dict(
+        given_input=b"1",
+        given_union=typing.Union[int, str],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output=1,
+    ),
+    string_number=dict(
+        given_input="1",
+        given_union=typing.Union[int, str],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output=1,
+    ),
+    bytes=dict(
+        given_input=b"bytes",
+        given_union=typing.Union[int, str],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output="bytes",
+    ),
+    string=dict(
+        given_input="string",
+        given_union=typing.Union[int, str],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output="string",
+    ),
+    integer=dict(
+        given_input=1,
+        given_union=typing.Union[int, str],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output=1,
+    ),
+    float=dict(
+        given_input=1.0,
+        given_union=typing.Union[int, str],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output=1,
+    ),
+)
+def test_union_unmarshaller(given_input, given_union, given_context, expected_output):
+    # Given
+    given_unmarshaller = routines.UnionUnmarshaller(given_union, given_context)
+    # When
+    output = given_unmarshaller(given_input)
+    # Then
+    assert output == expected_output
+
+
+@pytest.mark.suite(
+    bytes_literal=dict(
+        given_input=b"{'field': '1'}",
+        given_mapping=typing.Mapping[str, int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output={"field": 1},
+    ),
+    string_literal=dict(
+        given_input="{'field': '1'}",
+        given_mapping=typing.Mapping[str, int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output={"field": 1},
+    ),
+    bytes_json=dict(
+        given_input=b'{"field": "1"}',
+        given_mapping=typing.Mapping[str, int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output={"field": 1},
+    ),
+    string_json=dict(
+        given_input='{"field": "1"}',
+        given_mapping=typing.Mapping[str, int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output={"field": 1},
+    ),
+    dict=dict(
+        given_input={b"field": "1"},
+        given_mapping=typing.Mapping[str, int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output={"field": 1},
+    ),
+)
+def test_subscripted_mapping_unmarshaller(
+    given_input, given_mapping, given_context, expected_output
+):
+    # Given
+    given_unmarshaller = routines.SubscriptedMappingUnmarshaller(
+        given_mapping, given_context
+    )
+    # When
+    output = given_unmarshaller(given_input)
+    # Then
+    assert output == expected_output
+
+
+@pytest.mark.suite(
+    generic_iterable=dict(
+        given_iterable=typing.Iterable[int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+        },
+        expected_output=[2, 1],
+    ),
+    list=dict(
+        given_iterable=list[int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+        },
+        expected_output=[2, 1],
+    ),
+    tuple=dict(
+        given_iterable=tuple[int, ...],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+        },
+        expected_output=(2, 1),
+    ),
+    set=dict(
+        given_iterable=set[int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+        },
+        expected_output={2, 1},
+    ),
+)
+@pytest.mark.suite(
+    bytes_literal=dict(
+        given_input=b"('2', '1')",
+    ),
+    string_literal=dict(
+        given_input="('2', '1')",
+    ),
+    json=dict(
+        given_input='["2", "1"]',
+    ),
+)
+def test_subscripted_iterable_unmarshaller(
+    given_input, given_iterable, given_context, expected_output
+):
+    # Given
+    given_unmarshaller = routines.SubscriptedIterableUnmarshaller(
+        given_iterable, given_context
+    )
+    # When
+    output = given_unmarshaller(given_input)
+    # Then
+    assert output == expected_output
+
+
+@pytest.mark.suite(
+    generic_iterator=dict(
+        given_iterator=typing.Iterator[int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+        },
+        expected_output={2, 1},
+    ),
+)
+@pytest.mark.suite(
+    bytes_literal=dict(
+        given_input=b"('2', '1')",
+    ),
+    string_literal=dict(
+        given_input="('2', '1')",
+    ),
+    json=dict(
+        given_input='["2", "1"]',
+    ),
+    generator=dict(
+        given_input=(str(i) for i in range(1, 3)),
+    ),
+)
+def test_subscripted_iterator_unmarshaller(
+    given_input, given_iterator, given_context, expected_output
+):
+    # Given
+    given_unmarshaller = routines.SubscriptedIteratorUnmarshaller(
+        given_iterator, given_context
+    )
+    # When
+    output = {*given_unmarshaller(given_input)}
+    # Then
+    assert output == expected_output
+
+
+@pytest.mark.suite(
+    bytes_literal=dict(
+        given_input=b"['field', '1']",
+        given_tuple=tuple[str, int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output=("field", 1),
+    ),
+    string_literal=dict(
+        given_input="['field', '1']",
+        given_tuple=tuple[str, int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output=("field", 1),
+    ),
+    bytes_json=dict(
+        given_input=b'["field", "1"]',
+        given_tuple=tuple[str, int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output=("field", 1),
+    ),
+    string_json=dict(
+        given_input='["field", "1"]',
+        given_tuple=tuple[str, int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output=("field", 1),
+    ),
+    dict=dict(
+        given_input=[b"field", "1"],
+        given_tuple=tuple[str, int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output=("field", 1),
+    ),
+)
+def test_fixed_tuple_unmarshaller(
+    given_input, given_tuple, given_context, expected_output
+):
+    # Given
+    given_unmarshaller = routines.FixedTupleUnmarshaller(given_tuple, given_context)
+    # When
+    output = given_unmarshaller(given_input)
+    # Then
+    assert output == expected_output
+
+
+@dataclasses.dataclass
+class Data:
+    field: str
+    value: int
+
+
+class Vanilla:
+    def __init__(self, field: str, value: int):
+        self.field = field
+        self.value = value
+
+    def __eq__(self, other):
+        return self.field == getattr(other, "field", ...) and self.value == getattr(
+            other, "value", ...
+        )
+
+
+class VanillaWithHints(Vanilla):
+    field: str
+    value: int
+
+
+class NTuple(typing.NamedTuple):
+    field: str
+    value: int
+
+
+class TDict(typing.TypedDict):
+    field: str
+    value: int
+
+
+@pytest.mark.suite(
+    dataclass=dict(
+        given_cls=Data,
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}, var="value"),
+            str: routines.StringUnmarshaller(str, {}, var="field"),
+        },
+        expected_output=Data(field="data", value=1),
+    ),
+    vanilla=dict(
+        given_cls=Vanilla,
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}, var="value"),
+            str: routines.StringUnmarshaller(str, {}, var="field"),
+        },
+        expected_output=Vanilla(field="data", value=1),
+    ),
+    vanilla_with_hints=dict(
+        given_cls=VanillaWithHints,
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}, var="value"),
+            str: routines.StringUnmarshaller(str, {}, var="field"),
+        },
+        expected_output=VanillaWithHints(field="data", value=1),
+    ),
+    named_tuple=dict(
+        given_cls=NTuple,
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}, var="value"),
+            str: routines.StringUnmarshaller(str, {}, var="field"),
+        },
+        expected_output=NTuple(field="data", value=1),
+    ),
+    typed_dict=dict(
+        given_cls=TDict,
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}, var="value"),
+            str: routines.StringUnmarshaller(str, {}, var="field"),
+        },
+        expected_output=TDict(field="data", value=1),
+    ),
+)
+@pytest.mark.suite(
+    bytes_literal=dict(
+        given_input=b"{'field': 'data', 'value': b'1'}",
+    ),
+    string_literal=dict(
+        given_input="{'field': 'data', 'value': b'1'}",
+    ),
+    json=dict(
+        given_input='{"field": "data", "value": "1"}',
+    ),
+    dataclass=dict(
+        given_input=Data(field="data", value=1),
+    ),
+    vanilla=dict(
+        given_input=Vanilla(field="data", value=1),
+    ),
+    vanilla_with_hints=dict(
+        given_input=VanillaWithHints(field="data", value=1),
+    ),
+    named_tuple=dict(
+        given_input=NTuple(field="data", value=1),
+    ),
+    typed_dict=dict(
+        given_input=TDict(field="data", value=1),
+    ),
+)
+def test_structured_type_unmarshaller(
+    given_input, given_cls, given_context, expected_output
+):
+    # Given
+    given_unmarshaller = routines.StructuredTypeUnmarshaller(given_cls, given_context)
+    # When
+    output = given_unmarshaller(given_input)
+    # Then
+    assert output == expected_output
+
+
+def test_invalid_literal():
+    # Given
+    given_unmarshaller = routines.LiteralUnmarshaller(typing.Literal[1], {})
+    given_value = 2
+    expected_exception = ValueError
+    # When/Then
+    with pytest.raises(expected_exception):
+        given_unmarshaller(given_value)
+
+
+def test_invalid_union():
+    # Given
+    given_unmarshaller = routines.UnionUnmarshaller(
+        typing.Union[int, float],
+        {
+            int: routines.NumberUnmarshaller(int, {}),
+            float: routines.NumberUnmarshaller(float, {}),
+        },
+    )
+    given_value = "value"
+    expected_exception = ValueError
+    # When/Then
+    with pytest.raises(expected_exception):
+        given_unmarshaller(given_value)
