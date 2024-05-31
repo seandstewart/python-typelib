@@ -165,7 +165,9 @@ def iteritems(val: t.Any) -> t.Iterable[tuple[t.Any, t.Any]]:
 
 
 def _is_iterable_of_pairs(val: t.Any) -> bool:
-    if not inspection.isiterabletype(val.__class__):
+    if not inspection.isiterabletype(val.__class__) or inspection.ismappingtype(
+        val.__class__
+    ):
         return False
     peek = peekable(val).peek()
     return inspection.iscollectiontype(peek.__class__) and len(peek) == 2

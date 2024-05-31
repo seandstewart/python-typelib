@@ -13,11 +13,11 @@ def unmarshaller(typ: type[T]) -> routines.AbstractUnmarshaller[T]:
     nodes = graph.static_order(typ)
     context: dict[type, routines.AbstractUnmarshaller] = {}
     if not nodes:
-        return NoOpUnmarshaller(t=typ, context=context)
+        return NoOpUnmarshaller(t=typ, context=context, var=None)
 
     root = typ
     for node in nodes:
-        context[node.type] = _get_unmarshaller(node.type, context=context)
+        context[node.type] = _get_unmarshaller(node, context=context)
         # root will be the last seen node
         root = node.type
 
@@ -25,21 +25,23 @@ def unmarshaller(typ: type[T]) -> routines.AbstractUnmarshaller[T]:
 
 
 def _get_unmarshaller(  # type: ignore[return]
-    typ: type[T], context: dict[type, routines.AbstractUnmarshaller[T]]
+    node: graph.TypeNode, context: dict[type, routines.AbstractUnmarshaller[T]]
 ) -> routines.AbstractUnmarshaller[T]:
-    if typ in context:
-        return context[typ]
+    if node.type in context:
+        return context[node.type]
 
     for check, unmarshaller_cls in _HANDLERS.items():
-        if check(typ):
-            return unmarshaller_cls(typ, context=context)
+        if check(node.type):
+            return unmarshaller_cls(node.type, context=context, var=node.var)
 
-    return routines.StructuredTypeUnmarshaller(typ, context=context)
+    return routines.StructuredTypeUnmarshaller(node.type, context=context, var=node.var)
 
 
 class DelayedUnmarshaller(routines.AbstractUnmarshaller[T]):
-    def __init__(self, t: type[T], context: routines.ContextT):
-        super().__init__(t, context)
+    def __init__(
+        self, t: type[T], context: routines.ContextT, *, var: str | None = None
+    ):
+        super().__init__(t, context, var=var)
         self._resolved: routines.AbstractUnmarshaller[T] | None = None
 
     @property
@@ -50,6 +52,7 @@ class DelayedUnmarshaller(routines.AbstractUnmarshaller[T]):
                 self,  # type: ignore[arg-type]
                 self._resolved.t,  # type: ignore[arg-type]
                 self._resolved.context,  # type: ignore[arg-type]
+                var=self.var,
             )
         return self._resolved
 

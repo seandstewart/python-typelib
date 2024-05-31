@@ -49,7 +49,7 @@ class AbstractUnmarshaller(abc.ABC, tp.Generic[T]):
 
     __slots__ = ("t", "origin", "context", "var")
 
-    def __init__(self, t: type[T], context: ContextT, *, var: str | None = None):
+    def __init__(self, t: type[T], context: ContextT, *, var: str | None):
         self.t = t
         self.origin = inspection.origin(self.t)
         self.context = context
@@ -284,8 +284,8 @@ class PatternUnmarshaller(AbstractUnmarshaller[PatternT], tp.Generic[PatternT]):
 class CastUnmarshaller(AbstractUnmarshaller[T]):
     __slots__ = ("caster",)
 
-    def __init__(self, t: type[T], context: ContextT):
-        super().__init__(t, context)
+    def __init__(self, t: type[T], context: ContextT, *, var: str | None):
+        super().__init__(t, context, var=var)
         self.caster: tp.Callable[[tp.Any], T] = self.origin  # type: ignore[assignment]
 
     def __call__(self, val: tp.Any) -> T:
@@ -311,8 +311,8 @@ LiteralT = tp.TypeVar("LiteralT")
 class LiteralUnmarshaller(AbstractUnmarshaller[LiteralT], tp.Generic[LiteralT]):
     __slots__ = ("values",)
 
-    def __init__(self, t: type[LiteralT], context: ContextT):
-        super().__init__(t, context)
+    def __init__(self, t: type[LiteralT], context: ContextT, *, var: str | None):
+        super().__init__(t, context, var=var)
         self.values = inspection.get_args(t)
 
     def __call__(self, val: tp.Any) -> LiteralT:
@@ -333,8 +333,8 @@ UnionT = tp.TypeVar("UnionT")
 class UnionUnmarshaller(AbstractUnmarshaller[UnionT], tp.Generic[UnionT]):
     __slots__ = ("stack", "ordered_routines")
 
-    def __init__(self, t: type[UnionT], context: ContextT):
-        super().__init__(t, context)
+    def __init__(self, t: type[UnionT], context: ContextT, *, var: str | None):
+        super().__init__(t, context, var=var)
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[typ] for typ in self.stack]
 
@@ -362,8 +362,8 @@ class SubscriptedMappingUnmarshaller(
         "values",
     )
 
-    def __init__(self, t: type[MappingT], context: ContextT):
-        super().__init__(t=t, context=context)
+    def __init__(self, t: type[MappingT], context: ContextT, *, var: str | None):
+        super().__init__(t, context, var=var)
         key_t, value_t = inspection.get_args(t)
         self.keys = context[key_t]
         self.values = context[value_t]
@@ -386,8 +386,8 @@ class SubscriptedIterableUnmarshaller(
 ):
     __slots__ = ("values",)
 
-    def __init__(self, t: type[IterableT], context: ContextT):
-        super().__init__(t=t, context=context)
+    def __init__(self, t: type[IterableT], context: ContextT, *, var: str | None):
+        super().__init__(t=t, context=context, var=var)
         (value_t,) = inspection.get_args(t)
         self.values = context[value_t]
 
@@ -406,8 +406,8 @@ class SubscriptedIteratorUnmarshaller(
 ):
     __slots__ = ("values",)
 
-    def __init__(self, t: type[IteratorT], context: ContextT):
-        super().__init__(t=t, context=context)
+    def __init__(self, t: type[IteratorT], context: ContextT, *, var: str | None):
+        super().__init__(t, context, var=var)
         (value_t,) = inspection.get_args(t)
         self.values = context[value_t]
 
@@ -425,8 +425,8 @@ _TVT = tp.TypeVarTuple("_TVT")
 class FixedTupleUnmarshaller(AbstractUnmarshaller[tuple[*_TVT]]):
     __slots__ = ("ordered_routines", "stack")
 
-    def __init__(self, t: type[tuple[*_TVT]], context: ContextT):
-        super().__init__(t, context)
+    def __init__(self, t: type[tuple[*_TVT]], context: ContextT, *, var: str | None):
+        super().__init__(t, context, var=var)
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
@@ -446,8 +446,8 @@ _ST = tp.TypeVar("_ST")
 class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
     __slots__ = ("fields_by_var",)
 
-    def __init__(self, t: type[_ST], context: ContextT):
-        super().__init__(t, context)
+    def __init__(self, t: type[_ST], context: ContextT, *, var: str | None):
+        super().__init__(t, context, var=var)
         self.fields_by_var = {m.var: m for m in self.context.values()}
 
     def __call__(self, val: tp.Any) -> _ST:
