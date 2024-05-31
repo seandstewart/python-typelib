@@ -12,7 +12,7 @@ __all__ = ("static_order", "itertypes", "get_type_graph")
 
 
 @compat.cache
-def static_order(t: type | str | refs.ForwardRef) -> typing.Iterable[TypeNode]:
+def static_order(t: type | str | refs.ForwardRef) -> typing.Sequence[TypeNode]:
     """Get an ordered iterable of types which resolve into the root type provided.
 
     Args:

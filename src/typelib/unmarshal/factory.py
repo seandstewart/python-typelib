@@ -15,11 +15,10 @@ def unmarshaller(typ: type[T]) -> routines.AbstractUnmarshaller[T]:
     if not nodes:
         return NoOpUnmarshaller(t=typ, context=context, var=None)
 
-    root = typ
+    # "root" type will always be the final node in the sequence.
+    root = nodes[-1].type
     for node in nodes:
         context[node.type] = _get_unmarshaller(node, context=context)
-        # root will be the last seen node
-        root = node.type
 
     return context[root]
 
