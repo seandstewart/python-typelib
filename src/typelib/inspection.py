@@ -565,7 +565,8 @@ _OT = TypeVar("_OT")
 
 @compat.cache
 def isuniontype(obj: type) -> compat.TypeIs[Union]:
-    return get_name(origin(obj)) in ("Union", "Uniontype")
+    name = get_name(origin(obj))
+    return name in ("Union", "UnionType")
 
 
 @compat.cache

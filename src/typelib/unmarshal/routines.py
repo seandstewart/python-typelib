@@ -454,7 +454,7 @@ class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
 
     def __init__(self, t: type[_ST], context: ContextT, *, var: str | None = None):
         super().__init__(t, context, var=var)
-        self.fields_by_var = {m.var: m for m in self.context.values()}
+        self.fields_by_var = {m.var: m for m in self.context.values() if m.var}
 
     def __call__(self, val: tp.Any) -> _ST:
         decoded = interchange.load(val)

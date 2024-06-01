@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing as tp
 
-from typelib import compat, graph, inspection, refs
+from typelib import compat, ctx, graph, inspection, refs
 from typelib.unmarshal import routines
 
 T = tp.TypeVar("T")
@@ -33,7 +33,7 @@ def unmarshaller(
              May be a type, a :py:class:`typing.ForwardRef`, or string reference.
     """
     nodes = graph.static_order(typ)
-    context: dict[type, routines.AbstractUnmarshaller] = {}
+    context: dict[type, routines.AbstractUnmarshaller] = ctx.TypeContext()
     if not nodes:
         return NoOpUnmarshaller(t=typ, context=context, var=None)  # type: ignore[arg-type]
 
@@ -69,16 +69,13 @@ class DelayedUnmarshaller(routines.AbstractUnmarshaller[T]):
     def resolved(self) -> routines.AbstractUnmarshaller[T]:
         if self._resolved is None:
             self._resolved = unmarshaller(self.t)
-            self._resolved.__class__.__init__(
-                self,  # type: ignore[arg-type]
-                self._resolved.t,  # type: ignore[arg-type]
-                self._resolved.context,  # type: ignore[arg-type]
-                var=self.var,
-            )
+            for attr in self._resolved.__slots__:
+                setattr(self, attr, getattr(self._resolved, attr))
         return self._resolved
 
     def __call__(self, val: tp.Any) -> T:
-        return self.resolved(val)
+        unmarshalled = self.resolved(val)
+        return unmarshalled
 
 
 class NoOpUnmarshaller(routines.AbstractUnmarshaller[T]):
