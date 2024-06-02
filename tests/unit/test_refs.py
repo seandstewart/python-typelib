@@ -37,7 +37,7 @@ class RefClass: ...
     module_in_name=dict(
         given_ref_name="builtins.str",
         given_module_name=None,
-        expected_ref=refs.ForwardRef("builtins.str", module="builtins"),
+        expected_ref=refs.ForwardRef("str", module="builtins"),
     ),
     module_from_frame=dict(
         given_ref_name="RefClass",

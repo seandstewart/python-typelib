@@ -90,6 +90,7 @@ _HANDLERS: tp.Mapping[
     # Short-circuit forward refs
     inspection.isforwardref: DelayedUnmarshaller,
     inspection.isunresolvable: NoOpUnmarshaller,
+    inspection.isnonetype: routines.NoneTypeUnmarshaller,
     # Special handler for Literals
     inspection.isliteral: routines.LiteralUnmarshaller,
     # Special handler for Unions...
@@ -104,6 +105,7 @@ _HANDLERS: tp.Mapping[
     inspection.ispathtype: routines.PathUnmarshaller,
     inspection.isdecimaltype: routines.DecimalUnmarshaller,
     inspection.isfractiontype: routines.FractionUnmarshaller,
+    inspection.isnumbertype: routines.NumberUnmarshaller,
     inspection.isstringtype: routines.StringUnmarshaller,
     inspection.isbytestype: routines.BytesUnmarshaller,
     # Psuedo-structured containers, should check before generics.

@@ -64,6 +64,10 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
     visited = {root.type}
     while stack:
         parent = stack.popleft()
+        if inspection.isliteral(parent.type):
+            graph.add(parent)
+            continue
+
         predecessors = []
         for var, child in _level(parent.type):
             # If no type was provided, there's no reason to do further processing.
@@ -81,9 +85,12 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
             #   wrap in a ForwardRef and don't add it to the stack
             #   This will terminate this edge to prevent infinite cycles.
             if is_visited and can_be_cyclic:
-                refname = inspection.get_qualname(child)
+                qualname = inspection.get_qualname(child)
+                *rest, refname = qualname.rsplit(".", maxsplit=1)
                 is_argument = var is not None
                 module = getattr(child, "__module__", None)
+                if module in (None, "__main__") and rest:
+                    module = rest[0]
                 is_class = inspect.isclass(child)
                 ref = refs.forwardref(
                     refname, is_argument=is_argument, module=module, is_class=is_class

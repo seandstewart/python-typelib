@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import dataclasses
 import datetime
 import decimal
 import fractions
@@ -11,6 +10,8 @@ import uuid
 
 import pytest
 from typelib.unmarshal import routines
+
+from tests import models
 
 
 @pytest.mark.suite(
@@ -705,78 +706,46 @@ def test_fixed_tuple_unmarshaller(
     assert output == expected_output
 
 
-@dataclasses.dataclass
-class Data:
-    field: str
-    value: int
-
-
-class Vanilla:
-    def __init__(self, field: str, value: int):
-        self.field = field
-        self.value = value
-
-    def __eq__(self, other):
-        return self.field == getattr(other, "field", ...) and self.value == getattr(
-            other, "value", ...
-        )
-
-
-class VanillaWithHints(Vanilla):
-    field: str
-    value: int
-
-
-class NTuple(typing.NamedTuple):
-    field: str
-    value: int
-
-
-class TDict(typing.TypedDict):
-    field: str
-    value: int
-
-
 @pytest.mark.suite(
     dataclass=dict(
-        given_cls=Data,
+        given_cls=models.Data,
         given_context={
             int: routines.NumberUnmarshaller(int, {}, var="value"),
             str: routines.StringUnmarshaller(str, {}, var="field"),
         },
-        expected_output=Data(field="data", value=1),
+        expected_output=models.Data(field="data", value=1),
     ),
     vanilla=dict(
-        given_cls=Vanilla,
+        given_cls=models.Vanilla,
         given_context={
             int: routines.NumberUnmarshaller(int, {}, var="value"),
             str: routines.StringUnmarshaller(str, {}, var="field"),
         },
-        expected_output=Vanilla(field="data", value=1),
+        expected_output=models.Vanilla(field="data", value=1),
     ),
     vanilla_with_hints=dict(
-        given_cls=VanillaWithHints,
+        given_cls=models.VanillaWithHints,
         given_context={
             int: routines.NumberUnmarshaller(int, {}, var="value"),
             str: routines.StringUnmarshaller(str, {}, var="field"),
         },
-        expected_output=VanillaWithHints(field="data", value=1),
+        expected_output=models.VanillaWithHints(field="data", value=1),
     ),
     named_tuple=dict(
-        given_cls=NTuple,
+        given_cls=models.NTuple,
         given_context={
             int: routines.NumberUnmarshaller(int, {}, var="value"),
             str: routines.StringUnmarshaller(str, {}, var="field"),
         },
-        expected_output=NTuple(field="data", value=1),
+        expected_output=models.NTuple(field="data", value=1),
     ),
     typed_dict=dict(
-        given_cls=TDict,
+        given_cls=models.TDict,
         given_context={
             int: routines.NumberUnmarshaller(int, {}, var="value"),
             str: routines.StringUnmarshaller(str, {}, var="field"),
         },
-        expected_output=TDict(field="data", value=1),
+        expected_output=models.TDict(field="data", value=1),
     ),
 )
 @pytest.mark.suite(
@@ -790,19 +759,19 @@ class TDict(typing.TypedDict):
         given_input='{"field": "data", "value": "1"}',
     ),
     dataclass=dict(
-        given_input=Data(field="data", value=1),
+        given_input=models.Data(field="data", value=1),
     ),
     vanilla=dict(
-        given_input=Vanilla(field="data", value=1),
+        given_input=models.Vanilla(field="data", value=1),
     ),
     vanilla_with_hints=dict(
-        given_input=VanillaWithHints(field="data", value=1),
+        given_input=models.VanillaWithHints(field="data", value=1),
     ),
     named_tuple=dict(
-        given_input=NTuple(field="data", value=1),
+        given_input=models.NTuple(field="data", value=1),
     ),
     typed_dict=dict(
-        given_input=TDict(field="data", value=1),
+        given_input=models.TDict(field="data", value=1),
     ),
 )
 def test_structured_type_unmarshaller(

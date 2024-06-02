@@ -20,6 +20,8 @@ def forwardref(
     is_class: bool = True,
 ) -> ForwardRef:
     module = _resolve_module_name(ref, module)
+    if module is not None:
+        ref = ref.rsplit(".", maxsplit=1)[-1]
     return ForwardRef(
         ref,
         is_argument=is_argument,

@@ -1,2 +1,2 @@
-from typelib.unmarshal.factory import *
+from typelib.unmarshal.api import *
 from typelib.unmarshal.routines import *

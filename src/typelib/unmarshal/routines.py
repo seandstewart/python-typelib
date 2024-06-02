@@ -8,6 +8,7 @@ import fractions
 import numbers
 import pathlib
 import re
+import types
 import typing as tp
 import uuid
 
@@ -62,6 +63,13 @@ class AbstractUnmarshaller(abc.ABC, tp.Generic[T]):
     def __call__(self, val: tp.Any) -> T: ...
 
 
+class NoneTypeUnmarshaller(AbstractUnmarshaller[None]):
+    def __call__(self, val: tp.Any) -> None:
+        if val is not None:
+            raise ValueError(f"{val!r} is not of {types.NoneType!r}")
+        return None
+
+
 ContextT: tp.TypeAlias = tp.Mapping[type, AbstractUnmarshaller]
 BytesT = tp.TypeVar("BytesT", bound=bytes)
 
@@ -109,7 +117,9 @@ class NumberUnmarshaller(AbstractUnmarshaller[NumberT], tp.Generic[NumberT]):
         # Treat containers as constructor args.
         if inspection.ismappingtype(decoded.__class__):
             return self.t(**decoded)
-        if inspection.iscollectiontype(decoded.__class__):
+        if inspection.iscollectiontype(decoded.__class__) and not inspection.istexttype(
+            decoded.__class__
+        ):
             return self.t(*decoded)
         # Simple cast for non-containers.
         return self.t(decoded)  # type: ignore[call-arg]

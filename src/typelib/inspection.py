@@ -1216,7 +1216,7 @@ def isbytestype(t: type[Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
         >>> istexttype(MyStr)
         True
     """
-    return issubclass(t, (bytes, bytearray))
+    return issubclass(t, (bytes, bytearray, memoryview))
 
 
 @compat.cache
@@ -1357,10 +1357,9 @@ def isunresolvable(t: Any) -> bool:
 
 
 _UNRESOLVABLE = (
+    object,
     Any,
     re.Match,
-    type(None),
-    None,
     constants.empty,
     Callable,
     abc_Callable,
@@ -1368,6 +1367,11 @@ _UNRESOLVABLE = (
     type(Ellipsis),
     Ellipsis,
 )
+
+
+@compat.cache
+def isnonetype(t: Any) -> compat.TypeIs[None]:
+    return t in (None, types.NoneType)
 
 
 @compat.cache
