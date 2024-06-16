@@ -137,3 +137,18 @@ def test_unmarshal(given_type, given_input, expected_output):
     output = api.unmarshal(given_type, given_input)
     # Then
     assert output == expected_output
+
+
+@pytest.mark.skipif(
+    "sys.version_info < (3, 12)",
+    reason="TypeAliasType is only available from Python 3.12",
+)
+def test_type_alias_type_unmarshal():
+    # Given
+    type IntList = list[int]
+    given_input = '["1", "2"]'
+    expected_output = [1, 2]
+    # When
+    output = api.unmarshal(IntList, given_input)
+    # Then
+    assert output == expected_output

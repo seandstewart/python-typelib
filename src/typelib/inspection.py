@@ -1188,7 +1188,7 @@ def istexttype(t: type[Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
         >>> istexttype(MyStr)
         True
     """
-    return issubclass(t, (str, bytes, bytearray, memoryview))
+    return _safe_issubclass(t, (str, bytes, bytearray, memoryview))
 
 
 @compat.cache
@@ -1202,7 +1202,7 @@ def isstringtype(t: type[Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
         >>> istexttype(MyStr)
         True
     """
-    return issubclass(t, str)
+    return _safe_issubclass(t, str)
 
 
 @compat.cache
@@ -1216,7 +1216,7 @@ def isbytestype(t: type[Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
         >>> istexttype(MyStr)
         True
     """
-    return issubclass(t, (bytes, bytearray, memoryview))
+    return _safe_issubclass(t, (bytes, bytearray, memoryview))
 
 
 @compat.cache
@@ -1233,7 +1233,7 @@ def isnumbertype(t: type[Any]) -> compat.TypeIs[type[numbers.Number]]:
         >>> isnumbertype(decimal.Decimal)
         True
     """
-    return issubclass(t, numbers.Number)
+    return _safe_issubclass(t, numbers.Number)
 
 
 @compat.cache
@@ -1382,6 +1382,11 @@ def ispatterntype(t: Any) -> compat.TypeIs[re.Pattern]:
 @compat.cache
 def ispathtype(t: Any) -> compat.TypeIs[pathlib.Path]:
     return issubclass(t, pathlib.PurePath)
+
+
+@compat.cache
+def istypealiastype(t: Any) -> compat.TypeIs[compat.TypeAliasType]:
+    return isinstance(t, compat.TypeAliasType)
 
 
 def _safe_issubclass(__cls: type, __class_or_tuple: type | tuple[type, ...]) -> bool:

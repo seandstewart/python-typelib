@@ -12,17 +12,21 @@ __all__ = ("static_order", "itertypes", "get_type_graph")
 
 
 @compat.cache
-def static_order(t: type | str | refs.ForwardRef) -> typing.Sequence[TypeNode]:
+def static_order(
+    t: type | str | refs.ForwardRef | compat.TypeAliasType,
+) -> typing.Sequence[TypeNode]:
     """Get an ordered iterable of types which resolve into the root type provided.
 
     Args:
         t: The type to extract an ordered stack from.
     """
+    # We want to leverage the cache if possible, hence the recursive call.
+    #   Shouldn't actually recurse more than once or twice.
+    if inspection.istypealiastype(t):
+        return static_order(t.__value__)
     if isinstance(t, (str, refs.ForwardRef)):
         ref = refs.forwardref(t) if isinstance(t, str) else t
         t = refs.evaluate(ref)
-        # We want to leverage the cache if possible, hence the recursive call.
-        #   Shouldn't actually recurse more than once.
         return static_order(t)
 
     return [*itertypes(t)]

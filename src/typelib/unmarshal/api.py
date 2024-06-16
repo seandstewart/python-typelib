@@ -24,7 +24,7 @@ def unmarshal(typ: type[T] | refs.ForwardRef | str, value: tp.Any) -> T:
 
 @compat.cache
 def unmarshaller(
-    typ: type[T] | refs.ForwardRef | str,
+    typ: type[T] | refs.ForwardRef | compat.TypeAliasType | str,
 ) -> routines.AbstractUnmarshaller[T]:
     """Get an un-marshaller routine for a given type.
 

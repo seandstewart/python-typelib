@@ -97,6 +97,13 @@ def unixtime(t: datetime.date | datetime.time) -> float:
             second=t.second,
             microsecond=t.microsecond,
         )
+    if isinstance(t, datetime.date):
+        t = datetime.datetime(
+            year=t.year,
+            month=t.month,
+            day=t.day,
+            tzinfo=datetime.timezone.utc,
+        )
 
     return time.mktime(t.timetuple())
 

@@ -9,6 +9,7 @@ __all__ = (
     "Final",
     "ParamSpec",
     "Self",
+    "TypeAliasType",
     "TypeGuard",
     "TypeIs",
     "TypeVarTuple",
@@ -32,6 +33,7 @@ if TYPE_CHECKING:
         ParamSpec,
         Self,
         Final,
+        TypeAliasType,
         TypeVarTuple,
         TypeGuard,
     )
@@ -60,6 +62,11 @@ else:
 
     else:
         from typing_extensions import TypeIs
+
+    if sys.version_info >= (3, 12):
+        from typing import TypeAliasType
+    else:
+        from typing_extensions import TypeAliasType
 
     if sys.version_info >= (3, 11):
         from typing import ParamSpec, Self, Final, TypeVarTuple
