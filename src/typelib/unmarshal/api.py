@@ -11,7 +11,6 @@ __all__ = (
     "unmarshal",
     "unmarshaller",
     "DelayedUnmarshaller",
-    "NoOpUnmarshaller",
 )
 
 
@@ -35,7 +34,7 @@ def unmarshaller(
     nodes = graph.static_order(typ)
     context: dict[type, routines.AbstractUnmarshaller] = ctx.TypeContext()
     if not nodes:
-        return NoOpUnmarshaller(t=typ, context=context, var=None)  # type: ignore[arg-type]
+        return routines.NoOpUnmarshaller(t=typ, context=context, var=None)  # type: ignore[arg-type]
 
     # "root" type will always be the final node in the sequence.
     root = nodes[-1].type
@@ -78,18 +77,13 @@ class DelayedUnmarshaller(routines.AbstractUnmarshaller[T]):
         return unmarshalled
 
 
-class NoOpUnmarshaller(routines.AbstractUnmarshaller[T]):
-    def __call__(self, val: tp.Any) -> T:
-        return tp.cast(T, val)
-
-
 # Order is IMPORTANT! This is a FIFO queue.
 _HANDLERS: tp.Mapping[
     tp.Callable[[type[T]], bool], type[routines.AbstractUnmarshaller]
 ] = {
     # Short-circuit forward refs
     inspection.isforwardref: DelayedUnmarshaller,
-    inspection.isunresolvable: NoOpUnmarshaller,
+    inspection.isunresolvable: routines.NoOpUnmarshaller,
     inspection.isnonetype: routines.NoneTypeUnmarshaller,
     # Special handler for Literals
     inspection.isliteral: routines.LiteralUnmarshaller,
@@ -125,7 +119,7 @@ _HANDLERS: tp.Mapping[
     # A mapping is a collection so must come before that check.
     inspection.ismappingtype: routines.MappingUnmarshaller,
     # Generic iterator handler
-    inspection.isiteratortype: NoOpUnmarshaller[tp.Iterator],
+    inspection.isiteratortype: routines.NoOpUnmarshaller,
     # Generic Iterable handler
     inspection.isiterabletype: routines.IterableUnmarshaller,
 }

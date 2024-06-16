@@ -1237,6 +1237,40 @@ def isnumbertype(t: type[Any]) -> compat.TypeIs[type[numbers.Number]]:
 
 
 @compat.cache
+def isintegertype(t: type[Any]) -> compat.TypeIs[type[int]]:
+    """Test whether `t` is a subclass of the :py:class:`numbers.Number` protocol.
+
+    Examples:
+        >>> import decimal
+
+        >>> isnumbertype(int)
+        True
+        >>> isnumbertype(float)
+        False
+        >>> isnumbertype(decimal.Decimal)
+        False
+    """
+    return _safe_issubclass(t, int)
+
+
+@compat.cache
+def isfloattype(t: type[Any]) -> compat.TypeIs[type[float]]:
+    """Test whether `t` is a subclass of the :py:class:`numbers.Number` protocol.
+
+    Examples:
+        >>> import decimal
+
+        >>> isnumbertype(int)
+        False
+        >>> isnumbertype(float)
+        True
+        >>> isnumbertype(decimal.Decimal)
+        False
+    """
+    return _safe_issubclass(t, float)
+
+
+@compat.cache
 def isstructuredtype(t: type[Any]) -> bool:
     """Test whether the given type has a fixed set of fields.
 

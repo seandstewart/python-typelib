@@ -74,10 +74,26 @@ def isoformat(t: datetime.date | datetime.time | datetime.timedelta) -> str:
             microseconds=t.microseconds,
         )
     )
-    period = (
-        f"P{d.years}Y{d.months}M{d.remaining_days}D"
-        f"T{d.hours}H{d.minutes}M{d.remaining_seconds}.{d.microseconds:06}S"
+    datepart = "".join(
+        f"{p}{s}"
+        for p, s in ((d.years, "Y"), (d.months, "M"), (d.remaining_days, "D"))
+        if p
     )
+    timepart = "".join(
+        f"{p}{s}"
+        for p, s in (
+            (d.hours, "H"),
+            (d.minutes, "M"),
+            (
+                f"{d.remaining_seconds}.{d.microseconds:06}"
+                if d.microseconds
+                else d.remaining_seconds,
+                "S",
+            ),
+        )
+        if p
+    )
+    period = f"P{datepart}T{timepart}"
     return period
 
 
@@ -231,7 +247,7 @@ def _make_fields_iterator(
         return _iterfields
 
     def _itervars(val: t.Any) -> t.Iterator[tuple[str, t.Any]]:
-        return ((k, v) for k, v in val.__dict__.items() if not k.startswith("_"))
+        return ((k, v) for k, v in vars(val).items() if not k.startswith("_"))
 
     return _itervars
 
@@ -269,6 +285,9 @@ PythonValueT: t.TypeAlias = (
     "list[PythonValueT] | "
     "tuple[PythonValueT, ...] | "
     "set[PythonValueT]"
+)
+MarshalledValueT: t.TypeAlias = (
+    "PythonPrimitiveT |" "dict[PythonPrimitiveT, PythonValueT] | " "list[PythonValueT]"
 )
 
 

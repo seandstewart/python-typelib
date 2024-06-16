@@ -19,6 +19,8 @@ T = tp.TypeVar("T")
 __all__ = (
     "AbstractUnmarshaller",
     "ContextT",
+    "NoOpUnmarshaller",
+    "NoneTypeUnmarshaller",
     "BytesUnmarshaller",
     "StringUnmarshaller",
     "NumberUnmarshaller",
@@ -61,6 +63,11 @@ class AbstractUnmarshaller(abc.ABC, tp.Generic[T]):
 
     @abc.abstractmethod
     def __call__(self, val: tp.Any) -> T: ...
+
+
+class NoOpUnmarshaller(AbstractUnmarshaller[T]):
+    def __call__(self, val: tp.Any) -> T:
+        return tp.cast(T, val)
 
 
 class NoneTypeUnmarshaller(AbstractUnmarshaller[None]):
