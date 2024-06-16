@@ -44,14 +44,7 @@ pytest-parametrize-suite = "^23.1.1"
 
 
 [tool.poetry.group.lint.dependencies]
-mypy = "^1"
-ruff = "^0.4"
-# mypy needs these....
-types-python-dateutil = "*"
-types-setuptools = "*"
-types-toml = "*"
-types-typed-ast = "*"
-types-ujson = "*"
+pre-commit = "^3.7"
 
 [tool.poetry.group.docs.dependencies]
 
@@ -66,7 +59,7 @@ include = [
     "src/**/*",
 ]
 
-[tool.coveragae.paths]
+[tool.coverage.paths]
 source = [
     "src/*",
 ]

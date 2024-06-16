@@ -14,7 +14,7 @@ endif
 
 # region: environment
 
-bootstrap: setup-poetry update install .git/hooks/pre-commit  ## Bootstrap your local environment for development.
+bootstrap: setup-poetry update install  ## Bootstrap your local environment for development.
 .PHONY: bootstrap
 
 setup-poetry:  ## Set up your poetry installation and ensure it's up-to-date.
@@ -23,29 +23,34 @@ setup-poetry:  ## Set up your poetry installation and ensure it's up-to-date.
 
 install:  ## Install or re-install your app's dependencies.
 	@poetry install
+	@$(RUN_PREFIX) pre-commit install && $(RUN_PREFIX) pre-commit install-hooks
 .PHONY: install
-
-.git/hooks/pre-commit: .pre-commit  ## Install or re-install any commit hooks.
-	@cp .pre-commit .git/hooks/pre-commit
 
 update:  ## Update app dependencies
 	@poetry update
+	@$(RUN_PREFIX) pre-commit autoupdate
 .PHONY: update
 
 # endregion
 # region: dev
 
+target ?= .
+files ?= --all-files
+ifneq ($(target), .)
+	files := --files=$(target)
+endif
+
 format:  ## Manually run code-formatters for the app.
-	$(RUN_PREFIX) ruff format $(target) --config=pyproject.toml
-	$(RUN_PREFIX) ruff check $(target) --fix --config=pyproject.toml
+	@$(RUN_PREFIX) pre-commit run ruff-format $(files)
+	@$(RUN_PREFIX) pre-commit run ruff $(files)
 .PHONY: format
 
 # endregion
 # region: ci
 
 lint:  ## Run this app's linters. Target a specific file or directory with `target=path/...`.
-	$(RUN_PREFIX) ruff check $(target) --config=pyproject.toml
-	$(RUN_PREFIX) mypy $(target) --config-file=pyproject.toml
+	@$(RUN_PREFIX) pre-commit run ruff $(files)
+	@$(RUN_PREFIX) pre-commit run mypy $(files)
 .PHONY: lint
 
 test: ## Run this app's tests with a test db. Target a specific path `target=path/...`.
@@ -71,7 +76,6 @@ report-version:  ## Show the current version of this application.
 	@poetry version
 .PHONY: report-version
 
-target ?= .
 
 # endregion
 

@@ -1,0 +1,25 @@
+repos:
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  # Ruff version.
+  rev: v0.4.9
+  hooks:
+  # Run the linter.
+  - id: ruff
+    types_or: [ python, pyi ]
+    args: [ --fix, --config=pyproject.toml ]
+  # Run the formatter.
+  - id: ruff-format
+    types_or: [ python, pyi ]
+    args: [ --config=pyproject.toml ]
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.10.0
+  hooks:
+  - id: mypy
+    args: [ --config-file=pyproject.toml ]
+    additional_dependencies:
+    - types-python-dateutil
+    - types-setuptools
+    - types-toml
+    - types-typed-ast
+    - types-orjson
+    files: "src/.*"
