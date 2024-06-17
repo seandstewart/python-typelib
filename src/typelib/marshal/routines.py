@@ -172,7 +172,7 @@ MappingT = tp.TypeVar("MappingT", bound=tp.Mapping)
 
 
 class MappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[MappingT]):
-    def __call__(self, val: MappingT) -> MarshalledMappingT:  # type: ignore[override]
+    def __call__(self, val: MappingT) -> MarshalledMappingT:
         return {**val}
 
 
@@ -180,7 +180,7 @@ IterableT = tp.TypeVar("IterableT", bound=tp.Iterable)
 
 
 class IterableMarshaller(AbstractMarshaller[IterableT], tp.Generic[IterableT]):
-    def __call__(self, val: IterableT) -> MarshalledIterableT:  # type: ignore[override]
+    def __call__(self, val: IterableT) -> MarshalledIterableT:
         return [*val]
 
 
@@ -196,7 +196,7 @@ class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[Mapp
         self.keys = context[key_t]
         self.values = context[value_t]
 
-    def __call__(self, val: MappingT) -> MarshalledMappingT:  # type: ignore[override]
+    def __call__(self, val: MappingT) -> MarshalledMappingT:
         keys = self.keys
         values = self.values
         return {keys(k): values(v) for k, v in interchange.iteritems(val)}  # type: ignore[misc]
@@ -215,7 +215,7 @@ class SubscriptedIterableMarshaller(
         (value_t, *_) = inspection.get_args(t)
         self.values = context[value_t]
 
-    def __call__(self, val: IterableT) -> MarshalledIterableT:  # type: ignore[override]
+    def __call__(self, val: IterableT) -> MarshalledIterableT:
         # Always decode bytes.
         values = self.values
         return [values(v) for v in interchange.itervalues(val)]
@@ -234,7 +234,7 @@ class FixedTupleMarshaller(AbstractMarshaller[tuple[*_TVT]]):
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
-    def __call__(self, val: tuple[*_TVT]) -> MarshalledIterableT:  # type: ignore[override]
+    def __call__(self, val: tuple[*_TVT]) -> MarshalledIterableT:
         return [
             routine(v)
             for routine, v in zip(self.ordered_routines, interchange.itervalues(val))
@@ -251,7 +251,7 @@ class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
         super().__init__(t, context, var=var)
         self.fields_by_var = {m.var: m for m in self.context.values() if m.var}
 
-    def __call__(self, val: _ST) -> MarshalledMappingT:  # type: ignore[override]
+    def __call__(self, val: _ST) -> MarshalledMappingT:
         fields = self.fields_by_var
         return {f: fields[f](v) for f, v in interchange.iteritems(val) if f in fields}
 

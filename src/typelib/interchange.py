@@ -286,9 +286,7 @@ PythonValueT: t.TypeAlias = (
     "tuple[PythonValueT, ...] | "
     "set[PythonValueT]"
 )
-MarshalledValueT: t.TypeAlias = (
-    "PythonPrimitiveT |" "dict[PythonPrimitiveT, PythonValueT] | " "list[PythonValueT]"
-)
+MarshalledValueT: t.TypeAlias = "PythonPrimitiveT | dict[PythonPrimitiveT, MarshalledValueT] | list[MarshalledValueT]"
 
 
 _itemscaller = operator.methodcaller("items")
