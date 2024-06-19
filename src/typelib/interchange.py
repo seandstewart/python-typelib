@@ -278,7 +278,7 @@ def strload(val: str | bytes | bytearray | memoryview) -> PythonValueT:
     return decoded
 
 
-PythonPrimitiveT: t.TypeAlias = bool | int | float | str | None
+PythonPrimitiveT: t.TypeAlias = "bool | int | float | str | None"
 PythonValueT: t.TypeAlias = (
     "PythonPrimitiveT | "
     "dict[PythonPrimitiveT, PythonValueT] | "
