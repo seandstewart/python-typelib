@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
   ci:
     uses: ./.github/workflows/.validate-matrix.yml
-    name: "${{ matrix.os.name }} (Python ${{ matrix.python-version }})"
+    name: "${{ matrix.os }} (Python ${{ matrix.python-version }})"
     strategy:
       fail-fast: false
       matrix:
