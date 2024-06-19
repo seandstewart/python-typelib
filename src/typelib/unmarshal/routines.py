@@ -12,7 +12,7 @@ import types
 import typing as tp
 import uuid
 
-from typelib import inspection, interchange
+from typelib import compat, inspection, interchange
 
 T = tp.TypeVar("T")
 
@@ -440,20 +440,19 @@ class SubscriptedIteratorUnmarshaller(
         return it
 
 
-_TVT = tp.TypeVarTuple("_TVT")
+_TVT = compat.TypeVarTuple("_TVT")
+_TupleT: tp.TypeAlias = "tuple[*_TVT]"
 
 
-class FixedTupleUnmarshaller(AbstractUnmarshaller[tuple[*_TVT]]):
+class FixedTupleUnmarshaller(AbstractUnmarshaller[_TupleT]):
     __slots__ = ("ordered_routines", "stack")
 
-    def __init__(
-        self, t: type[tuple[*_TVT]], context: ContextT, *, var: str | None = None
-    ):
+    def __init__(self, t: type[_TupleT], context: ContextT, *, var: str | None = None):
         super().__init__(t, context, var=var)
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
-    def __call__(self, val: tp.Any) -> tuple[*_TVT]:
+    def __call__(self, val: tp.Any) -> _TupleT:
         decoded = interchange.load(val)
         return self.origin(
             routine(v)

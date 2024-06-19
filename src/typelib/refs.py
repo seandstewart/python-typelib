@@ -57,7 +57,7 @@ else:
                 return ref.__forward_value__
 
             recursive_guard = recursive_guard or set()
-            return ref._evaluate(globalns, localns, recursive_guard)
+            return ref._evaluate(globalns, localns, recursive_guard=recursive_guard)
 
     else:
 

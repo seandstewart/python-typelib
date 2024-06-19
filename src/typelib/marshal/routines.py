@@ -10,7 +10,7 @@ import re
 import typing as tp
 import uuid
 
-from typelib import inspection, interchange
+from typelib import compat, inspection, interchange
 
 T = tp.TypeVar("T")
 
@@ -221,7 +221,7 @@ class SubscriptedIterableMarshaller(
         return [values(v) for v in interchange.itervalues(val)]
 
 
-_TVT = tp.TypeVarTuple("_TVT")
+_TVT = compat.TypeVarTuple("_TVT")
 _TupleT: tp.TypeAlias = "tuple[*_TVT]"
 
 
