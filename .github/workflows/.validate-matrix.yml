@@ -1,0 +1,50 @@
+# Reusable workflow consumed by ci.yml; used to share a single matrix across jobs.
+on:
+  workflow_call:
+    inputs:
+      runner:
+        required: true
+        type: string
+      python-version:
+        required: true
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ${{ inputs.runner }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/bootstrap-environ
+      id: bootstrap-environ
+      with:
+        python-version: ${{ inputs.python-version }}
+        runner: ${{ inputs.runner }}
+    - run: make lint
+  test:
+    runs-on: ${{ inputs.runner }}
+    env:
+      OS: ${{ inputs.runner }}
+      PYTHON: ${{ inputs.python-version }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/bootstrap-environ
+      id: bootstrap-environ
+      with:
+        python-version: ${{ inputs.python-version }}
+        runner: ${{ inputs.runner }}
+    - name: pytest
+      run: make test
+    - name: coverage
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.xml
+        env_vars: OS,PYTHON
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false

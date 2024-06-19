@@ -59,23 +59,32 @@ test: ## Run this app's tests with a test db. Target a specific path `target=pat
 
 TEST_ARGS ?= --cov --cov-config=.coveragerc --cov-report=xml --cov-report=term --junit-xml=junit.xml
 
-bump-version:  ## Bump the version for this package.
-	@poetry version $(rule)
-.PHONY: bump-version
-
 rule ?= patch
 
-tag-version: bump-version  ## Bump and tag a new version for this package
+
+release-version:  ## Bump the version for this package.
+	@poetry version $(rule)
 	@$(eval version := $(shell poetry version -s))
 	@$(eval message := [skip ci] Release $(version))
-	@git add pyproject.toml && @git commit -m "$(message)"
-	@git tag v$(version) -m "$(message)"
-.PHONY: tag-version
+	@git add pyproject.toml
+	@git commit -m "$(message)"
+	@git tag -a v$(version) -m $(message)
+.PHONY: release-version
 
-report-version:  ## Show the current version of this application.
-	@poetry version
+
+report-version:  ## Show the current version of this library.
+	@poetry version -s
 .PHONY: report-version
 
+changelog:  ## Compile the latest changelog for the current branch.
+	@git changelog
+	@git add CHANGELOG.md
+	@git commit -m "[skip ci] Update changelog."
+.PHONY: changelog
+
+release-notes:  ## Compile release notes for VCS
+	@git changelog --release-notes
+.PHONY: release-notes
 
 # endregion
 

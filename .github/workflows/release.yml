@@ -1,0 +1,137 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      level:
+        description: "The level to bump the current version"
+        required: true
+        default: "patch"
+        options:
+          - "patch"
+          - "minor"
+          - "major"
+          - "prepatch"
+          - "preminor"
+          - "prerelease"
+
+jobs:
+  create-version:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        python-version: [ "3.9" ]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/bootstrap-environ
+      id: bootstrap-environ
+      with:
+        python-version: ${{ matrix.python-version }}
+        runner: ${{ matrix.os.image }}
+    # In order to make a commit, we need to initialize a user.
+    - name: Initialize mandatory git config
+      run: |
+        git config user.name "GitHub actions"
+        git config user.email noreply@github.com
+    - run: |
+        echo "PRIOR_VERSION=v$(make report-version)" >> $GITHUB_ENV
+        make release-version rule=${{ inputs.level }}
+        echo "RELEASE_VERSION=v$(make report-version)" >> $GITHUB_ENV
+    - name: Update the Changelog
+      run: make changelog
+    - name: Push the Version and Changelog
+      run: git push origin ${{ github.ref_name}}
+
+  build-wheels:
+    needs: [ release-version ]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
+        python-version: [ "3.9", "3.10", "3.11", "3.12" ]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/bootstrap-environ
+      id: bootstrap-environ
+      with:
+        python-version: ${{ matrix.python-version }}
+        runner: ${{ matrix.os.image }}
+    - uses: ./.github/workflows/.build-matrix.yml
+      with:
+        runner: ${{ matrix.os.image }}
+        python-version: ${{ matrix.python-version }}
+    - name: Store dist artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: typelib-dist
+        path: dist
+
+  build-sdist:
+    needs: [release-version]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        python-version: [ "3.9" ]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/bootstrap-environ
+      id: bootstrap-environ
+      with:
+        python-version: ${{ matrix.python-version }}
+        runner: ${{ matrix.os.image }}
+    - name: Build sdist
+      run: poetry build -f sdist
+    - name: Store dist artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: typelib-dist
+        path: dist
+
+  publish-pypi:
+    runs-on: ${{ matrix.os }}
+    needs: [ build-wheels, build-sdist ]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        python-version: [ "3.9" ]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/bootstrap-environ
+      id: bootstrap-environ
+      with:
+        python-version: ${{ matrix.python-version }}
+        runner: ubuntu-latest
+    - name: Download distribution artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: typelib-dist
+        path: dist
+    - name: Publish to PyPI
+      run: poetry publish -u $PYPI_USERNAME -p $PYPI_PASSWORD
+      env:
+        PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+
+  create-release:
+    needs: [ release-version, build-wheels, build-sdist ]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        python-version: [ "3.9" ]
+    steps:
+    - name: Compile Release Notes
+      run: make release-notes > release-notes.md
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        body_path: release-notes.md
+        tag_name: ${{ github.env.RELEASE_VERSION }}
+        make_latest: true

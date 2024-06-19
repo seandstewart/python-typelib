@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "typelib"
-version = "0.1.0"
+version = "0.0.0"
 description = "A toolkit for marshalling, unmarshalling, and runtime validation leveraging type annotations."
 authors = ["Sean Stewart <sean.stewart@hey.com>"]
 readme = "README.md"
@@ -125,6 +125,12 @@ ignore_missing_imports = true
 no_strict_optional = true
 follow_imports = "silent"
 exclude = ".*tests/.*|.*docs/.*"
+
+[tool.git-changelog]
+convention = "conventional"
+in-place = true
+output = "CHANGELOG.md"
+parse-refs = true
 
 [build-system]
 requires = ["poetry-core>=1.8.0"]
