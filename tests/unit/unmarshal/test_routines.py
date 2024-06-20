@@ -57,7 +57,7 @@ def test_str_unmarshaller(given_input, expected_output):
     string=dict(given_input="1", expected_output=1),
     number=dict(given_input=1, expected_output=1),
     bool=dict(given_input=True, expected_output=1),
-    date=dict(given_input=datetime.date(2020, 1, 1), expected_output=1577880000.0),
+    date=dict(given_input=datetime.date(2020, 1, 1), expected_output=1577836800.0),
 )
 def test_number_unmarshaller(given_input, given_type, expected_output):
     # Given

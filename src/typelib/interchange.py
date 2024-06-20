@@ -6,7 +6,6 @@ import dataclasses
 import datetime
 import functools
 import operator
-import time
 import typing as t
 
 import pendulum
@@ -113,14 +112,15 @@ def unixtime(t: datetime.date | datetime.time) -> float:
             second=t.second,
             microsecond=t.microsecond,
         )
-    if isinstance(t, datetime.date):
+    if isinstance(t, datetime.date) and not isinstance(t, datetime.datetime):
         t = datetime.datetime(
             year=t.year,
             month=t.month,
             day=t.day,
-        ).astimezone(tz=datetime.timezone.utc)
+            tzinfo=datetime.timezone.utc,
+        )
 
-    return time.mktime(t.timetuple())
+    return t.timestamp()
 
 
 DateTimeT = t.TypeVar("DateTimeT", datetime.date, datetime.time, datetime.timedelta)
