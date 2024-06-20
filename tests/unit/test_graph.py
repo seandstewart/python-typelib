@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import sys
 import typing
 
 import pytest
@@ -85,6 +86,7 @@ class NoTypes:
     ),
     any_type=dict(given_type=NoTypes, expected_nodes=[graph.TypeNode(type=NoTypes)]),
 )
+@pytest.mark.skipif(sys.version_info < (3, 10), reason="py3.10+")
 def test_static_order(given_type, expected_nodes):
     # When
     nodes = graph.static_order(given_type)

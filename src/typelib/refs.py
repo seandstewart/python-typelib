@@ -21,7 +21,7 @@ def forwardref(
 ) -> ForwardRef:
     module = _resolve_module_name(ref, module)
     if module is not None:
-        ref = ref.rsplit(".", maxsplit=1)[-1]
+        ref = ref.replace(f"{module}.", "")
     return ForwardRef(
         ref,
         is_argument=is_argument,
@@ -74,7 +74,12 @@ else:
                 return ref.__forward_value__
 
             arg = future.transform_annotation(ref.__forward_arg__)
-            globalns = {**globals(), **(globalns or {})}
+            globalns = {
+                **globals(),
+                **(globalns or {}),
+                **vars(typing),
+                "typing": typing,
+            }
             nref = forwardref(
                 arg,
                 is_argument=ref.__forward_is_argument__,
@@ -91,7 +96,7 @@ def _resolve_module_name(ref: str, module: str | None) -> str | None:
         return module
 
     # Easy path, use the qualname if it's provided.
-    module = ref.rsplit(".", maxsplit=1)[0]
+    module = ref.split(".", maxsplit=1)[0]
     if module != ref:
         return module
     # Harder path, find the actual object in the stack frame, if possible.

@@ -9,7 +9,7 @@ import typing
 import uuid
 
 import pytest
-from typelib import refs
+from typelib import compat, refs
 from typelib.marshal import api
 
 from tests import models
@@ -144,13 +144,11 @@ def test_marshal(given_type, given_input, expected_output):
     assert output == expected_output
 
 
-@pytest.mark.skipif(
-    "sys.version_info < (3, 12)",
-    reason="TypeAliasType is only available from Python 3.12",
-)
 def test_type_alias_type_marshal():
     # Given
-    type IntList = list[int]
+    # Can't reliably test the `type` statement till 3.12 is the min version.
+    # type IntList = list[int]
+    IntList = compat.TypeAliasType("IntList", "list[int]")
     given_input = [1, 2]
     expected_output = [1, 2]
     # When

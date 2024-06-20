@@ -49,6 +49,7 @@ coverage.xml
 .hypothesis/
 *.pytest_cache/
 *.benchmarks/
+junit.xml
 
 # Translations
 *.mo

@@ -51,6 +51,7 @@ pre-commit = "^3.7"
 
 [tool.poetry.group.dev.dependencies]
 orjson = "^3"
+tox = "^4.15.1"
 
 [tool.coverage.run]
 branch = true

@@ -440,19 +440,17 @@ class SubscriptedIteratorUnmarshaller(
         return it
 
 
-_TVT = compat.TypeVarTuple("_TVT")
-_TupleT: tp.TypeAlias = "tuple[*_TVT]"
-
-
-class FixedTupleUnmarshaller(AbstractUnmarshaller[_TupleT]):
+class FixedTupleUnmarshaller(AbstractUnmarshaller[compat.TupleT]):
     __slots__ = ("ordered_routines", "stack")
 
-    def __init__(self, t: type[_TupleT], context: ContextT, *, var: str | None = None):
+    def __init__(
+        self, t: type[compat.TupleT], context: ContextT, *, var: str | None = None
+    ):
         super().__init__(t, context, var=var)
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
-    def __call__(self, val: tp.Any) -> _TupleT:
+    def __call__(self, val: tp.Any) -> compat.TupleT:
         decoded = interchange.load(val)
         return self.origin(
             routine(v)

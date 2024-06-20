@@ -999,7 +999,11 @@ def istypedtuple(obj: type) -> compat.TypeIs[type[NamedTuple]]:
         >>> istypedtuple(FooTup)
         True
     """
-    return inspect.isclass(obj) and issubclass(obj, tuple) and bool(obj.__annotations__)
+    return (
+        inspect.isclass(obj)
+        and issubclass(obj, tuple)
+        and bool(getattr(obj, "__annotations__", False))
+    )
 
 
 @compat.cache
@@ -1405,17 +1409,17 @@ _UNRESOLVABLE = (
 
 @compat.cache
 def isnonetype(t: Any) -> compat.TypeIs[None]:
-    return t in (None, types.NoneType)
+    return t in (None, type(None))
 
 
 @compat.cache
 def ispatterntype(t: Any) -> compat.TypeIs[re.Pattern]:
-    return issubclass(t, re.Pattern)
+    return _safe_issubclass(t, re.Pattern)
 
 
 @compat.cache
 def ispathtype(t: Any) -> compat.TypeIs[pathlib.Path]:
-    return issubclass(t, pathlib.PurePath)
+    return _safe_issubclass(t, pathlib.PurePath)
 
 
 @compat.cache

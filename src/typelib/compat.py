@@ -33,6 +33,7 @@ if TYPE_CHECKING:
         ParamSpec,
         Self,
         Final,
+        TypeAlias,
         TypeAliasType,
         TypeVarTuple,
         TypeGuard,
@@ -54,6 +55,9 @@ if TYPE_CHECKING:
 
     def cache(func: F) -> F: ...
 
+    TupleVarsT = TypeVarTuple("TupleVarsT")
+    TupleT: TypeAlias = "tuple[*TupleVarsT]"
+
 else:
     from functools import lru_cache, cache
 
@@ -65,14 +69,21 @@ else:
 
     if sys.version_info >= (3, 12):
         from typing import TypeAliasType
+
     else:
         from typing_extensions import TypeAliasType
 
     if sys.version_info >= (3, 11):
         from typing import ParamSpec, Self, Final, TypeVarTuple
 
+        TupleVarsT = TypeVarTuple("TupleVarsT")
+        TupleT: TypeAlias = "tuple[*TupleVarsT]"
+
     else:
         from typing_extensions import ParamSpec, Self, Final, TypeVarTuple
+
+        TupleVarsT = TypeVarTuple("TupleVarsT")
+        TupleT: TypeAlias = tuple[TupleVarsT]
 
     if sys.version_info >= (3, 10):
         from typing import TypeGuard

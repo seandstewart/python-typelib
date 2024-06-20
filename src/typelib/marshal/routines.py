@@ -221,19 +221,17 @@ class SubscriptedIterableMarshaller(
         return [values(v) for v in interchange.itervalues(val)]
 
 
-_TVT = compat.TypeVarTuple("_TVT")
-_TupleT: tp.TypeAlias = "tuple[*_TVT]"
-
-
-class FixedTupleMarshaller(AbstractMarshaller[_TupleT]):
+class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
     __slots__ = ("ordered_routines", "stack")
 
-    def __init__(self, t: type[_TupleT], context: ContextT, *, var: str | None = None):
+    def __init__(
+        self, t: type[compat.TupleT], context: ContextT, *, var: str | None = None
+    ):
         super().__init__(t, context, var=var)
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
-    def __call__(self, val: _TupleT) -> MarshalledIterableT:
+    def __call__(self, val: compat.TupleT) -> MarshalledIterableT:
         return [
             routine(v)
             for routine, v in zip(self.ordered_routines, interchange.itervalues(val))
