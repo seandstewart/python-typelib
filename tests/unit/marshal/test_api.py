@@ -83,7 +83,7 @@ from tests import models
     path=dict(
         given_type=pathlib.Path,
         given_input=pathlib.Path("/path/to/file"),
-        expected_output="/path/to/file",
+        expected_output=str(pathlib.Path("/path/to/file")),
     ),
     decimal=dict(
         given_type=decimal.Decimal,
