@@ -55,8 +55,13 @@ if TYPE_CHECKING:
 
     def cache(func: F) -> F: ...
 
-    TupleVarsT = TypeVarTuple("TupleVarsT")
-    TupleT: TypeAlias = "tuple[*TupleVarsT]"
+    if sys.version_info >= (3, 11):
+        TupleVarsT = TypeVarTuple("TupleVarsT")
+        TupleT: TypeAlias = "tuple[*TupleVarsT]"
+
+    else:
+        TupleVarsT = TypeVarTuple("TupleVarsT")
+        TupleT: TypeAlias = tuple[TupleVarsT]
 
 else:
     from functools import lru_cache, cache
