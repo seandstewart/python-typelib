@@ -118,8 +118,7 @@ def unixtime(t: datetime.date | datetime.time) -> float:
             year=t.year,
             month=t.month,
             day=t.day,
-            tzinfo=datetime.timezone.utc,
-        )
+        ).astimezone(tz=datetime.timezone.utc)
 
     return time.mktime(t.timetuple())
 
