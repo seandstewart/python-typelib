@@ -1,3 +1,5 @@
+from unittest import mock
+
 import pytest
 from typelib import refs
 
@@ -27,7 +29,7 @@ class RefClass: ...
     no_module_provided=dict(
         given_ref_name="str",
         given_module_name=None,
-        expected_ref=refs.ForwardRef("str", module="__main__"),
+        expected_ref=refs.ForwardRef("str", module=mock.ANY),
     ),
     module_provided=dict(
         given_ref_name="str",
@@ -47,7 +49,7 @@ class RefClass: ...
     module_from_caller=dict(
         given_ref_name="UnknownClass",
         given_module_name=None,
-        expected_ref=refs.ForwardRef("UnknownClass", module="__main__"),
+        expected_ref=refs.ForwardRef("UnknownClass", module=mock.ANY),
     ),
 )
 def test_forwardref(given_ref_name, given_module_name, expected_ref):

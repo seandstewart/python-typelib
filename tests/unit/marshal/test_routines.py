@@ -78,7 +78,8 @@ def test_uuid_marshaller(given_input, expected_output):
 
 @pytest.mark.suite(
     path=dict(
-        given_input=pathlib.Path("/path/to/file"), expected_output="/path/to/file"
+        given_input=pathlib.Path("/path/to/file"),
+        expected_output=str(pathlib.Path("/path/to/file")),
     ),
 )
 def test_path_marshaller(given_input, expected_output):
