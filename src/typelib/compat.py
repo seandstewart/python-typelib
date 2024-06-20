@@ -57,7 +57,7 @@ if TYPE_CHECKING:
 
     if sys.version_info >= (3, 11):
         TupleVarsT = TypeVarTuple("TupleVarsT")
-        TupleT: TypeAlias = "tuple[*TupleVarsT]"
+        TupleT: TypeAlias = "tuple[*TupleVarsT]"  # type: ignore[valid-type]
 
     else:
         TupleVarsT = TypeVarTuple("TupleVarsT")
