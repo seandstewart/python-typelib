@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Bug Fixes
 
+- mypy type hinting for non py312 in compat.py ([b36c7d6](https://github.com/seandstewart/python-typelib/commit/b36c7d6d6c6c63496a0cbb041860a57d9f84d1fe) by Sean Stewart).
+- use `datetime.timestamp` when converting date/time to numeric values ([ecdc908](https://github.com/seandstewart/python-typelib/commit/ecdc908c5d380291c25a0560c3b78f760d26d2ee) by Sean Stewart).
+- reliable UTC timestamps for date objects. ([582686d](https://github.com/seandstewart/python-typelib/commit/582686d51970b948249f334404c5bcc8fb8eb321) by Sean Stewart).
+- use compat for future types. ([2e8aa24](https://github.com/seandstewart/python-typelib/commit/2e8aa2442aa60b0ce60d8f72e747f590fcb2a14f) by Sean Stewart).
+- Fix type-hints for lower versions of python ([7c08c8c](https://github.com/seandstewart/python-typelib/commit/7c08c8cc8aa7f144a14479660985b80d3b439c31) by Sean Stewart).
 - Fix type hints for marshalled values ([f4742e0](https://github.com/seandstewart/python-typelib/commit/f4742e0161042304b980bb2c69c3b0de65705eab) by Sean Stewart).
 - Enforce utc for tz-naive datetime.date during number conversion ([afe79fb](https://github.com/seandstewart/python-typelib/commit/afe79fbbafef93fbd9aac9c5eaf146cebb78cb22) by Sean Stewart).
 - The factory function can handle strings/forwardrefs. ([34dd7dd](https://github.com/seandstewart/python-typelib/commit/34dd7dd807e72e5a48b2652898c95c85ccec7110) by Sean Stewart).
