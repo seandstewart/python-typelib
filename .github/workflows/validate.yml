@@ -3,6 +3,7 @@ on: [push, pull_request]
 jobs:
   ci:
     uses: ./.github/workflows/.validate-matrix.yml
+    secrets: inherit
     name: "${{ matrix.os }} (Python ${{ matrix.python-version }})"
     strategy:
       fail-fast: false
