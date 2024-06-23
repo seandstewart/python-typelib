@@ -1,3 +1,5 @@
+"""Utilities for with stack traces and frames."""
+
 from __future__ import annotations
 
 import inspect
@@ -16,7 +18,9 @@ def extract(name: str, *, frame: types.FrameType = None) -> Any | None:
 
     If `frame` is not provided, this function will use the current frame.
 
-
+    Args:
+        name: The name of the object to extract from the stacktrace.
+        frame: The :py:class:`types.FrameType` instance to start from (optional).
     """
     frame = frame or inspect.currentframe()
     seen: set[types.FrameType] = set()
@@ -36,6 +40,9 @@ def getcaller(frame: types.FrameType = None) -> types.FrameType:
     """Get the caller of the current scope, excluding this library.
 
     If `frame` is not provided, this function will use the current frame.
+
+    Args:
+        frame: The :py:class:`types.FrameType` instance to start from (optional).
     """
 
     frame = frame or inspect.currentframe()

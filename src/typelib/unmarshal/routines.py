@@ -1,3 +1,5 @@
+"""Unmarshalling "routines" - type-specific logic for unmarshalling simple Python objects into higher-order Python types."""
+
 from __future__ import annotations
 
 import abc
@@ -66,11 +68,15 @@ class AbstractUnmarshaller(abc.ABC, tp.Generic[T]):
 
 
 class NoOpUnmarshaller(AbstractUnmarshaller[T]):
+    """Unmarshaller that does nothing."""
+
     def __call__(self, val: tp.Any) -> T:
         return tp.cast(T, val)
 
 
 class NoneTypeUnmarshaller(AbstractUnmarshaller[None]):
+    """Unmarshaller for null values."""
+
     def __call__(self, val: tp.Any) -> None:
         if val is not None:
             raise ValueError(f"{val!r} is not of {types.NoneType!r}")
@@ -82,6 +88,8 @@ BytesT = tp.TypeVar("BytesT", bound=bytes)
 
 
 class BytesUnmarshaller(AbstractUnmarshaller[BytesT], tp.Generic[BytesT]):
+    """Unmarshaller that encodes an input to bytes."""
+
     def __call__(self, val: tp.Any) -> BytesT:
         if isinstance(val, self.t):
             return val
@@ -95,6 +103,8 @@ StringT = tp.TypeVar("StringT", bound=str)
 
 
 class StringUnmarshaller(AbstractUnmarshaller[StringT], tp.Generic[StringT]):
+    """Unmarshaller that converts an input to a string."""
+
     def __call__(self, val: tp.Any) -> StringT:
         # Always decode bytes.
         decoded = interchange.decode(val)
@@ -110,6 +120,8 @@ NumberT = tp.TypeVar("NumberT", bound=numbers.Number)
 
 
 class NumberUnmarshaller(AbstractUnmarshaller[NumberT], tp.Generic[NumberT]):
+    """Unmarshaller that converts an input to a number."""
+
     def __call__(self, val: tp.Any) -> NumberT:
         # Always decode bytes.
         decoded = interchange.decode(val)
@@ -143,6 +155,8 @@ DateT = tp.TypeVar("DateT", bound=datetime.date)
 
 
 class DateUnmarshaller(AbstractUnmarshaller[DateT], tp.Generic[DateT]):
+    """Unmarshaller that converts an input to a :py:class`datetime.date`."""
+
     def __call__(self, val: tp.Any) -> DateT:
         if isinstance(val, self.t) and not isinstance(val, datetime.datetime):
             return val
@@ -174,6 +188,8 @@ DateTimeT = tp.TypeVar("DateTimeT", bound=datetime.datetime)
 class DateTimeUnmarshaller(
     AbstractUnmarshaller[datetime.datetime], tp.Generic[DateTimeT]
 ):
+    """Unmarshaller that converts an input to a :py:class:`datetime.datetime`."""
+
     def __call__(self, val: tp.Any) -> datetime.datetime:
         if isinstance(val, self.t):
             return val
@@ -222,6 +238,8 @@ TimeT = tp.TypeVar("TimeT", bound=datetime.time)
 
 
 class TimeUnmarshaller(AbstractUnmarshaller[TimeT], tp.Generic[TimeT]):
+    """Unmarshaller that converts an input to a :py:class:`datetime.time`."""
+
     def __call__(self, val: tp.Any) -> TimeT:
         if isinstance(val, self.t):
             return val
@@ -262,6 +280,8 @@ TimeDeltaT = tp.TypeVar("TimeDeltaT", bound=datetime.timedelta)
 
 
 class TimeDeltaUnmarshaller(AbstractUnmarshaller[TimeDeltaT], tp.Generic[TimeDeltaT]):
+    """Unmarshaller that converts an input to a :py:class:`datetime.timedelta`."""
+
     def __call__(self, val: tp.Any) -> TimeDeltaT:
         if isinstance(val, (int, float)):
             return self.t(seconds=int(val))
@@ -283,6 +303,8 @@ UUIDT = tp.TypeVar("UUIDT", bound=uuid.UUID)
 
 
 class UUIDUnmarshaller(AbstractUnmarshaller[UUIDT], tp.Generic[UUIDT]):
+    """Unmarshaller that converts an input to a :py:class:`uuid.UUID`."""
+
     def __call__(self, val: tp.Any) -> UUIDT:
         decoded = interchange.load(val)
         if isinstance(decoded, int):
@@ -296,12 +318,16 @@ PatternT = tp.TypeVar("PatternT", bound=re.Pattern)
 
 
 class PatternUnmarshaller(AbstractUnmarshaller[PatternT], tp.Generic[PatternT]):
+    """Unmarshaller that converts an input to a :py:class:`re.Pattern`."""
+
     def __call__(self, val: tp.Any) -> PatternT:
         decoded = interchange.decode(val)
         return re.compile(decoded)  # type: ignore[return-value]
 
 
 class CastUnmarshaller(AbstractUnmarshaller[T]):
+    """Unmarshaller that converts an input to a :py:class:`T` with a direct cast."""
+
     __slots__ = ("caster",)
 
     def __init__(self, t: type[T], context: ContextT, *, var: str | None = None):
@@ -327,6 +353,8 @@ LiteralT = tp.TypeVar("LiteralT")
 
 
 class LiteralUnmarshaller(AbstractUnmarshaller[LiteralT], tp.Generic[LiteralT]):
+    """Unmarshaller that will enforce an input conform to a defined `:py:class:typing.Literal`."""
+
     __slots__ = ("values",)
 
     def __init__(self, t: type[LiteralT], context: ContextT, *, var: str | None = None):
@@ -347,6 +375,8 @@ UnionT = tp.TypeVar("UnionT")
 
 
 class UnionUnmarshaller(AbstractUnmarshaller[UnionT], tp.Generic[UnionT]):
+    """Unmarshaller that will convert an input to one of the types defined in a :py:class:`typing.Union`."""
+
     __slots__ = ("stack", "ordered_routines")
 
     def __init__(self, t: type[UnionT], context: ContextT, *, var: str | None = None):
@@ -373,6 +403,8 @@ MappingT = tp.TypeVar("MappingT", bound=tp.Mapping)
 class SubscriptedMappingUnmarshaller(
     AbstractUnmarshaller[MappingT], tp.Generic[MappingT]
 ):
+    """Unmarshaller for a subscripted mapping type."""
+
     __slots__ = (
         "keys",
         "values",
@@ -400,6 +432,8 @@ IterableT = tp.TypeVar("IterableT", bound=tp.Iterable)
 class SubscriptedIterableUnmarshaller(
     AbstractUnmarshaller[IterableT], tp.Generic[IterableT]
 ):
+    """Unmarshaller for a subscripted iterable."""
+
     __slots__ = ("values",)
 
     def __init__(
@@ -423,6 +457,8 @@ IteratorT = tp.TypeVar("IteratorT", bound=tp.Iterator)
 class SubscriptedIteratorUnmarshaller(
     AbstractUnmarshaller[IteratorT], tp.Generic[IteratorT]
 ):
+    """Unmarshaller for a subscripted iterator."""
+
     __slots__ = ("values",)
 
     def __init__(
@@ -441,6 +477,8 @@ class SubscriptedIteratorUnmarshaller(
 
 
 class FixedTupleUnmarshaller(AbstractUnmarshaller[compat.TupleT]):
+    """Unmarshaller for a "fixed" tuple (e.g., `tuple[int, str, float]`)."""
+
     __slots__ = ("ordered_routines", "stack")
 
     def __init__(
@@ -464,6 +502,8 @@ _ST = tp.TypeVar("_ST")
 
 
 class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
+    """Unmarshaller for a "structured" (user-defined) type."""
+
     __slots__ = ("fields_by_var",)
 
     def __init__(self, t: type[_ST], context: ContextT, *, var: str | None = None):

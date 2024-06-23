@@ -1,3 +1,5 @@
+"""The API for marshalling higher-order Python objects into simple, encodable Python objects."""
+
 from __future__ import annotations
 
 import typing as tp
@@ -17,7 +19,13 @@ __all__ = (
 def marshal(
     value: tp.Any, *, t: type[T] | refs.ForwardRef | str | None = None
 ) -> interchange.MarshalledValueT:
-    """Marshal :py:param:`value` into :py:param:`typ`."""
+    """Marshal :py:param:`value` from :py:param:`typ` into `:py:class:~typelib.interchange.MarshalledValueT`.
+
+    Args:
+        value: The value to reduce to a simple, encodable type.
+        t: The type to use for building the marshaller (optional).
+           If not provided, we'll default to the type of the input value.
+    """
     typ = value.__class__ if t is None else t
     routine: routines.AbstractMarshaller[T] = marshaller(typ)
     unmarshalled = routine(value)

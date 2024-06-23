@@ -1,3 +1,5 @@
+"""Marshalling "routines" - type-specific logic for marshalling Python objects in to simple types."""
+
 from __future__ import annotations
 
 import abc
@@ -64,6 +66,8 @@ ContextT: tp.TypeAlias = tp.Mapping[type, AbstractMarshaller]
 
 
 class NoOpMarshaller(AbstractMarshaller[T], tp.Generic[T]):
+    """A marshaller that does nothing."""
+
     def __call__(self, val: T) -> interchange.MarshalledValueT:
         return val  # type: ignore[return-value]
 
@@ -72,6 +76,8 @@ BytesMarshaller = NoOpMarshaller[bytes]
 
 
 class CastMarshaller(AbstractMarshaller[T], tp.Generic[T]):
+    """A marshaller that casts a value to a specific type."""
+
     def __call__(self, val: T) -> interchange.MarshalledValueT:
         return self.origin(val)
 
@@ -81,6 +87,8 @@ FloatMarshaller = CastMarshaller[float]
 
 
 class ToStringMarshaller(AbstractMarshaller[T], tp.Generic[T]):
+    """A marshaller that converts a value to a string."""
+
     def __call__(self, val: T) -> str:
         return str(val)
 
@@ -104,6 +112,8 @@ PatternT = tp.TypeVar("PatternT", bound=re.Pattern)
 
 
 class PatternMarshaller(AbstractMarshaller[PatternT]):
+    """A marshaller that converts a :py:class:`re.Pattern` to a string."""
+
     def __call__(self, val: PatternT) -> str:
         return val.pattern
 
@@ -114,6 +124,8 @@ DateOrTimeT = tp.TypeVar(
 
 
 class ToISOTimeMarshaller(AbstractMarshaller[DateOrTimeT], tp.Generic[DateOrTimeT]):
+    """A marshaller that converts any date/time to a ISO time string."""
+
     def __call__(self, val: DateOrTimeT) -> str:
         return interchange.isoformat(val)
 
@@ -135,6 +147,8 @@ LiteralT = tp.TypeVar("LiteralT")
 
 
 class LiteralMarshaller(AbstractMarshaller[LiteralT], tp.Generic[LiteralT]):
+    """A marshaller that enforces the given value be one of the values in the defined :py:class:`typing.Literal`"""
+
     __slots__ = ("values",)
 
     def __init__(self, t: type[LiteralT], context: ContextT, *, var: str | None = None):
@@ -152,6 +166,8 @@ UnionT = tp.TypeVar("UnionT")
 
 
 class UnionMarshaller(AbstractMarshaller[UnionT], tp.Generic[UnionT]):
+    """A marshaller for dumping a given value via one of the types in the defined :py:class:`typing.Union`"""
+
     __slots__ = ("stack", "ordered_routines")
 
     def __init__(self, t: type[UnionT], context: ContextT, *, var: str | None = None):
@@ -172,6 +188,8 @@ MappingT = tp.TypeVar("MappingT", bound=tp.Mapping)
 
 
 class MappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[MappingT]):
+    """A marshaller for dumping any mapping into a simple :py:class:`builtins.dict`."""
+
     def __call__(self, val: MappingT) -> MarshalledMappingT:
         return {**val}
 
@@ -180,11 +198,15 @@ IterableT = tp.TypeVar("IterableT", bound=tp.Iterable)
 
 
 class IterableMarshaller(AbstractMarshaller[IterableT], tp.Generic[IterableT]):
+    """A marshaller for dumping any iterable into a simple :py:class:`builtins.list`."""
+
     def __call__(self, val: IterableT) -> MarshalledIterableT:
         return [*val]
 
 
 class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[MappingT]):
+    """A marshaller for dumping a subscripted mapping into a simple :py:class:`builtins.dict`."""
+
     __slots__ = (
         "keys",
         "values",
@@ -205,6 +227,8 @@ class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[Mapp
 class SubscriptedIterableMarshaller(
     AbstractMarshaller[IterableT], tp.Generic[IterableT]
 ):
+    """A marshaller for dumping a subscripted iterable into a simple :py:class:`builtins.list`."""
+
     __slots__ = ("values",)
 
     def __init__(
@@ -222,6 +246,8 @@ class SubscriptedIterableMarshaller(
 
 
 class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
+    """A marshaller for dumping a "fixed" tuple to a simple :py:class:`builtins.list`."""
+
     __slots__ = ("ordered_routines", "stack")
 
     def __init__(
@@ -242,6 +268,8 @@ _ST = tp.TypeVar("_ST")
 
 
 class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
+    """A marshaller for dumping a structured (user-defined) type to a simple :py:class:`builtins.dict`."""
+
     __slots__ = ("fields_by_var",)
 
     def __init__(self, t: type[_ST], context: ContextT, *, var: str | None = None):

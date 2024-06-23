@@ -1,3 +1,5 @@
+"""Utilities for translating between various types."""
+
 from __future__ import annotations
 
 import ast
@@ -59,8 +61,8 @@ def isoformat(t: datetime.date | datetime.time | datetime.timedelta) -> str:
         '00:00:00'
         >>> interchange.isoformat(datetime.datetime(1970, 1, 1))
         '1970-01-01T00:00:00'
-        >>> interchange.isoformat(datetime.timedelta())
-        'P0Y0M0DT0H0M0.000000S'
+        >>> interchange.isoformat(datetime.timedelta(hours=1))
+        'PT1H'
     """
     if isinstance(t, (datetime.date, datetime.time)):
         return t.isoformat()
@@ -99,12 +101,36 @@ def isoformat(t: datetime.date | datetime.time | datetime.timedelta) -> str:
 _T = t.TypeVar("_T")
 
 
-def unixtime(t: datetime.date | datetime.time) -> float:
+def unixtime(t: datetime.date | datetime.time | datetime.timedelta) -> float:
     """Convert a date/time object to a unix timestamp.
+
+    Notes:
+        Time is messy. Here is how we've decided to make this work:
+
+        - `datetime.datetime` instances will preserve the current tzinfo (even if naive).
+        - `datetime.time` instances will default to today, preserving the tzinfo (even if naive).
+        - `datetime.date` instances will assume UTC.
+        - `datetime.timedelta` instances be reflected as total seconds since epoch (January 1, 1970).
+
+        If you find yourself in a situation where this does not work for you, your best
+        bet is to stop using tz-naive date/time objects. *It's always best to keep your time
+        explicit!*
 
     Args:
         t: The object to be converted.
+
+    Examples:
+        >>> import datetime
+        >>> from typelib import interchange
+        >>>
+        >>> interchange.unixtime(datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc))
+        0.0
+        >>> interchange.unixtime(datetime.date(1970, 1, 1))
+        0.0
     """
+    if isinstance(t, datetime.timedelta):
+        return t.total_seconds()
+
     if isinstance(t, datetime.time):
         t = datetime.datetime.now(tz=t.tzinfo).replace(
             hour=t.hour,
@@ -180,6 +206,21 @@ def _normalize_number(*, numval: float, td: type[DateTimeT]) -> DateTimeT:
 
 
 def iteritems(val: t.Any) -> t.Iterable[tuple[t.Any, t.Any]]:
+    """Iterate over (field, value) pairs for any object.
+
+    Notes:
+        If the given item is detected to be an iterable of pairs (e.g., `[('a', 1), ('b', 2)]`),
+        we will iterate directly over that.
+
+        Otherwise, we will create an iterator over (field, value) pairs with the following
+        strategy:
+            - For mappings -> `((key, value), ...)`
+            - For structured objects (user-defined classes) -> `((field, value), ...)`
+            - For all other iterables -> `((index, value), ...)`.
+
+    Args:
+        val: The object to iterate over.
+    """
     if _is_iterable_of_pairs(val):
         return iter(val)
 
@@ -203,11 +244,11 @@ def itervalues(val: t.Any) -> t.Iterator[t.Any]:
 
 @functools.cache
 def get_items_iter(tp: type) -> t.Callable[[t.Any], t.Iterable[tuple[t.Any, t.Any]]]:
-    ismapping, isnamedtuple, isiterable, isstructured = (
+    """Given a type, return a callable which will produce an iterator over (field, value) pairs."""
+    ismapping, isnamedtuple, isiterable = (
         inspection.ismappingtype(tp),
         inspection.isnamedtuple(tp),
         inspection.isiterabletype(tp),
-        inspection.isstructuredtype(tp),
     )
     if ismapping:
         return _itemscaller
@@ -215,29 +256,30 @@ def get_items_iter(tp: type) -> t.Callable[[t.Any], t.Iterable[tuple[t.Any, t.An
         return _namedtupleitems
     if isiterable:
         return enumerate
-    if isstructured:
-        return _make_fields_iterator(tp)
-    raise TypeError(f"Cannot iterate items of type {tp.__qualname__!r}")
+    return _make_fields_iterator(tp)
 
 
 def _namedtupleitems(val: t.NamedTuple) -> t.Iterable[tuple[str, t.Any]]:
-    return val._asdict().items()
+    return zip(val._fields, val)
 
 
 def _make_fields_iterator(
     tp: type,
 ) -> t.Callable[[t.Any], t.Iterator[tuple[t.Any, t.Any]]]:
+    # If we have a dataclass, use the defined public fields.
     if dataclasses.is_dataclass(tp):
         public_attribs = [
             f.name for f in dataclasses.fields(tp) if not f.name.startswith("_")
         ]
+    # Otherwise, try using the public type-hints.
     else:
         attribs = inspection.get_type_hints(tp)
         public_attribs = [k for k in attribs if not k.startswith("_")]
-
+    # If that didn't work, look for `__slots__`.
     if not public_attribs and hasattr(tp, "__slots__"):
         public_attribs = [s for s in tp.__slots__ if not s.startswith("_")]
-
+    # If we located all public attributes, create a factory function for iterating over
+    #   these fields and fetching the value from an instance.
     if public_attribs:
 
         def _iterfields(val: t.Any) -> t.Iterator[tuple[str, t.Any]]:
@@ -245,6 +287,7 @@ def _make_fields_iterator(
 
         return _iterfields
 
+    # Finally, if all else fails, just use `vars` on the instance.
     def _itervars(val: t.Any) -> t.Iterator[tuple[str, t.Any]]:
         return ((k, v) for k, v in vars(val).items() if not k.startswith("_"))
 

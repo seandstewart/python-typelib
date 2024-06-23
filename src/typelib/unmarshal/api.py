@@ -1,3 +1,5 @@
+"""The API for unmarshalling simple Python objects into higher-order Python types."""
+
 from __future__ import annotations
 
 import typing as tp
@@ -15,7 +17,12 @@ __all__ = (
 
 
 def unmarshal(typ: type[T] | refs.ForwardRef | str, value: tp.Any) -> T:
-    """Unmarshal :py:param:`value` into :py:param:`typ`."""
+    """Unmarshal :py:param:`value` into :py:param:`typ`.
+
+    Args:
+        typ: The type annotation or reference to unmarshal into.
+        value: The value to unmarshal.
+    """
     routine = unmarshaller(typ)
     unmarshalled = routine(value)
     return unmarshalled

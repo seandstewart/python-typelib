@@ -1,3 +1,5 @@
+"""Utilities for working with types as graphs."""
+
 from __future__ import annotations
 
 import collections
@@ -19,6 +21,16 @@ def static_order(
 
     Args:
         t: The type to extract an ordered stack from.
+
+    Notes:
+        The order of types is guaranteed to rank from edges to root. If there are
+        multiple edges, the order of those edges is not guaranteed.
+
+        This function is memoized to avoid the cost of re-computing a type annotation
+        multiple times at runtime, which would be wasted effort, as types don't change
+        at runtime.
+
+        To avoid memoization, you can make use of `:py:func:`itertypes`.
     """
     # We want to leverage the cache if possible, hence the recursive call.
     #   Shouldn't actually recurse more than once or twice.
@@ -32,7 +44,9 @@ def static_order(
     return [*itertypes(t)]
 
 
-def itertypes(t: type | str | refs.ForwardRef) -> typing.Iterable[TypeNode]:
+def itertypes(
+    t: type | str | refs.ForwardRef | compat.TypeAliasType,
+) -> typing.Iterable[TypeNode]:
     """Iterate over the type-graph represented by `t` from edges to root.
 
     Args:
@@ -44,7 +58,12 @@ def itertypes(t: type | str | refs.ForwardRef) -> typing.Iterable[TypeNode]:
     Notes:
         We will build a graph of types with the given type `t` as the root node,
         then iterate from the outermost leaves back to the root using BFS.
+
+        This is computationally expensive, so you are encouraged to use `:py:func:`static_order`
+        instead of `:py:func:`itertypes`.
     """
+    if inspection.istypealiastype(t):
+        t = t.__value__
     if isinstance(t, (str, refs.ForwardRef)):  # pragma: no cover
         ref = refs.forwardref(t) if isinstance(t, str) else t
         t = refs.evaluate(ref)
@@ -61,6 +80,20 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
 
     Returns:
         :py:class:`graphlib.TopologicalSorter`
+
+    Notes:
+        A key aspect of building a directed graph of a given type is pre-emptive
+        detection and termination of cycles in the graph. If we detect a cycle, we
+        will wrap the type in a :py:class:`typing.ForwardRef` and mark the
+        :py:class:`TypeNode` instance as `cyclic=True`.
+
+        Consumers of the graph can "delay" the resolution of a forward reference until
+        the graph's `static_order()` has been exhausted, at which point they have
+        enough type information to resolve into the real type. (At least one layer down).
+
+        Resolution of cyclic/recursive types is always (necessarily) lazy and should only
+        resolve one level deep on each attempt, otherwise we will find ourselves stuck
+        in a closed loop that never terminates.
     """
     graph: graphlib.TopologicalSorter = graphlib.TopologicalSorter()
     root = TypeNode(t)
@@ -90,7 +123,7 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
             #   This will terminate this edge to prevent infinite cycles.
             if is_visited and can_be_cyclic:
                 qualname = inspection.get_qualname(child)
-                *rest, refname = qualname.rsplit(".", maxsplit=1)
+                *rest, refname = qualname.split(".", maxsplit=1)
                 is_argument = var is not None
                 module = getattr(child, "__module__", None)
                 if module in (None, "__main__") and rest:

@@ -188,10 +188,6 @@ def _normalize_typevars(*args: Any) -> Iterable:
     yield from (normalize_typevar(t) if type(t) is TypeVar else t for t in args)
 
 
-# Friendly alias for legacy purposes (used to have our own impl)
-get_origin = typing.get_origin
-
-
 @compat.cache
 def normalize_typevar(tvar: TypeVar) -> type[Any]:
     """Reduce a TypeVar to a simple type.
@@ -383,8 +379,9 @@ cached_simple_attributes = compat.cache(simple_attributes)
 def typed_dict_signature(obj: Callable) -> inspect.Signature:
     """A little faker for getting the "signature" of a :py:class:`TypedDict`.
 
-    Technically, these are dicts at runtime, but we are enforcing a static shape,
-    so we should be able to declare a matching signature for it.
+    Notes:
+        Technically, these are dicts at runtime, but we are enforcing a static shape,
+        so we should be able to declare a matching signature for it.
     """
     hints = cached_type_hints(obj)
     total = getattr(obj, "__total__", True)
@@ -403,6 +400,12 @@ def typed_dict_signature(obj: Callable) -> inspect.Signature:
 
 
 def tuple_signature(t: type[tuple]) -> inspect.Signature:
+    """A little faker for getting the "signature" of a :py:class:`tuple`.
+
+    Notes:
+        At runtime, tuples are just tuples, but we can make use of their type hints to
+        define a predictable signature.
+    """
     args = get_args(t)
     if not args or args[-1] is ...:
         argt = Any if not args else args[0]
@@ -1036,7 +1039,7 @@ def isfixedtupletype(obj: type) -> compat.TypeIs[type[tuple]]:
         False
     """
     args = get_args(obj)
-    origin = get_origin(obj)
+    origin = typing.get_origin(obj)
     if not args or args[-1] is ...:
         return False
     return _safe_issubclass(origin, tuple)
@@ -1353,7 +1356,7 @@ def issubscriptedgeneric(t: Any) -> bool:
         True
     """
     strobj = str(t)
-    origin = get_origin(t) or t
+    origin = typing.get_origin(t) or t
     is_generic = isgeneric(origin) or isgeneric(t)
     is_subscripted = "[" in strobj
     return is_generic and is_subscripted
@@ -1409,21 +1412,25 @@ _UNRESOLVABLE = (
 
 @compat.cache
 def isnonetype(t: Any) -> compat.TypeIs[None]:
+    """Detect if the given type is a :py:class:`NoneType`."""
     return t in (None, type(None))
 
 
 @compat.cache
 def ispatterntype(t: Any) -> compat.TypeIs[re.Pattern]:
+    """Detect if the given type is a :py:class:`re.Pattern`."""
     return _safe_issubclass(t, re.Pattern)
 
 
 @compat.cache
 def ispathtype(t: Any) -> compat.TypeIs[pathlib.Path]:
+    """Detect if the given type is a :py:class:`pathlib.Path`."""
     return _safe_issubclass(t, pathlib.PurePath)
 
 
 @compat.cache
 def istypealiastype(t: Any) -> compat.TypeIs[compat.TypeAliasType]:
+    """Detect if the given object is a :py:class:`typing.TypeAliasType`."""
     return isinstance(t, compat.TypeAliasType)
 
 

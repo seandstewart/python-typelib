@@ -1,3 +1,5 @@
+"""Utilities for working with :py:class:`typing.ForwardRef`."""
+
 from __future__ import annotations
 
 import functools
@@ -19,6 +21,17 @@ def forwardref(
     module: typing.Any | None = None,
     is_class: bool = True,
 ) -> ForwardRef:
+    """Create a :py:class:`typing.ForwardRef` instance from a :py:param:`ref` string.
+
+    This wrapper function will attempt to determine the module name ahead of instantiation
+    if not provided. This is important when resolving the reference to an actual type.
+
+    Args:
+        ref: The type reference string.
+        is_argument: Whether the reference string was an argument to a function (default False).
+        module: The python module in which the reference string is defined (optional)
+        is_class: Whether the reference string is a class (default True).
+    """
     module = _resolve_module_name(ref, module)
     if module is not None:
         ref = ref.replace(f"{module}.", "")
@@ -51,6 +64,22 @@ else:
             localns: typing.Mapping[str, typing.Any] | None = None,
             recursive_guard: set | None = None,
         ) -> typing.Any:
+            """Evaluate the :py:class:`typing.ForwardRef` instance into a proper type.
+
+            Notes:
+                Most of the time you will not need to provide anything but :py:param:`ref`.
+
+                In Python 3.9, we will automatically transform "new-style" type hints into
+                runtime-compatible type hints:
+                  - Union-operator (`str | int` -> `typing.Union[str, int]`)
+                  - builtin generics (`dict[str, str]` -> `typing.Dict[str, str]`)
+
+            Args:
+                ref: The :py:class:`typing.ForwardRef` instance to evaluate.
+                globalns: A mapping of global variable names to values (optional).
+                localns: A mapping of local variable names to values (optional).
+                recursive_guard: A set instance to prevent recursion during evaluation (optional).
+            """
             if type(ref) is not ForwardRef:
                 return ref
             if ref.__forward_evaluated__:

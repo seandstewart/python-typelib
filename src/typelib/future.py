@@ -1,3 +1,5 @@
+"""Utilities for maintaining runtime compatibility with emerging type annotation operations."""
+
 from __future__ import annotations
 
 import ast
@@ -31,17 +33,19 @@ def transform(annotation: str, *, union: str = "typing.Union") -> str:
 
 class TransformUnion(ast.NodeTransformer):
     def visit_BinOp(self, node: ast.BinOp):
+        # Ignore anython but a bitwise OR `|`
         if not isinstance(node.op, ast.BitOr):
             return node
-
+        # Build a stack of args to the bitor
         args = collections.deque([node.right])
         left = node.left
         while isinstance(left, ast.BinOp):
             args.appendleft(left.right)
             left = left.left
         args.appendleft(left)
+        # Visit each node in the stack
         elts = [self.visit(n) for n in args]
-
+        # Write the old-style `Union`.
         union = ast.Subscript(
             value=ast.Name(id="Union", ctx=ast.Load()),
             slice=ast.Index(value=ast.Tuple(elts=elts, ctx=ast.Load())),
@@ -52,6 +56,7 @@ class TransformUnion(ast.NodeTransformer):
         return union
 
     def visit_Name(self, node: ast.Name):
+        # Re-write new-style builtin generics as old-style typing generics
         if node.id not in _GENERICS:
             return node
 
@@ -60,6 +65,7 @@ class TransformUnion(ast.NodeTransformer):
         return new
 
     def visit_Subscript(self, node: ast.Subscript):
+        # Scan all subscripts to we transform nested new-style types.
         transformed = self.visit(node.slice)
         new = ast.Subscript(
             value=self.visit(node.value),
@@ -71,6 +77,7 @@ class TransformUnion(ast.NodeTransformer):
         return new
 
     def visit_Tuple(self, node: ast.Tuple):
+        # Scan all tuples to ensure we transform nested new-style types.
         transformed = [self.visit(n) for n in node.elts]
         new = ast.Tuple(elts=transformed, ctx=node.ctx)
         ast.copy_location(new, node)
