@@ -36,11 +36,11 @@ def marshal(
 def marshaller(
     typ: type[T] | refs.ForwardRef | compat.TypeAliasType | str,
 ) -> routines.AbstractMarshaller[T]:
-    """Get an un-marshaller routine for a given type.
+    """Get a marshaller routine for a given type.
 
     Args:
-        typ: The type annotation to generate an unmarshaller for.
-             May be a type, a :py:class:`typing.ForwardRef`, or string reference.
+        typ: The type annotation to generate an marshaller for.
+             May be a type, type alias, :py:class:`typing.ForwardRef`, or string reference.
     """
     nodes = graph.static_order(typ)
     context: dict[type, routines.AbstractMarshaller] = ctx.TypeContext()
