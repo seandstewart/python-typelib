@@ -1,4 +1,4 @@
-"""Unmarshalling "routines" - type-specific logic for unmarshalling simple Python objects into higher-order Python types."""
+"""Type-specific logic for unmarshalling simple Python objects into higher-order Python types."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ import types
 import typing as tp
 import uuid
 
-from typelib import compat, inspection, interchange
+from typelib import compat, constants, inspection, interchange
 
 T = tp.TypeVar("T")
 
@@ -75,10 +75,26 @@ class NoOpUnmarshaller(AbstractUnmarshaller[T]):
 
 
 class NoneTypeUnmarshaller(AbstractUnmarshaller[None]):
-    """Unmarshaller for null values."""
+    """Unmarshaller for null values.
+
+    Notes:
+        We will attempt to decode any string/bytes input before evaluating for `None`.
+
+    See Also:
+        - :py:func:`~typelib.interchange.decode`
+    """
 
     def __call__(self, val: tp.Any) -> None:
-        if val is not None:
+        """Unmarshal the given input into a `None` value.
+
+        Args:
+            val: The value to unmarshal.
+
+        Raises:
+            ValueError: If :py:param:`val` is not `None` after decoding.
+        """
+        decoded = interchange.decode(val)
+        if decoded is not None:
             raise ValueError(f"{val!r} is not of {types.NoneType!r}")
         return None
 
@@ -88,7 +104,14 @@ BytesT = tp.TypeVar("BytesT", bound=bytes)
 
 
 class BytesUnmarshaller(AbstractUnmarshaller[BytesT], tp.Generic[BytesT]):
-    """Unmarshaller that encodes an input to bytes."""
+    """Unmarshaller that encodes an input to bytes.
+
+    Notes:
+        We will format a member of the `datetime` module into ISO format before converting to bytes.
+
+    See Also:
+        - :py:func:`~typelib.interchange.isoformat`
+    """
 
     def __call__(self, val: tp.Any) -> BytesT:
         if isinstance(val, self.t):
@@ -96,14 +119,21 @@ class BytesUnmarshaller(AbstractUnmarshaller[BytesT], tp.Generic[BytesT]):
         # Always encode date/time as ISO strings.
         if isinstance(val, (datetime.date, datetime.time, datetime.timedelta)):
             val = interchange.isoformat(val)
-        return self.t(str(val).encode("utf8"))
+        return self.t(str(val).encode(constants.DEFAULT_ENCODING))
 
 
 StringT = tp.TypeVar("StringT", bound=str)
 
 
 class StringUnmarshaller(AbstractUnmarshaller[StringT], tp.Generic[StringT]):
-    """Unmarshaller that converts an input to a string."""
+    """Unmarshaller that converts an input to a string.
+
+    Notes:
+        We will format a member of the `datetime` module into ISO format.
+
+    See Also:
+        - :py:func:`~typelib.interchange.isoformat`
+    """
 
     def __call__(self, val: tp.Any) -> StringT:
         # Always decode bytes.
@@ -120,23 +150,40 @@ NumberT = tp.TypeVar("NumberT", bound=numbers.Number)
 
 
 class NumberUnmarshaller(AbstractUnmarshaller[NumberT], tp.Generic[NumberT]):
-    """Unmarshaller that converts an input to a number."""
+    """Unmarshaller that converts an input to a number.
+
+    Notes:
+        Number unmarshalling follows a best-effort strategy. We may extend type resolution
+        to support more advanced type unmarshalling strategies in the future.
+
+        As of now:
+            1. Attempt to decode any bytes/string input into a real Python value.
+            2. If the input is a member of the `datetime` module, convert it to a number.
+            3. If the input is a mapping, unpack it into the number constructor.
+            4. If the input is an iterable, unpack it into the number constructor.
+            5. Otherwise, call the number constructor with the input.
+
+    See Also:
+        - :py:func:`~typelib.interchange.unixtime`
+    """
 
     def __call__(self, val: tp.Any) -> NumberT:
+        """Unmarshall a value into the bound Number type.
+
+        Args:
+            val: The input value to unmarshal.
+        """
         # Always decode bytes.
         decoded = interchange.decode(val)
         if isinstance(decoded, self.t):
             return decoded
         # Represent date/time objects as time since unix epoch.
-        if isinstance(val, (datetime.date, datetime.time)):
+        if isinstance(val, (datetime.date, datetime.time, datetime.timedelta)):
             decoded = interchange.unixtime(val)
-        # Represent deltas as total seconds.
-        elif isinstance(val, datetime.timedelta):
-            decoded = val.total_seconds()
         # Treat containers as constructor args.
         if inspection.ismappingtype(decoded.__class__):
             return self.t(**decoded)
-        if inspection.iscollectiontype(decoded.__class__) and not inspection.istexttype(
+        if inspection.isiterabletype(decoded.__class__) and not inspection.istexttype(
             decoded.__class__
         ):
             return self.t(*decoded)
@@ -155,9 +202,39 @@ DateT = tp.TypeVar("DateT", bound=datetime.date)
 
 
 class DateUnmarshaller(AbstractUnmarshaller[DateT], tp.Generic[DateT]):
-    """Unmarshaller that converts an input to a :py:class`datetime.date`."""
+    """Unmarshaller that converts an input to a :py:class`datetime.date` (or subclasses).
+
+    Notes:
+        There are many ways to represent a date object over-the-wire. Your most
+        fool-proof method is to rely upon [ISO 8601][iso] or [RFC 3339][rfc].
+
+        This class tries to handle the 90% case:
+            1. If we are already a :py:class:`datetime.date` instance, return it.
+            2. If we are a `float` or `int` instance, treat it as a unix timestamp, at UTC.
+            3. Attempt to decode any bytes/string input into a real Python value.
+            4. If we have a string value, parse it into either a :py:class:`datetime.date`
+               instance or a :py:class:`datetime.time` instance.
+            5. If the parsed result is a :py:class:`datetime.time` instance, then return
+               the result of :py:meth:`datetime.datetime.now`, at UTC, as a :py:class:`datetime.date`.
+
+        > We may add functionality in a future version to indicate a desired timezone via
+        > annotated types, but as mentioned above, _prefer common standards_ for formatting
+        > dates over other, less precise methods.
+
+    See Also:
+        - :py:func:`~typelib.interchange.decode`
+        - :py:func:`~typelib.interchange.dateparse`
+
+    [iso]: https://en.wikipedia.org/wiki/ISO_8601
+    [rfc]: https://tools.ietf.org/html/rfc3339
+    """
 
     def __call__(self, val: tp.Any) -> DateT:
+        """Unmarshal a value into the bound `DateT` type.
+
+        Args:
+            val: The input value to unmarshal.
+        """
         if isinstance(val, self.t) and not isinstance(val, datetime.datetime):
             return val
 
@@ -174,7 +251,7 @@ class DateUnmarshaller(AbstractUnmarshaller[DateT], tp.Generic[DateT]):
         )
         # Time-only construct is treated as today.
         if isinstance(date, datetime.time):
-            return self.t.today()
+            date = datetime.datetime.now(tz=datetime.timezone.utc).today()
         # Exact class matching - the parser returns subclasses.
         if date.__class__ is self.t:
             return date  # type: ignore[return-value]
@@ -188,9 +265,41 @@ DateTimeT = tp.TypeVar("DateTimeT", bound=datetime.datetime)
 class DateTimeUnmarshaller(
     AbstractUnmarshaller[datetime.datetime], tp.Generic[DateTimeT]
 ):
-    """Unmarshaller that converts an input to a :py:class:`datetime.datetime`."""
+    """Unmarshaller that converts an input to a :py:class`datetime.datetime` (or subclasses).
+
+    Notes:
+        There are many ways to represent a datetime object over-the-wire. Your most
+        fool-proof method is to rely upon [ISO 8601][iso] or [RFC 3339][rfc].
+
+        This class tries to handle the 90% case:
+            1. If we are already a :py:class:`datetime.datetime` instance, return it.
+            2. If we are a `float` or `int` instance, treat it as a unix timestamp, at UTC.
+            3. Attempt to decode any bytes/string input into a real Python value.
+            4. If we have a string value, parse it into either a :py:class:`datetime.date`
+               instance, a :py:class:`datetime.time` instance or a :py:class:`datetime.datetime`.
+            5. If the parsed result is a :py:class:`datetime.time` instance, then merge
+               the parsed time with today, at the timezone specified in the time instance.
+            6. If the parsed result is a :py:class:`datetime.date` instance, create a
+               :py:class:`datetime.datetime` instance at midnight of the indicated date, UTC.
+
+        > We may add functionality in a future version to indicate a desired timezone via
+        > annotated types, but as mentioned above, _prefer common standards_ for formatting
+        > dates and times over other, less precise methods.
+
+    See Also:
+        - :py:func:`~typelib.interchange.decode`
+        - :py:func:`~typelib.interchange.dateparse`
+
+    [iso]: https://en.wikipedia.org/wiki/ISO_8601
+    [rfc]: https://tools.ietf.org/html/rfc3339
+    """
 
     def __call__(self, val: tp.Any) -> datetime.datetime:
+        """Unmarshal a value into the bound `DateTimeT` type.
+
+        Args:
+            val: The input value to unmarshal.
+        """
         if isinstance(val, self.t):
             return val
 
@@ -231,16 +340,50 @@ class DateTimeUnmarshaller(
                 fold=dt.fold,
             )
         # Implicit: we have a date object.
-        return self.t(year=dt.year, month=dt.month, day=dt.day)
+        return self.t(
+            year=dt.year, month=dt.month, day=dt.day, tzinfo=datetime.timezone.utc
+        )
 
 
 TimeT = tp.TypeVar("TimeT", bound=datetime.time)
 
 
 class TimeUnmarshaller(AbstractUnmarshaller[TimeT], tp.Generic[TimeT]):
-    """Unmarshaller that converts an input to a :py:class:`datetime.time`."""
+    """Unmarshaller that converts an input to a :py:class`datetime.time` (or subclasses).
+
+    Notes:
+        There are many ways to represent a time object over-the-wire. Your most
+        fool-proof method is to rely upon [ISO 8601][iso] or [RFC 3339][rfc].
+
+        This class tries to handle the 90% case:
+            1. If we are already a :py:class:`datetime.time` instance, return it.
+            2. If we are a `float` or `int` instance, treat it as a unix timestamp, at UTC.
+            3. Attempt to decode any bytes/string input into a real Python value.
+            4. If we have a string value, parse it into either a :py:class:`datetime.date`
+               instance, a :py:class:`datetime.time` instance or a :py:class:`datetime.datetime`.
+            5. If the parsed result is a :py:class:`datetime.datetime` instance, then
+               extract the time portion, preserving the associated timezone.
+            6. If the parsed result is a :py:class:`datetime.date` instance, create
+               a time instance at midnight, UTC.
+
+        > We may add functionality in a future version to indicate a desired timezone via
+        > annotated types, but as mentioned above, _prefer common standards_ for formatting
+        > dates and times over other, less precise methods.
+
+    See Also:
+        - :py:func:`~typelib.interchange.decode`
+        - :py:func:`~typelib.interchange.dateparse`
+
+    [iso]: https://en.wikipedia.org/wiki/ISO_8601
+    [rfc]: https://tools.ietf.org/html/rfc3339
+    """
 
     def __call__(self, val: tp.Any) -> TimeT:
+        """Unmarshal a value into the bound `TimeT` type.
+
+        Args:
+            val: The input value to unmarshal.
+        """
         if isinstance(val, self.t):
             return val
 
@@ -259,9 +402,10 @@ class TimeUnmarshaller(AbstractUnmarshaller[TimeT], tp.Generic[TimeT]):
         )
 
         if isinstance(dt, datetime.datetime):
-            dt = dt.time()
+            # datetime.time() strips tzinfo...
+            dt = dt.time().replace(tzinfo=dt.tzinfo)
         elif isinstance(dt, datetime.date):
-            dt = self.t()
+            dt = self.t(tzinfo=datetime.timezone.utc)
 
         if dt.__class__ is self.t:
             return dt  # type: ignore[return-value]
@@ -280,15 +424,39 @@ TimeDeltaT = tp.TypeVar("TimeDeltaT", bound=datetime.timedelta)
 
 
 class TimeDeltaUnmarshaller(AbstractUnmarshaller[TimeDeltaT], tp.Generic[TimeDeltaT]):
-    """Unmarshaller that converts an input to a :py:class:`datetime.timedelta`."""
+    """Unmarshaller that converts an input to a :py:class`datetime.timedelta` (or subclasses).
+
+    Notes:
+        There are many ways to represent a timedelta object over-the-wire. Your most
+        fool-proof method is to rely upon [ISO 8601][iso] or [RFC 3339][rfc].
+
+        This class tries to handle the 90% case:
+            1. If we are already a :py:class:`datetime.timedelta` instance, return it.
+            2. If we are a `float` or `int` instance, treat it as total seconds for a delta.
+            3. Attempt to decode any bytes/string input into a real Python value.
+            4. If we have a string value, parse it into a :py:class:`datetime.timedelta` instance.
+            5. If the parsed result is not *exactly* the bound `TimeDeltaT` type, convert it.
+
+    See Also:
+        - :py:func:`~typelib.interchange.decode`
+        - :py:func:`~typelib.interchange.dateparse`
+
+    [iso]: https://en.wikipedia.org/wiki/ISO_8601
+    [rfc]: https://tools.ietf.org/html/rfc3339
+    """
 
     def __call__(self, val: tp.Any) -> TimeDeltaT:
+        """Unmarshal a value into the bound `TimeDeltaT` type.
+
+        Args:
+            val: The input value to unmarshal.
+        """
         if isinstance(val, (int, float)):
             return self.t(seconds=int(val))
 
         decoded = interchange.decode(val)
         td: datetime.timedelta = (
-            interchange.dateparse(decoded, self.t)
+            interchange.dateparse(decoded, td=datetime.timedelta)
             if isinstance(decoded, str)
             else decoded
         )
@@ -303,9 +471,29 @@ UUIDT = tp.TypeVar("UUIDT", bound=uuid.UUID)
 
 
 class UUIDUnmarshaller(AbstractUnmarshaller[UUIDT], tp.Generic[UUIDT]):
-    """Unmarshaller that converts an input to a :py:class:`uuid.UUID`."""
+    """Unmarshaller that converts an input to a :py:class:`uuid.UUID` (or subclasses).
+
+    Notes:
+        The resolution algorithm is intentionally simple:
+            1. Attempt to decode any bytes/string input into a real Python object.
+            2. If the value is an integer, pass it into the constructor via the `int=` param.
+            3. Otherwise, pass into the constructor directly.
+
+        > While the :py:class:`uuid.UUID` constructor supports many different keyword
+        > inputs for different types of UUID formats/encodings, we don't have a great
+        > method for detecting the correct input. We have moved with the assumption that
+        > the two most formats are a standard string encoding, or an integer encoding.
+    """
 
     def __call__(self, val: tp.Any) -> UUIDT:
+        """Unmarshal a value into the bound `UUIDT` type.
+
+        Args:
+            val: The input value to unmarshal.
+
+        See Also:
+            - :py:func:`~typelib.interchange.load`
+        """
         decoded = interchange.load(val)
         if isinstance(decoded, int):
             return self.t(int=decoded)
@@ -318,7 +506,16 @@ PatternT = tp.TypeVar("PatternT", bound=re.Pattern)
 
 
 class PatternUnmarshaller(AbstractUnmarshaller[PatternT], tp.Generic[PatternT]):
-    """Unmarshaller that converts an input to a :py:class:`re.Pattern`."""
+    """Unmarshaller that converts an input to a :py:class:`re.Pattern`.
+
+    Notes:
+        You can't instantiate a :py:class:`re.Pattern` directly, so we don't have a good
+        method for handling patterns from a different library OOTB. We simply call
+        `re.compile()` on the decoded input.
+
+    See Also:
+        - :py:func:`~typelib.interchange.decode`
+    """
 
     def __call__(self, val: tp.Any) -> PatternT:
         decoded = interchange.decode(val)
@@ -326,15 +523,35 @@ class PatternUnmarshaller(AbstractUnmarshaller[PatternT], tp.Generic[PatternT]):
 
 
 class CastUnmarshaller(AbstractUnmarshaller[T]):
-    """Unmarshaller that converts an input to a :py:class:`T` with a direct cast."""
+    """Unmarshaller that converts an input to a :py:class:`T` with a direct cast.
+
+    Notes:
+        Before casting to the bound type, we will attempt to decode the value into a
+        real Python object.
+
+    See Also:
+        - :py:func:`~typelib.interchange.load`
+    """
 
     __slots__ = ("caster",)
 
     def __init__(self, t: type[T], context: ContextT, *, var: str | None = None):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal into.
+            context: Any nested type context (unused).
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t, context, var=var)
         self.caster: tp.Callable[[tp.Any], T] = self.origin  # type: ignore[assignment]
 
     def __call__(self, val: tp.Any) -> T:
+        """Unmarshal a value into the bound `T` type.
+
+        Args:
+            val: The input value to unmarshal.
+        """
         # Try to load the string, if this is JSON or a literal expression.
         decoded = interchange.load(val)
         # Short-circuit cast if we have the type we want.
@@ -353,11 +570,26 @@ LiteralT = tp.TypeVar("LiteralT")
 
 
 class LiteralUnmarshaller(AbstractUnmarshaller[LiteralT], tp.Generic[LiteralT]):
-    """Unmarshaller that will enforce an input conform to a defined `:py:class:typing.Literal`."""
+    """Unmarshaller that will enforce an input conform to a defined `:py:class:typing.Literal`.
+
+    Notes:
+        We will attempt to decode the value into a real Python object if the input
+        fails initial membership evaluation.
+
+    See Also:
+        - :py:func:`~typelib.interchange.load`
+    """
 
     __slots__ = ("values",)
 
     def __init__(self, t: type[LiteralT], context: ContextT, *, var: str | None = None):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal into.
+            context: Any nested type context (unused).
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t, context, var=var)
         self.values = inspection.get_args(t)
 
@@ -375,16 +607,49 @@ UnionT = tp.TypeVar("UnionT")
 
 
 class UnionUnmarshaller(AbstractUnmarshaller[UnionT], tp.Generic[UnionT]):
-    """Unmarshaller that will convert an input to one of the types defined in a :py:class:`typing.Union`."""
+    """Unmarshaller that will convert an input to one of the types defined in a :py:class:`typing.Union`.
+
+    Notes:
+        Union deserialization is messy and violates a static type-checking mechanism -
+        for static type-checkers, `str | int` is equivalent to `int | str`. This breaks
+        down during unmarshalling for the simple fact that casting something to `str`
+        will always succeed, so we would never actually unmarshal the input it an `int`,
+        even if that is the "correct" result.
+
+        In order to ensure correctness, you should treat your union members as a stack,
+        sorted from most-strict initialization to least-strict.
+
+        Our algorithm is intentionally simple:
+            1. We iterate through each union member from top to bottom and call the
+               resolved unmarshaller, returning the result.
+            2. If any of `(ValueError, TypeError, SyntaxError)`, try again with the
+               next unmarshaller.
+            3. If all unmarshallers fail, then we have an invalid input, raise an error.
+    """
 
     __slots__ = ("stack", "ordered_routines")
 
     def __init__(self, t: type[UnionT], context: ContextT, *, var: str | None = None):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal into.
+            context: Any nested type context. Used to resolve the member unmarshallers.
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t, context, var=var)
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[typ] for typ in self.stack]
 
     def __call__(self, val: tp.Any) -> UnionT:
+        """Unmarshal a value into the bound `UnionT`.
+
+        Args:
+            val: The input value to unmarshal.
+
+        Raises:
+            ValueError: If `val` cannot be unmarshalled into any member type.
+        """
         for routine in self.ordered_routines:
             with contextlib.suppress(ValueError, TypeError, SyntaxError):
                 unmarshalled = routine(val)
@@ -403,7 +668,24 @@ MappingT = tp.TypeVar("MappingT", bound=tp.Mapping)
 class SubscriptedMappingUnmarshaller(
     AbstractUnmarshaller[MappingT], tp.Generic[MappingT]
 ):
-    """Unmarshaller for a subscripted mapping type."""
+    """Unmarshaller for a subscripted mapping type.
+
+    Notes:
+        This unmarshaller handles standard key->value mappings. We leverage our own
+        generic `iteritems` to allow for translating other collections or structured
+        objects into the target mapping.
+
+        The algorithm is as follows:
+            1. We attempt to decode the input into a real Python object.
+            2. We iterate over key->value pairs.
+            3. We call the key-type's unmarshaller on the `key` members.
+            4. We call the value-type's unmarshaller on the `value` members.
+            5. We pass the unmarshalling iterator in to the type's constructor.
+
+    See Also:
+        - :py:func:`~typelib.interchange.load`
+        - :py:func:`~typelib.interchange.iteritems`
+    """
 
     __slots__ = (
         "keys",
@@ -411,12 +693,24 @@ class SubscriptedMappingUnmarshaller(
     )
 
     def __init__(self, t: type[MappingT], context: ContextT, *, var: str | None = None):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal into.
+            context: Any nested type context. Used to resolve the member unmarshallers.
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t, context, var=var)
         key_t, value_t = inspection.get_args(t)
         self.keys = context[key_t]
         self.values = context[value_t]
 
     def __call__(self, val: tp.Any) -> MappingT:
+        """Unmarshal a value into the bound `MappingT`.
+
+        Args:
+            val: The input value to unmarshal.
+        """
         # Always decode bytes.
         decoded = interchange.load(val)
         keys = self.keys
@@ -432,19 +726,47 @@ IterableT = tp.TypeVar("IterableT", bound=tp.Iterable)
 class SubscriptedIterableUnmarshaller(
     AbstractUnmarshaller[IterableT], tp.Generic[IterableT]
 ):
-    """Unmarshaller for a subscripted iterable."""
+    """Unmarshaller for a subscripted iterable type.
+
+    Notes:
+        This unmarshaller handles standard simple iterable types. We leverage our own
+        generic `itervalues` to allow for translating other collections or structured
+        objects into the target iterable.
+
+        The algorithm is as follows:
+            1. We attempt to decode the input into a real Python object.
+            2. We iterate over values in the decoded input.
+            3. We call the value-type's unmarshaller on the `value` members.
+            5. We pass the unmarshalling iterator in to the type's constructor.
+
+    See Also:
+        - :py:func:`~typelib.interchange.load`
+        - :py:func:`~typelib.interchange.itervalues`
+    """
 
     __slots__ = ("values",)
 
     def __init__(
         self, t: type[IterableT], context: ContextT, *, var: str | None = None
     ):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal into.
+            context: Any nested type context. Used to resolve the member unmarshaller.
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t=t, context=context, var=var)
         # supporting tuple[str, ...]
         (value_t, *_) = inspection.get_args(t)
         self.values = context[value_t]
 
     def __call__(self, val: tp.Any) -> IterableT:
+        """Unmarshal a value into the bound `IterableT`.
+
+        Args:
+            val: The input value to unmarshal.
+        """
         # Always decode bytes.
         decoded = interchange.load(val)
         values = self.values
@@ -457,18 +779,46 @@ IteratorT = tp.TypeVar("IteratorT", bound=tp.Iterator)
 class SubscriptedIteratorUnmarshaller(
     AbstractUnmarshaller[IteratorT], tp.Generic[IteratorT]
 ):
-    """Unmarshaller for a subscripted iterator."""
+    """Unmarshaller for a subscripted iterator type.
+
+    Notes:
+        This unmarshaller handles standard simple iterable types. We leverage our own
+        generic `itervalues` to allow for translating other collections or structured
+        objects into the target iterator.
+
+        The algorithm is as follows:
+            1. We attempt to decode the input into a real Python object.
+            2. We iterate over values in the decoded input.
+            3. We call the value-type's unmarshaller on the `value` members.
+            5. We return a new, unmarshalling iterator.
+
+    See Also:
+        - :py:func:`~typelib.interchange.load`
+        - :py:func:`~typelib.interchange.itervalues`
+    """
 
     __slots__ = ("values",)
 
     def __init__(
         self, t: type[IteratorT], context: ContextT, *, var: str | None = None
     ):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal into.
+            context: Any nested type context. Used to resolve the member unmarshaller.
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t, context, var=var)
         (value_t,) = inspection.get_args(t)
         self.values = context[value_t]
 
     def __call__(self, val: tp.Any) -> IteratorT:
+        """Unmarshal a value into the bound `IteratorT`.
+
+        Args:
+            val: The input value to unmarshal.
+        """
         # Always decode bytes.
         decoded = interchange.load(val)
         values = self.values
@@ -477,18 +827,54 @@ class SubscriptedIteratorUnmarshaller(
 
 
 class FixedTupleUnmarshaller(AbstractUnmarshaller[compat.TupleT]):
-    """Unmarshaller for a "fixed" tuple (e.g., `tuple[int, str, float]`)."""
+    """Unmarshaller for a "fixed" tuple (e.g., `tuple[int, str, float]`).
+
+    Notes:
+        Python supports two distinct uses for tuples, unlike in other languages:
+            1. Tuples with a fixed number of members.
+            2. Tuples of variable length (an immutable sequence).
+
+        "Fixed" tuples may have a distinct type for each member, while variable-length
+        tuples may only have a single type (or union of types) for all members.
+
+        Variable-length tuples are handled by our generic iterable unmarshaller.
+
+        For "fixed" tuples, the algorithm is:
+            1. Attempt to decode the input into a real Python object.
+            2. zip the stack of member unmarshallers and the values in the decoded object.
+            3. Unmarshal each value using the associated unmarshaller for that position.
+            4. Pass the unmarshalling iterator in to the type's constructor.
+
+        > If the input has more members than the type definition allows, those members
+        > will be dropped by nature of our unmarshalling algorithm.
+
+        See Also:
+            - :py:func:`~typelib.interchange.load`
+            - :py:func:`~typelib.interchange.itervalues`
+    """
 
     __slots__ = ("ordered_routines", "stack")
 
     def __init__(
         self, t: type[compat.TupleT], context: ContextT, *, var: str | None = None
     ):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal into.
+            context: Any nested type context. Used to resolve the value unmarshaller stack.
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t, context, var=var)
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
     def __call__(self, val: tp.Any) -> compat.TupleT:
+        """Unmarshal a value into the bound :py:class:`~interchange.compat.TupleT`.
+
+        Args:
+            val: The input value to unmarshal.
+        """
         decoded = interchange.load(val)
         return self.origin(
             routine(v)
@@ -502,15 +888,49 @@ _ST = tp.TypeVar("_ST")
 
 
 class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
-    """Unmarshaller for a "structured" (user-defined) type."""
+    """Unmarshaller for a "structured" (user-defined) type.
+
+    Notes:
+        This unmarshaller supports the unmarshalling of any mapping or structured
+        type into the targeted structured type. There are limitations.
+
+        The algorithm is:
+            1. Attempt to decode the input into a real Python object.
+            2. Using a mapping of the structured types "field" to the field-type's unmarshaller,
+               iterate over the field->value pairs of the input, skipping fields in the
+               input which are not present in the field mapping.
+            3. Store each unmarshalled value in a keyword-argument mapping.
+            4. Unpack the keyword argument mapping into the bound type's constructor.
+
+        > While we don't currently support arbitrary collections, we may add this
+        > functionality at a later date. Doing so requires more advanced introspection
+        > and parameter-binding that would lead to a significant loss in performance if
+        > not done carefully.
+
+    See Also:
+        - :py:func:`~typelib.interchange.load`
+        - :py:func:`~typelib.interchange.itervalues`
+    """
 
     __slots__ = ("fields_by_var",)
 
     def __init__(self, t: type[_ST], context: ContextT, *, var: str | None = None):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal into.
+            context: Any nested type context. Used to resolve the value field-to-unmarshaller mapping.
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t, context, var=var)
         self.fields_by_var = {m.var: m for m in self.context.values() if m.var}
 
     def __call__(self, val: tp.Any) -> _ST:
+        """Unmarshal a value into the bound type.
+
+        Args:
+            val: The input value to unmarshal.
+        """
         decoded = interchange.load(val)
         fields = self.fields_by_var
         kwargs = {

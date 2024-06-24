@@ -162,6 +162,10 @@ def dateparse(val: str, td: type[DateTimeT]) -> DateTimeT:
 
     Returns:
         The parsed datetime object.
+
+    Raises:
+        ValueError: If `val` is not a date string or does not resolve to an instance of
+                    the target datetime type.
     """
     try:
         # When `exact=False`, the only two possibilities are DateTime and Duration.

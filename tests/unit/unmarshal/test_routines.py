@@ -58,9 +58,17 @@ def test_str_unmarshaller(given_input, expected_output):
     number=dict(given_input=1, expected_output=1),
     bool=dict(given_input=True, expected_output=1),
     date=dict(given_input=datetime.date(2020, 1, 1), expected_output=1577836800.0),
+    iterable=dict(given_input=["1"], expected_output=1),
+    mapping=dict(given_input={"value": "1"}, expected_output=1),
 )
 def test_number_unmarshaller(given_input, given_type, expected_output):
+    if isinstance(given_input, dict) and given_type in (float, int):
+        pytest.skip(f"{given_type} does not support mapping inputs.")
+
     # Given
+    if given_type is fractions.Fraction and isinstance(given_input, dict):
+        given_input = {"numerator": given_input["value"]}
+
     given_unmarshaller = routines.NumberUnmarshaller(given_type, {})
     expected_output = given_type(expected_output)
     # When
@@ -145,7 +153,7 @@ def test_date_unmarshaller(given_input, expected_output):
     ),
     date=dict(
         given_input=datetime.date(1969, 12, 31),
-        expected_output=datetime.datetime(1969, 12, 31),
+        expected_output=datetime.datetime(1969, 12, 31, tzinfo=datetime.timezone.utc),
     ),
     time=dict(
         given_input=datetime.time(tzinfo=datetime.timezone.utc),
@@ -202,7 +210,7 @@ def test_datetime_unmarshaller(given_input, expected_output):
     ),
     date=dict(
         given_input=datetime.date(1969, 12, 31),
-        expected_output=datetime.time(),
+        expected_output=datetime.time(tzinfo=datetime.timezone.utc),
     ),
     time=dict(
         given_input=datetime.time(tzinfo=datetime.timezone.utc),
