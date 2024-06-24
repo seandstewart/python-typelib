@@ -1,4 +1,4 @@
-"""Marshalling "routines" - type-specific logic for marshalling Python objects in to simple types."""
+"""Type-specific logic for marshalling Python objects in to simple types for representation over-the-wire."""
 
 from __future__ import annotations
 
@@ -69,6 +69,11 @@ class NoOpMarshaller(AbstractMarshaller[T], tp.Generic[T]):
     """A marshaller that does nothing."""
 
     def __call__(self, val: T) -> interchange.MarshalledValueT:
+        """Run the marshaller.
+
+        Args:
+            val: The value to marshal.
+        """
         return val  # type: ignore[return-value]
 
 
@@ -79,6 +84,11 @@ class CastMarshaller(AbstractMarshaller[T], tp.Generic[T]):
     """A marshaller that casts a value to a specific type."""
 
     def __call__(self, val: T) -> interchange.MarshalledValueT:
+        """Marshal a the value into bound type.
+
+        Args:
+            val: The value to marshal.
+        """
         return self.origin(val)
 
 
@@ -90,6 +100,11 @@ class ToStringMarshaller(AbstractMarshaller[T], tp.Generic[T]):
     """A marshaller that converts a value to a string."""
 
     def __call__(self, val: T) -> str:
+        """Marshal a value of the bound type into a string.
+
+        Args:
+            val: The value to marshal.
+        """
         return str(val)
 
 
@@ -115,6 +130,11 @@ class PatternMarshaller(AbstractMarshaller[PatternT]):
     """A marshaller that converts a :py:class:`re.Pattern` to a string."""
 
     def __call__(self, val: PatternT) -> str:
+        """Marshal a compiled regex pattern into a string.
+
+        Args:
+            val: The pattern to marshal.
+        """
         return val.pattern
 
 
@@ -124,9 +144,18 @@ DateOrTimeT = tp.TypeVar(
 
 
 class ToISOTimeMarshaller(AbstractMarshaller[DateOrTimeT], tp.Generic[DateOrTimeT]):
-    """A marshaller that converts any date/time to a ISO time string."""
+    """A marshaller that converts any date/time object to a ISO time string.
+
+    See Also:
+        - :py:func:`typelib.interchange.isoformat`
+    """
 
     def __call__(self, val: DateOrTimeT) -> str:
+        """Marshal a date/time object into a ISO time string.
+
+        Args:
+            val: The date/time object to marshal.
+        """
         return interchange.isoformat(val)
 
 
@@ -152,10 +181,25 @@ class LiteralMarshaller(AbstractMarshaller[LiteralT], tp.Generic[LiteralT]):
     __slots__ = ("values",)
 
     def __init__(self, t: type[LiteralT], context: ContextT, *, var: str | None = None):
+        """Constructor.
+
+        Args:
+            t: The Literal type to enforce.
+            context: Nested type context (unused).
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t, context, var=var)
         self.values = inspection.get_args(t)
 
     def __call__(self, val: LiteralT) -> interchange.MarshalledValueT:
+        """Enforce the given value is a member of the bound `Literal` type.
+
+        Args:
+            val: The value to enforce.
+
+        Raises:
+            ValueError: If :py:param:`val` is not a member of the bound `Literal` type.
+        """
         if val in self.values:
             return val  # type: ignore[return-value]
 
@@ -166,16 +210,35 @@ UnionT = tp.TypeVar("UnionT")
 
 
 class UnionMarshaller(AbstractMarshaller[UnionT], tp.Generic[UnionT]):
-    """A marshaller for dumping a given value via one of the types in the defined :py:class:`typing.Union`"""
+    """A marshaller for dumping a given value via one of the types in the defined bound union.
+
+    See Also:
+        - :py:class:`~typelib.unmarshal.routines.UnionUnmarshaller`
+    """
 
     __slots__ = ("stack", "ordered_routines")
 
     def __init__(self, t: type[UnionT], context: ContextT, *, var: str | None = None):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal into.
+            context: Any nested type context. Used to resolve the member marshallers.
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t, context, var=var)
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[typ] for typ in self.stack]
 
     def __call__(self, val: UnionT) -> interchange.MarshalledValueT:
+        """Unmarshal a value into the bound `UnionT`.
+
+        Args:
+            val: The input value to unmarshal.
+
+        Raises:
+            ValueError: If `val` cannot be marshalled via any member type.
+        """
         for routine in self.ordered_routines:
             with contextlib.suppress(ValueError, TypeError, SyntaxError):
                 unmarshalled = routine(val)
@@ -191,6 +254,11 @@ class MappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[MappingT]):
     """A marshaller for dumping any mapping into a simple :py:class:`builtins.dict`."""
 
     def __call__(self, val: MappingT) -> MarshalledMappingT:
+        """Marshal a mapping into a simple :py:class:`builtins.dict`.
+
+        Args:
+            val: The mapping object to marshal.
+        """
         return {**val}
 
 
@@ -201,11 +269,22 @@ class IterableMarshaller(AbstractMarshaller[IterableT], tp.Generic[IterableT]):
     """A marshaller for dumping any iterable into a simple :py:class:`builtins.list`."""
 
     def __call__(self, val: IterableT) -> MarshalledIterableT:
+        """Marshal an iterable into a simple :py:class:`builtins.list`.
+
+        Args:
+            val: The iterable to marshal.
+        """
         return [*val]
 
 
 class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[MappingT]):
-    """A marshaller for dumping a subscripted mapping into a simple :py:class:`builtins.dict`."""
+    """A marshaller for dumping a subscripted mapping into a simple :py:class:`builtins.dict`.
+
+    Keys are marshalled according to the defined key-type, values according to the defined value-type.
+
+    See Also:
+        - :py:class:`~typelib.unmarshal.routines.SubscriptedMappingUnmarshaller`
+    """
 
     __slots__ = (
         "keys",
@@ -213,6 +292,13 @@ class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[Mapp
     )
 
     def __init__(self, t: type[MappingT], context: ContextT, *, var: str | None = None):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal from.
+            context: Any nested type context. Used to resolve the member marshallers.
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t, context, var=var)
         key_t, value_t = inspection.get_args(t)
         self.keys = context[key_t]
@@ -227,37 +313,73 @@ class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[Mapp
 class SubscriptedIterableMarshaller(
     AbstractMarshaller[IterableT], tp.Generic[IterableT]
 ):
-    """A marshaller for dumping a subscripted iterable into a simple :py:class:`builtins.list`."""
+    """A marshaller for dumping a subscripted iterable into a simple :py:class:`builtins.list`.
+
+    Values are marshalled according to the defined value-type.
+
+    See Also:
+        - :py:class:`~typelib.unmarshal.routines.SubscriptedIterableUnmarshaller`
+    """
 
     __slots__ = ("values",)
 
     def __init__(
         self, t: type[IterableT], context: ContextT, *, var: str | None = None
     ):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal from.
+            context: Any nested type context. Used to resolve the member marshallers.
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t=t, context=context, var=var)
         # supporting tuple[str, ...]
         (value_t, *_) = inspection.get_args(t)
         self.values = context[value_t]
 
     def __call__(self, val: IterableT) -> MarshalledIterableT:
+        """Marshal an iterable into a simple :py:class:`builtins.list`.
+
+        Args:
+            val: The iterable to marshal.
+        """
         # Always decode bytes.
         values = self.values
         return [values(v) for v in interchange.itervalues(val)]
 
 
 class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
-    """A marshaller for dumping a "fixed" tuple to a simple :py:class:`builtins.list`."""
+    """A marshaller for dumping a "fixed" tuple to a simple :py:class:`builtins.list`.
+
+    Values are marshalled according to the value-type in the order they are defined.
+
+    See Also:
+        - :py:class:`~typelib.unmarshal.routines.FixedTupleUnmarshaller`
+    """
 
     __slots__ = ("ordered_routines", "stack")
 
     def __init__(
         self, t: type[compat.TupleT], context: ContextT, *, var: str | None = None
     ):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal from.
+            context: Any nested type context. Used to resolve the member marshallers.
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t, context, var=var)
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
     def __call__(self, val: compat.TupleT) -> MarshalledIterableT:
+        """Marshal a tuple into a simple :py:class:`builtins.list`.
+
+        Args:
+            val: The tuple to marshal.
+        """
         return [
             routine(v)
             for routine, v in zip(self.ordered_routines, interchange.itervalues(val))
@@ -268,15 +390,31 @@ _ST = tp.TypeVar("_ST")
 
 
 class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
-    """A marshaller for dumping a structured (user-defined) type to a simple :py:class:`builtins.dict`."""
+    """A marshaller for dumping a structured (user-defined) type to a simple :py:class:`builtins.dict`.
+
+    See Also:
+        - :py:class:`~typelib.unmarshal.routines.StructuredTypeUnmarshaller`
+    """
 
     __slots__ = ("fields_by_var",)
 
     def __init__(self, t: type[_ST], context: ContextT, *, var: str | None = None):
+        """Constructor.
+
+        Args:
+            t: The type to unmarshal from.
+            context: Any nested type context. Used to resolve the member marshallers.
+            var: A variable name for the indicated type annotation (unused, optional).
+        """
         super().__init__(t, context, var=var)
         self.fields_by_var = {m.var: m for m in self.context.values() if m.var}
 
     def __call__(self, val: _ST) -> MarshalledMappingT:
+        """Marshal a structured type into a simple :py:class:`builtins.dict`.
+
+        Args:
+            val: The structured type to marshal.
+        """
         fields = self.fields_by_var
         return {f: fields[f](v) for f, v in interchange.iteritems(val) if f in fields}
 
