@@ -49,8 +49,28 @@ __all__ = (
 
 
 class AbstractUnmarshaller(abc.ABC, tp.Generic[T]):
-    context: ContextT
+    """Abstract base class defining the common interface for unmarshallers.
+
+    Unmarshallers are custom callables which maintain type-specific information. They
+    use this information to provide robust, performant logic for decoding and converting
+    primtive Python objects or JSON-endcoded data into their target type.
+
+    Unmarshallers support contextual deserialization, which enables the unmarshalling of
+    nested types.
+
+    Attributes:
+        t: The root type of this unmarshaller.
+        origin: If :py:attr:`t` is a generic, this will be an actionable runtime type
+                related to `t`, otherwise it is the same as :py:attr:`t`.
+        context: The complete type context for this unmarshaller.
+        var: If this unmarshaller is used in a nested context, this will reference the
+             field/parameter/index at which this unmarshaller should be used.
+    """
+
     t: type[T]
+    origin: type[T]
+    context: ContextT
+    var: str | None
 
     __slots__ = ("t", "origin", "context", "var")
 
@@ -58,13 +78,24 @@ class AbstractUnmarshaller(abc.ABC, tp.Generic[T]):
         return f"<{self.__class__.__name__}(type={self.t!r}, origin={self.origin!r}, var={self.var!r})>"
 
     def __init__(self, t: type[T], context: ContextT, *, var: str | None = None):
+        """Construct an unmarshaller instance.
+
+        Args:
+            t: The root type of this unmarshaller.
+            context: The complete type context for this unmarshaller.
+            var: The associated field or parameter name for this unmarshaller (optional).
+        """
         self.t = t
         self.origin = inspection.origin(self.t)
         self.context = context
         self.var = var
 
     @abc.abstractmethod
-    def __call__(self, val: tp.Any) -> T: ...
+    def __call__(self, val: tp.Any) -> T:
+        """Unmarshall a Python object into its target type.
+
+        Not implemented for the abstract base class.
+        """
 
 
 class NoOpUnmarshaller(AbstractUnmarshaller[T]):
@@ -715,7 +746,7 @@ class SubscriptedMappingUnmarshaller(
         decoded = interchange.load(val)
         keys = self.keys
         values = self.values
-        return self.origin(
+        return self.origin(  # type: ignore[call-arg]
             ((keys(k), values(v)) for k, v in interchange.iteritems(decoded))
         )
 
@@ -770,7 +801,7 @@ class SubscriptedIterableUnmarshaller(
         # Always decode bytes.
         decoded = interchange.load(val)
         values = self.values
-        return self.origin((values(v) for v in interchange.itervalues(decoded)))
+        return self.origin((values(v) for v in interchange.itervalues(decoded)))  # type: ignore[call-arg]
 
 
 IteratorT = tp.TypeVar("IteratorT", bound=tp.Iterator)

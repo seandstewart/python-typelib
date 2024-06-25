@@ -44,8 +44,28 @@ __all__ = (
 
 
 class AbstractMarshaller(abc.ABC, tp.Generic[T]):
-    context: ContextT
+    """Abstract base class defining the common interface for marshallers.
+
+    Marshallers are custom callables which maintain type-specific information. They
+    use this information to provide robust, performant logic reducing Python objects
+    into their primitive representations for over-the-wire encoding.
+
+    Marshallers support contextual serialization, which enables the marshalling of
+    nested types.
+
+    Attributes:
+        t: The root type of this marshaller.
+        origin: If :py:attr:`t` is a generic, this will be an actionable runtime type
+                related to `t`, otherwise it is the same as :py:attr:`t`.
+        context: The complete type context for this unmarshaller.
+        var: If this unmarshaller is used in a nested context, this will reference the
+             field/parameter/index at which this unmarshaller should be used.
+    """
+
     t: type[T]
+    origin: type[T]
+    context: ContextT
+    var: str | None
 
     __slots__ = ("t", "origin", "context", "var")
 
@@ -53,6 +73,13 @@ class AbstractMarshaller(abc.ABC, tp.Generic[T]):
         return f"<{self.__class__.__name__}(type={self.t!r}, origin={self.origin!r}, var={self.var!r})>"
 
     def __init__(self, t: type[T], context: ContextT, *, var: str | None = None):
+        """Construct a marshaller instance.
+
+        Args:
+            t: The root type of this marshaller.
+            context: The complete type context for this marshaller.
+            var: The associated field or parameter name for this unmarshaller (optional).
+        """
         self.t = t
         self.origin = inspection.origin(self.t)
         self.context = context
@@ -89,7 +116,8 @@ class CastMarshaller(AbstractMarshaller[T], tp.Generic[T]):
         Args:
             val: The value to marshal.
         """
-        return self.origin(val)
+        cast = tp.cast("interchange.MarshalledValueT", self.origin(val))  # type: ignore[call-arg]
+        return cast
 
 
 IntegerMarshaller = CastMarshaller[int]
