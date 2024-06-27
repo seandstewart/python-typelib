@@ -2,16 +2,28 @@
 
 from __future__ import annotations
 
-from typelib import inspection, refs
+import dataclasses
+
+from typelib import graph, inspection, refs
 
 
 class TypeContext(dict):
     """A key-value mapping which can map between forward references and real types."""
 
-    def __missing__(self, key: type | refs.ForwardRef):
-        if isinstance(key, refs.ForwardRef):
+    def __missing__(self, key: graph.TypeNode | type | refs.ForwardRef):
+        if not isinstance(key, graph.TypeNode):
+            key = graph.TypeNode(type=key)
+            return self[key]
+
+        type = key.type
+        if isinstance(type, refs.ForwardRef):
             raise KeyError(key)
-        ref = refs.forwardref(
-            inspection.get_qualname(key), module=getattr(key, "__module__", None)
+        ref = (
+            key.type
+            if isinstance(type, refs.ForwardRef)
+            else refs.forwardref(
+                inspection.get_qualname(type), module=getattr(type, "__module__", None)
+            )
         )
-        return self[ref]
+        node = dataclasses.replace(key, type=ref)
+        return self[node]

@@ -131,22 +131,14 @@ from tests import models
             )
         ),
     ),
+    type_alias_type=dict(
+        given_type=compat.TypeAliasType("IntList", "list[int]"),
+        given_input='["1", "2"]',
+        expected_output=[1, 2],
+    ),
 )
 def test_unmarshal(given_type, given_input, expected_output):
     # When
     output = api.unmarshal(given_type, given_input)
-    # Then
-    assert output == expected_output
-
-
-def test_type_alias_type_unmarshal():
-    # Given
-    # Can't reliably test the `type` statement till 3.12 is the min version.
-    # type IntList = list[int]
-    IntList = compat.TypeAliasType("IntList", "list[int]")
-    given_input = '["1", "2"]'
-    expected_output = [1, 2]
-    # When
-    output = api.unmarshal(IntList, given_input)
     # Then
     assert output == expected_output

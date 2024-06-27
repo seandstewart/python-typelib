@@ -14,7 +14,7 @@ import types
 import typing as tp
 import uuid
 
-from typelib import compat, constants, inspection, interchange
+from typelib import compat, constants, graph, inspection, interchange
 
 T = tp.TypeVar("T")
 
@@ -130,7 +130,7 @@ class NoneTypeUnmarshaller(AbstractUnmarshaller[None]):
         return None
 
 
-ContextT: tp.TypeAlias = tp.Mapping[type, AbstractUnmarshaller]
+ContextT: tp.TypeAlias = "tp.Mapping[type | graph.TypeNode, AbstractUnmarshaller]"
 BytesT = tp.TypeVar("BytesT", bound=bytes)
 
 

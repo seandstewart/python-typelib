@@ -43,23 +43,26 @@ def marshaller(
              May be a type, type alias, :py:class:`typing.ForwardRef`, or string reference.
     """
     nodes = graph.static_order(typ)
-    context: dict[type, routines.AbstractMarshaller] = ctx.TypeContext()
+    context: dict[type | graph.TypeNode, routines.AbstractMarshaller] = (
+        ctx.TypeContext()
+    )
     if not nodes:
         return routines.NoOpMarshaller(t=typ, context=context, var=None)  # type: ignore[arg-type]
 
     # "root" type will always be the final node in the sequence.
-    root = nodes[-1].type
+    root = nodes[-1]
     for node in nodes:
-        context[node.type] = _get_unmarshaller(node, context=context)
+        context[node] = _get_unmarshaller(node, context=context)
 
     return context[root]
 
 
 def _get_unmarshaller(  # type: ignore[return]
-    node: graph.TypeNode, context: dict[type, routines.AbstractMarshaller[T]]
+    node: graph.TypeNode,
+    context: routines.ContextT,
 ) -> routines.AbstractMarshaller[T]:
-    if node.type in context:
-        return context[node.type]
+    if node in context:
+        return context[node]
 
     for check, unmarshaller_cls in _HANDLERS.items():
         if check(node.type):

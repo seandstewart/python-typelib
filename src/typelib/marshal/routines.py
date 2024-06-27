@@ -12,7 +12,7 @@ import re
 import typing as tp
 import uuid
 
-from typelib import compat, inspection, interchange
+from typelib import compat, graph, inspection, interchange
 
 T = tp.TypeVar("T")
 
@@ -89,7 +89,7 @@ class AbstractMarshaller(abc.ABC, tp.Generic[T]):
     def __call__(self, val: T) -> interchange.MarshalledValueT: ...
 
 
-ContextT: tp.TypeAlias = tp.Mapping[type, AbstractMarshaller]
+ContextT: tp.TypeAlias = "tp.Mapping[type | graph.TypeNode, AbstractMarshaller]"
 
 
 class NoOpMarshaller(AbstractMarshaller[T], tp.Generic[T]):

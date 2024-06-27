@@ -93,7 +93,7 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
 
         Resolution of cyclic/recursive types is always (necessarily) lazy and should only
         resolve one level deep on each attempt, otherwise we will find ourselves stuck
-        in a closed loop that never terminates.
+        in a closed loop that never terminates (infinite recursion).
     """
     graph: graphlib.TopologicalSorter = graphlib.TopologicalSorter()
     root = TypeNode(t)
@@ -148,14 +148,11 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
 
 
 @classes.slotted(dict=False, weakref=True)
-@dataclasses.dataclass
+@dataclasses.dataclass(unsafe_hash=True)
 class TypeNode:
     type: typing.Any
     var: str | None = None
-    cyclic: bool = False
-
-    def __hash__(self):
-        return hash(self.type)
+    cyclic: bool = dataclasses.field(default=False, hash=False, compare=False)
 
 
 def _level(t: typing.Any) -> typing.Iterable[tuple[str | None, type]]:
