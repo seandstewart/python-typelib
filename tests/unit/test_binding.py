@@ -150,6 +150,34 @@ def test_bind(given_signature, given_input, expected_output):
     assert output == expected_output
 
 
+def test_bind_kwargs_only():
+    # Given
+    def given_callable(**kwargs: int):
+        return kwargs
+
+    given_binding = binding.bind(given_callable)
+    given_kwargs = {"a": "1", "b": "2"}
+    expected_output = {"a": 1, "b": 2}
+    # When
+    output = given_binding(**given_kwargs)
+    # Then
+    assert output == expected_output
+
+
+def test_bind_args_only():
+    # Given
+    def given_callable(*args: int):
+        return args
+
+    given_binding = binding.bind(given_callable)
+    given_args = ("1", "2")
+    expected_output = (1, 2)
+    # When
+    output = given_binding(*given_args)
+    # Then
+    assert output == expected_output
+
+
 def test_wrap(given_signature, given_input, expected_output):
     # Given
     given_callable = mock.Mock(
