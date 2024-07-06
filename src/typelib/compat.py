@@ -20,6 +20,7 @@ __all__ = (
     "DATACLASS_NATIVE_SLOTS",
     "KW_ONLY",
     "lru_cache",
+    "cache",
 )
 
 if TYPE_CHECKING:
