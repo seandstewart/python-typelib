@@ -13,7 +13,7 @@ __all__ = ("transform_annotation",)
 
 @functools.cache
 def transform(annotation: str, *, union: str = "typing.Union") -> str:
-    """Transform a :py:class:`UnionType` (``str | int``) into a :py:class:`typing.Union`.
+    """Transform a :py:class:`types.UnionType` (``str | int``) into a :py:class:`typing.Union`.
 
     Args:
         annotation: The annotation to transform, as a string.

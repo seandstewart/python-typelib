@@ -107,7 +107,7 @@ import uuid
 
 from typing import TypedDict
 
-from typelib import format, compat
+from typelib import interchange, compat
 
 from app import models
 
@@ -115,8 +115,8 @@ from app import models
 class ClientRPC:
     
     def __init__(self):
-        self.business_repr = format.protocol(models.BusinessModel)
-        self.client_repr = format.protocol(ClientRepresentation)
+        self.business_repr = interchange.protocol(models.BusinessModel)
+        self.client_repr = interchange.protocol(ClientRepresentation)
         self.db = {}
 
 
