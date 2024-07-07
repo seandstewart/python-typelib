@@ -3,7 +3,7 @@ from __future__ import annotations
 import dataclasses
 import typing as tp
 
-from typelib import classes, compat
+from typelib import classes, compat, inspection
 from typelib import codec as mcodec
 from typelib import marshal as mmarshal
 from typelib import unmarshal as munmarshal
@@ -21,6 +21,13 @@ def protocol(
 ) -> InterchangeProtocol[T]:
     marshal = marshaller or mmarshal.marshaller(typ=t)
     unmarshal = unmarshaller or munmarshal.unmarshaller(typ=t)
+    if inspection.isbytestype(t) and codec is None:
+        codec = mcodec.Codec(
+            marshaller=marshal,
+            unmarshaller=unmarshal,
+            encoder=lambda v: v,  # type: ignore[arg-type,return-value]
+            decoder=lambda v: v,  # type: ignore[arg-type,return-value]
+        )
     codec = codec or mcodec.Codec(
         marshaller=marshal,
         unmarshaller=unmarshal,

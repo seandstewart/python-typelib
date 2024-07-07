@@ -7,7 +7,7 @@ import typing
 import uuid
 
 import pytest
-from typelib import compat, format, refs
+from typelib import compat, interchange, refs
 
 from tests import models
 
@@ -175,10 +175,13 @@ def test_protocol(
     given_type, given_input, expected_unmarshal_output, expected_marshal_output
 ):
     # Given
-    proto = format.protocol(given_type)
+    proto = interchange.protocol(given_type)
     # When
     unmarshal_output = proto.unmarshal(given_input)
     marshal_output = proto.marshal(unmarshal_output)
+    encode_output = proto.codec.encode(unmarshal_output)
+    decode_output = proto.codec.decode(encode_output)
     # Then
     assert unmarshal_output == expected_unmarshal_output
     assert marshal_output == expected_marshal_output
+    assert decode_output == expected_unmarshal_output
