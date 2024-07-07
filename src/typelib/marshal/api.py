@@ -19,7 +19,7 @@ __all__ = (
 def marshal(
     value: tp.Any, *, t: type[T] | refs.ForwardRef | str | None = None
 ) -> serdes.MarshalledValueT:
-    """Marshal :py:param:`value` from :py:param:`typ` into `:py:class:~typelib.serdes.MarshalledValueT`.
+    """Marshal :py:param:`value` from :py:param:`typ` into :py:class:~typelib.serdes.MarshalledValueT`.
 
     Args:
         value: The value to reduce to a simple, encodable type.

@@ -30,7 +30,7 @@ def static_order(
         multiple times at runtime, which would be wasted effort, as types don't change
         at runtime.
 
-        To avoid memoization, you can make use of `:py:func:`itertypes`.
+        To avoid memoization, you can make use of :py:func:`itertypes`.
     """
     # We want to leverage the cache if possible, hence the recursive call.
     #   Shouldn't actually recurse more than once or twice.
@@ -59,8 +59,8 @@ def itertypes(
         We will build a graph of types with the given type `t` as the root node,
         then iterate from the outermost leaves back to the root using BFS.
 
-        This is computationally expensive, so you are encouraged to use `:py:func:`static_order`
-        instead of `:py:func:`itertypes`.
+        This is computationally expensive, so you are encouraged to use :py:func:`static_order`
+        instead of :py:func:`itertypes`.
     """
     if inspection.istypealiastype(t):
         t = t.__value__

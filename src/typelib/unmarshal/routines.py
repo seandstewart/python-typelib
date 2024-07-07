@@ -595,7 +595,7 @@ LiteralT = tp.TypeVar("LiteralT")
 
 
 class LiteralUnmarshaller(AbstractUnmarshaller[LiteralT], tp.Generic[LiteralT]):
-    """Unmarshaller that will enforce an input conform to a defined `:py:class:typing.Literal`.
+    """Unmarshaller that will enforce an input conform to a defined :py:class:typing.Literal`.
 
     Notes:
         We will attempt to decode the value into a real Python object if the input
