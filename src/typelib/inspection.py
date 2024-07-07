@@ -1412,25 +1412,60 @@ _UNRESOLVABLE = (
 
 @compat.cache
 def isnonetype(t: Any) -> compat.TypeIs[None]:
-    """Detect if the given type is a :py:class:`NoneType`."""
+    """Detect if the given type is a :py:class:`NoneType`.
+
+    Examples:
+        >>> isnonetype(None)
+        True
+        >>> isnonetype(type(None))
+        True
+        >>> isnonetype(1)
+        False
+    """
     return t in (None, type(None))
 
 
 @compat.cache
 def ispatterntype(t: Any) -> compat.TypeIs[re.Pattern]:
-    """Detect if the given type is a :py:class:`re.Pattern`."""
+    """Detect if the given type is a :py:class:`re.Pattern`.
+
+    Examples:
+        >>> import re
+        >>> ispatterntype(re.compile(r"^[a-z]+$"))
+        True
+        >>> ispatterntype(r"^[a-z]+$")
+        False
+    """
     return _safe_issubclass(t, re.Pattern)
 
 
 @compat.cache
 def ispathtype(t: Any) -> compat.TypeIs[pathlib.Path]:
-    """Detect if the given type is a :py:class:`pathlib.Path`."""
+    """Detect if the given type is a :py:class:`pathlib.Path`.
+
+    Examples:
+        >>> import pathlib
+        >>> ispathtype(pathlib.Path.cwd())
+        True
+        >>> ispathtype(".")
+        False
+    """
     return _safe_issubclass(t, pathlib.PurePath)
 
 
 @compat.cache
 def istypealiastype(t: Any) -> compat.TypeIs[compat.TypeAliasType]:
-    """Detect if the given object is a :py:class:`typing.TypeAliasType`."""
+    """Detect if the given object is a :py:class:`typing.TypeAliasType`.
+
+    Examples:
+        >>> type IntList = list[int]
+        >>> istypealiastype(IntList)
+        True
+        >>> IntList = compat.TypeAliasType("IntList", list[int])
+        >>> istypealiastype(IntList)
+        True
+
+    """
     return isinstance(t, compat.TypeAliasType)
 
 

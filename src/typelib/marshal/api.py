@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import typing as tp
 
-from typelib import compat, ctx, graph, inspection, interchange, refs
+from typelib import compat, ctx, graph, inspection, refs, serdes
 from typelib.marshal import routines
 
 T = tp.TypeVar("T")
@@ -18,8 +18,8 @@ __all__ = (
 
 def marshal(
     value: tp.Any, *, t: type[T] | refs.ForwardRef | str | None = None
-) -> interchange.MarshalledValueT:
-    """Marshal :py:param:`value` from :py:param:`typ` into `:py:class:~typelib.interchange.MarshalledValueT`.
+) -> serdes.MarshalledValueT:
+    """Marshal :py:param:`value` from :py:param:`typ` into `:py:class:~typelib.serdes.MarshalledValueT`.
 
     Args:
         value: The value to reduce to a simple, encodable type.
@@ -86,7 +86,7 @@ class DelayedMarshaller(routines.AbstractMarshaller[T]):
                 setattr(self, attr, getattr(self._resolved, attr))
         return self._resolved
 
-    def __call__(self, val: T) -> interchange.MarshalledValueT:
+    def __call__(self, val: T) -> serdes.MarshalledValueT:
         unmarshalled = self.resolved(val)
         return unmarshalled
 

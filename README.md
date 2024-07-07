@@ -185,7 +185,7 @@ Let's take a pause and break down what we just saw:
      defined protocol for the business model.
    - To translate the saved model, we pass it _directly to the client format protocol._
 
-> **:lightbulb: Note**
+> **:bulb: Note**
 > 
 > typelib can translate between any structured object or container, without any 
 > special configuration! We have robust support for translating between most any type.

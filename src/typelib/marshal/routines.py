@@ -12,7 +12,7 @@ import re
 import typing as tp
 import uuid
 
-from typelib import compat, graph, inspection, interchange
+from typelib import compat, graph, inspection, serdes
 
 T = tp.TypeVar("T")
 
@@ -86,7 +86,7 @@ class AbstractMarshaller(abc.ABC, tp.Generic[T]):
         self.var = var
 
     @abc.abstractmethod
-    def __call__(self, val: T) -> interchange.MarshalledValueT: ...
+    def __call__(self, val: T) -> serdes.MarshalledValueT: ...
 
 
 ContextT: tp.TypeAlias = "tp.Mapping[type | graph.TypeNode, AbstractMarshaller]"
@@ -95,7 +95,7 @@ ContextT: tp.TypeAlias = "tp.Mapping[type | graph.TypeNode, AbstractMarshaller]"
 class NoOpMarshaller(AbstractMarshaller[T], tp.Generic[T]):
     """A marshaller that does nothing."""
 
-    def __call__(self, val: T) -> interchange.MarshalledValueT:
+    def __call__(self, val: T) -> serdes.MarshalledValueT:
         """Run the marshaller.
 
         Args:
@@ -110,13 +110,13 @@ BytesMarshaller = NoOpMarshaller[bytes]
 class CastMarshaller(AbstractMarshaller[T], tp.Generic[T]):
     """A marshaller that casts a value to a specific type."""
 
-    def __call__(self, val: T) -> interchange.MarshalledValueT:
+    def __call__(self, val: T) -> serdes.MarshalledValueT:
         """Marshal a the value into bound type.
 
         Args:
             val: The value to marshal.
         """
-        cast = tp.cast("interchange.MarshalledValueT", self.origin(val))  # type: ignore[call-arg]
+        cast = tp.cast("serdes.MarshalledValueT", self.origin(val))  # type: ignore[call-arg]
         return cast
 
 
@@ -175,7 +175,7 @@ class ToISOTimeMarshaller(AbstractMarshaller[DateOrTimeT], tp.Generic[DateOrTime
     """A marshaller that converts any date/time object to a ISO time string.
 
     See Also:
-        - :py:func:`typelib.interchange.isoformat`
+        - :py:func:`typelib.serdes.isoformat`
     """
 
     def __call__(self, val: DateOrTimeT) -> str:
@@ -184,7 +184,7 @@ class ToISOTimeMarshaller(AbstractMarshaller[DateOrTimeT], tp.Generic[DateOrTime
         Args:
             val: The date/time object to marshal.
         """
-        return interchange.isoformat(val)
+        return serdes.isoformat(val)
 
 
 DateT = tp.TypeVar("DateT", bound=datetime.date)
@@ -219,7 +219,7 @@ class LiteralMarshaller(AbstractMarshaller[LiteralT], tp.Generic[LiteralT]):
         super().__init__(t, context, var=var)
         self.values = inspection.get_args(t)
 
-    def __call__(self, val: LiteralT) -> interchange.MarshalledValueT:
+    def __call__(self, val: LiteralT) -> serdes.MarshalledValueT:
         """Enforce the given value is a member of the bound `Literal` type.
 
         Args:
@@ -258,7 +258,7 @@ class UnionMarshaller(AbstractMarshaller[UnionT], tp.Generic[UnionT]):
         self.stack = inspection.get_args(t)
         self.ordered_routines = [self.context[typ] for typ in self.stack]
 
-    def __call__(self, val: UnionT) -> interchange.MarshalledValueT:
+    def __call__(self, val: UnionT) -> serdes.MarshalledValueT:
         """Unmarshal a value into the bound `UnionT`.
 
         Args:
@@ -335,7 +335,7 @@ class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[Mapp
     def __call__(self, val: MappingT) -> MarshalledMappingT:
         keys = self.keys
         values = self.values
-        return {keys(k): values(v) for k, v in interchange.iteritems(val)}  # type: ignore[misc]
+        return {keys(k): values(v) for k, v in serdes.iteritems(val)}  # type: ignore[misc]
 
 
 class SubscriptedIterableMarshaller(
@@ -374,7 +374,7 @@ class SubscriptedIterableMarshaller(
         """
         # Always decode bytes.
         values = self.values
-        return [values(v) for v in interchange.itervalues(val)]
+        return [values(v) for v in serdes.itervalues(val)]
 
 
 class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
@@ -410,7 +410,7 @@ class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
         """
         return [
             routine(v)
-            for routine, v in zip(self.ordered_routines, interchange.itervalues(val))
+            for routine, v in zip(self.ordered_routines, serdes.itervalues(val))
         ]
 
 
@@ -444,10 +444,10 @@ class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
             val: The structured type to marshal.
         """
         fields = self.fields_by_var
-        return {f: fields[f](v) for f, v in interchange.iteritems(val) if f in fields}
+        return {f: fields[f](v) for f, v in serdes.iteritems(val) if f in fields}
 
 
 MarshalledMappingT: tp.TypeAlias = dict[
-    interchange.PythonPrimitiveT, interchange.MarshalledValueT
+    serdes.PythonPrimitiveT, serdes.MarshalledValueT
 ]
-MarshalledIterableT: tp.TypeAlias = list[interchange.MarshalledValueT]
+MarshalledIterableT: tp.TypeAlias = list[serdes.MarshalledValueT]

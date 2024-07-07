@@ -14,7 +14,7 @@ import types
 import typing as tp
 import uuid
 
-from typelib import compat, constants, graph, inspection, interchange
+from typelib import compat, constants, graph, inspection, serdes
 
 T = tp.TypeVar("T")
 
@@ -112,7 +112,7 @@ class NoneTypeUnmarshaller(AbstractUnmarshaller[None]):
         We will attempt to decode any string/bytes input before evaluating for `None`.
 
     See Also:
-        - :py:func:`~typelib.interchange.decode`
+        - :py:func:`~typelib.serdes.decode`
     """
 
     def __call__(self, val: tp.Any) -> None:
@@ -124,7 +124,7 @@ class NoneTypeUnmarshaller(AbstractUnmarshaller[None]):
         Raises:
             ValueError: If :py:param:`val` is not `None` after decoding.
         """
-        decoded = interchange.decode(val)
+        decoded = serdes.decode(val)
         if decoded is not None:
             raise ValueError(f"{val!r} is not of {types.NoneType!r}")
         return None
@@ -141,7 +141,7 @@ class BytesUnmarshaller(AbstractUnmarshaller[BytesT], tp.Generic[BytesT]):
         We will format a member of the `datetime` module into ISO format before converting to bytes.
 
     See Also:
-        - :py:func:`~typelib.interchange.isoformat`
+        - :py:func:`~typelib.serdes.isoformat`
     """
 
     def __call__(self, val: tp.Any) -> BytesT:
@@ -149,7 +149,7 @@ class BytesUnmarshaller(AbstractUnmarshaller[BytesT], tp.Generic[BytesT]):
             return val
         # Always encode date/time as ISO strings.
         if isinstance(val, (datetime.date, datetime.time, datetime.timedelta)):
-            val = interchange.isoformat(val)
+            val = serdes.isoformat(val)
         return self.t(str(val).encode(constants.DEFAULT_ENCODING))
 
 
@@ -163,17 +163,17 @@ class StringUnmarshaller(AbstractUnmarshaller[StringT], tp.Generic[StringT]):
         We will format a member of the `datetime` module into ISO format.
 
     See Also:
-        - :py:func:`~typelib.interchange.isoformat`
+        - :py:func:`~typelib.serdes.isoformat`
     """
 
     def __call__(self, val: tp.Any) -> StringT:
         # Always decode bytes.
-        decoded = interchange.decode(val)
+        decoded = serdes.decode(val)
         if isinstance(decoded, self.t):
             return decoded
         # Always encode date/time as ISO strings.
         if isinstance(val, (datetime.date, datetime.time, datetime.timedelta)):
-            decoded = interchange.isoformat(val)
+            decoded = serdes.isoformat(val)
         return self.t(decoded)
 
 
@@ -195,7 +195,7 @@ class NumberUnmarshaller(AbstractUnmarshaller[NumberT], tp.Generic[NumberT]):
             5. Otherwise, call the number constructor with the input.
 
     See Also:
-        - :py:func:`~typelib.interchange.unixtime`
+        - :py:func:`~typelib.serdes.unixtime`
     """
 
     def __call__(self, val: tp.Any) -> NumberT:
@@ -205,12 +205,12 @@ class NumberUnmarshaller(AbstractUnmarshaller[NumberT], tp.Generic[NumberT]):
             val: The input value to unmarshal.
         """
         # Always decode bytes.
-        decoded = interchange.decode(val)
+        decoded = serdes.decode(val)
         if isinstance(decoded, self.t):
             return decoded
         # Represent date/time objects as time since unix epoch.
         if isinstance(val, (datetime.date, datetime.time, datetime.timedelta)):
-            decoded = interchange.unixtime(val)
+            decoded = serdes.unixtime(val)
         # Treat containers as constructor args.
         if inspection.ismappingtype(decoded.__class__):
             return self.t(**decoded)
@@ -253,8 +253,8 @@ class DateUnmarshaller(AbstractUnmarshaller[DateT], tp.Generic[DateT]):
         > dates over other, less precise methods.
 
     See Also:
-        - :py:func:`~typelib.interchange.decode`
-        - :py:func:`~typelib.interchange.dateparse`
+        - :py:func:`~typelib.serdes.decode`
+        - :py:func:`~typelib.serdes.dateparse`
 
     [iso]: https://en.wikipedia.org/wiki/ISO_8601
     [rfc]: https://tools.ietf.org/html/rfc3339
@@ -273,12 +273,10 @@ class DateUnmarshaller(AbstractUnmarshaller[DateT], tp.Generic[DateT]):
         if isinstance(val, (int, float)):
             val = datetime.datetime.fromtimestamp(val, tz=datetime.timezone.utc)
         # Always decode bytes.
-        decoded = interchange.decode(val)
+        decoded = serdes.decode(val)
         # Parse strings.
         date: datetime.date | datetime.time = (
-            interchange.dateparse(decoded, self.t)
-            if isinstance(decoded, str)
-            else decoded
+            serdes.dateparse(decoded, self.t) if isinstance(decoded, str) else decoded
         )
         # Time-only construct is treated as today.
         if isinstance(date, datetime.time):
@@ -315,11 +313,11 @@ class DateTimeUnmarshaller(
 
         > We may add functionality in a future version to indicate a desired timezone via
         > annotated types, but as mentioned above, _prefer common standards_ for formatting
-        > dates and times over other, less precise methods.
+        > dates and times over other, less-precise methods.
 
     See Also:
-        - :py:func:`~typelib.interchange.decode`
-        - :py:func:`~typelib.interchange.dateparse`
+        - :py:func:`~typelib.serdes.decode`
+        - :py:func:`~typelib.serdes.dateparse`
 
     [iso]: https://en.wikipedia.org/wiki/ISO_8601
     [rfc]: https://tools.ietf.org/html/rfc3339
@@ -338,12 +336,10 @@ class DateTimeUnmarshaller(
         if isinstance(val, (int, float)):
             val = datetime.datetime.fromtimestamp(val, tz=datetime.timezone.utc)
         # Always decode bytes.
-        decoded = interchange.decode(val)
+        decoded = serdes.decode(val)
         # Parse strings.
         dt: datetime.datetime | datetime.date | datetime.time = (
-            interchange.dateparse(decoded, self.t)
-            if isinstance(decoded, str)
-            else decoded
+            serdes.dateparse(decoded, self.t) if isinstance(decoded, str) else decoded
         )
         # If we have a time object, default to today.
         if isinstance(dt, datetime.time):
@@ -402,8 +398,8 @@ class TimeUnmarshaller(AbstractUnmarshaller[TimeT], tp.Generic[TimeT]):
         > dates and times over other, less precise methods.
 
     See Also:
-        - :py:func:`~typelib.interchange.decode`
-        - :py:func:`~typelib.interchange.dateparse`
+        - :py:func:`~typelib.serdes.decode`
+        - :py:func:`~typelib.serdes.dateparse`
 
     [iso]: https://en.wikipedia.org/wiki/ISO_8601
     [rfc]: https://tools.ietf.org/html/rfc3339
@@ -418,7 +414,7 @@ class TimeUnmarshaller(AbstractUnmarshaller[TimeT], tp.Generic[TimeT]):
         if isinstance(val, self.t):
             return val
 
-        decoded = interchange.decode(val)
+        decoded = serdes.decode(val)
         if isinstance(decoded, (int, float)):
             decoded = (
                 datetime.datetime.fromtimestamp(val, tz=datetime.timezone.utc)
@@ -427,9 +423,7 @@ class TimeUnmarshaller(AbstractUnmarshaller[TimeT], tp.Generic[TimeT]):
                 .replace(tzinfo=datetime.timezone.utc)
             )
         dt: datetime.datetime | datetime.date | datetime.time = (
-            interchange.dateparse(decoded, self.t)
-            if isinstance(decoded, str)
-            else decoded
+            serdes.dateparse(decoded, self.t) if isinstance(decoded, str) else decoded
         )
 
         if isinstance(dt, datetime.datetime):
@@ -469,8 +463,8 @@ class TimeDeltaUnmarshaller(AbstractUnmarshaller[TimeDeltaT], tp.Generic[TimeDel
             5. If the parsed result is not *exactly* the bound `TimeDeltaT` type, convert it.
 
     See Also:
-        - :py:func:`~typelib.interchange.decode`
-        - :py:func:`~typelib.interchange.dateparse`
+        - :py:func:`~typelib.serdes.decode`
+        - :py:func:`~typelib.serdes.dateparse`
 
     [iso]: https://en.wikipedia.org/wiki/ISO_8601
     [rfc]: https://tools.ietf.org/html/rfc3339
@@ -485,9 +479,9 @@ class TimeDeltaUnmarshaller(AbstractUnmarshaller[TimeDeltaT], tp.Generic[TimeDel
         if isinstance(val, (int, float)):
             return self.t(seconds=int(val))
 
-        decoded = interchange.decode(val)
+        decoded = serdes.decode(val)
         td: datetime.timedelta = (
-            interchange.dateparse(decoded, td=datetime.timedelta)
+            serdes.dateparse(decoded, td=datetime.timedelta)
             if isinstance(decoded, str)
             else decoded
         )
@@ -523,9 +517,9 @@ class UUIDUnmarshaller(AbstractUnmarshaller[UUIDT], tp.Generic[UUIDT]):
             val: The input value to unmarshal.
 
         See Also:
-            - :py:func:`~typelib.interchange.load`
+            - :py:func:`~typelib.serdes.load`
         """
-        decoded = interchange.load(val)
+        decoded = serdes.load(val)
         if isinstance(decoded, int):
             return self.t(int=decoded)
         if isinstance(decoded, self.t):
@@ -545,11 +539,11 @@ class PatternUnmarshaller(AbstractUnmarshaller[PatternT], tp.Generic[PatternT]):
         `re.compile()` on the decoded input.
 
     See Also:
-        - :py:func:`~typelib.interchange.decode`
+        - :py:func:`~typelib.serdes.decode`
     """
 
     def __call__(self, val: tp.Any) -> PatternT:
-        decoded = interchange.decode(val)
+        decoded = serdes.decode(val)
         return re.compile(decoded)  # type: ignore[return-value]
 
 
@@ -561,7 +555,7 @@ class CastUnmarshaller(AbstractUnmarshaller[T]):
         real Python object.
 
     See Also:
-        - :py:func:`~typelib.interchange.load`
+        - :py:func:`~typelib.serdes.load`
     """
 
     __slots__ = ("caster",)
@@ -584,7 +578,7 @@ class CastUnmarshaller(AbstractUnmarshaller[T]):
             val: The input value to unmarshal.
         """
         # Try to load the string, if this is JSON or a literal expression.
-        decoded = interchange.load(val)
+        decoded = serdes.load(val)
         # Short-circuit cast if we have the type we want.
         if isinstance(decoded, self.t):
             return decoded
@@ -608,7 +602,7 @@ class LiteralUnmarshaller(AbstractUnmarshaller[LiteralT], tp.Generic[LiteralT]):
         fails initial membership evaluation.
 
     See Also:
-        - :py:func:`~typelib.interchange.load`
+        - :py:func:`~typelib.serdes.load`
     """
 
     __slots__ = ("values",)
@@ -627,7 +621,7 @@ class LiteralUnmarshaller(AbstractUnmarshaller[LiteralT], tp.Generic[LiteralT]):
     def __call__(self, val: tp.Any) -> LiteralT:
         if val in self.values:
             return val
-        decoded = interchange.load(val)
+        decoded = serdes.load(val)
         if decoded in self.values:
             return decoded  # type: ignore[return-value]
 
@@ -714,8 +708,8 @@ class SubscriptedMappingUnmarshaller(
             5. We pass the unmarshalling iterator in to the type's constructor.
 
     See Also:
-        - :py:func:`~typelib.interchange.load`
-        - :py:func:`~typelib.interchange.iteritems`
+        - :py:func:`~typelib.serdes.load`
+        - :py:func:`~typelib.serdes.iteritems`
     """
 
     __slots__ = (
@@ -743,11 +737,11 @@ class SubscriptedMappingUnmarshaller(
             val: The input value to unmarshal.
         """
         # Always decode bytes.
-        decoded = interchange.load(val)
+        decoded = serdes.load(val)
         keys = self.keys
         values = self.values
         return self.origin(  # type: ignore[call-arg]
-            ((keys(k), values(v)) for k, v in interchange.iteritems(decoded))
+            ((keys(k), values(v)) for k, v in serdes.iteritems(decoded))
         )
 
 
@@ -771,8 +765,8 @@ class SubscriptedIterableUnmarshaller(
             5. We pass the unmarshalling iterator in to the type's constructor.
 
     See Also:
-        - :py:func:`~typelib.interchange.load`
-        - :py:func:`~typelib.interchange.itervalues`
+        - :py:func:`~typelib.serdes.load`
+        - :py:func:`~typelib.serdes.itervalues`
     """
 
     __slots__ = ("values",)
@@ -799,9 +793,9 @@ class SubscriptedIterableUnmarshaller(
             val: The input value to unmarshal.
         """
         # Always decode bytes.
-        decoded = interchange.load(val)
+        decoded = serdes.load(val)
         values = self.values
-        return self.origin((values(v) for v in interchange.itervalues(decoded)))  # type: ignore[call-arg]
+        return self.origin((values(v) for v in serdes.itervalues(decoded)))  # type: ignore[call-arg]
 
 
 IteratorT = tp.TypeVar("IteratorT", bound=tp.Iterator)
@@ -824,8 +818,8 @@ class SubscriptedIteratorUnmarshaller(
             5. We return a new, unmarshalling iterator.
 
     See Also:
-        - :py:func:`~typelib.interchange.load`
-        - :py:func:`~typelib.interchange.itervalues`
+        - :py:func:`~typelib.serdes.load`
+        - :py:func:`~typelib.serdes.itervalues`
     """
 
     __slots__ = ("values",)
@@ -851,9 +845,9 @@ class SubscriptedIteratorUnmarshaller(
             val: The input value to unmarshal.
         """
         # Always decode bytes.
-        decoded = interchange.load(val)
+        decoded = serdes.load(val)
         values = self.values
-        it: IteratorT = (values(v) for v in interchange.itervalues(decoded))  # type: ignore[assignment]
+        it: IteratorT = (values(v) for v in serdes.itervalues(decoded))  # type: ignore[assignment]
         return it
 
 
@@ -880,8 +874,8 @@ class FixedTupleUnmarshaller(AbstractUnmarshaller[compat.TupleT]):
         > will be dropped by nature of our unmarshalling algorithm.
 
         See Also:
-            - :py:func:`~typelib.interchange.load`
-            - :py:func:`~typelib.interchange.itervalues`
+            - :py:func:`~typelib.serdes.load`
+            - :py:func:`~typelib.serdes.itervalues`
     """
 
     __slots__ = ("ordered_routines", "stack")
@@ -901,17 +895,15 @@ class FixedTupleUnmarshaller(AbstractUnmarshaller[compat.TupleT]):
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
     def __call__(self, val: tp.Any) -> compat.TupleT:
-        """Unmarshal a value into the bound :py:class:`~interchange.compat.TupleT`.
+        """Unmarshal a value into the bound :py:class:`~serdes.compat.TupleT`.
 
         Args:
             val: The input value to unmarshal.
         """
-        decoded = interchange.load(val)
+        decoded = serdes.load(val)
         return self.origin(
             routine(v)
-            for routine, v in zip(
-                self.ordered_routines, interchange.itervalues(decoded)
-            )
+            for routine, v in zip(self.ordered_routines, serdes.itervalues(decoded))
         )
 
 
@@ -939,8 +931,8 @@ class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
         > not done carefully.
 
     See Also:
-        - :py:func:`~typelib.interchange.load`
-        - :py:func:`~typelib.interchange.itervalues`
+        - :py:func:`~typelib.serdes.load`
+        - :py:func:`~typelib.serdes.itervalues`
     """
 
     __slots__ = ("fields_by_var",)
@@ -962,9 +954,7 @@ class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
         Args:
             val: The input value to unmarshal.
         """
-        decoded = interchange.load(val)
+        decoded = serdes.load(val)
         fields = self.fields_by_var
-        kwargs = {
-            f: fields[f](v) for f, v in interchange.iteritems(decoded) if f in fields
-        }
+        kwargs = {f: fields[f](v) for f, v in serdes.iteritems(decoded) if f in fields}
         return self.t(**kwargs)

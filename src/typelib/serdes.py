@@ -1,4 +1,4 @@
-"""Utilities for translating between various types."""
+"""Utilities for type translation, serialization, and deserialization."""
 
 from __future__ import annotations
 
@@ -13,18 +13,20 @@ import typing as t
 import pendulum
 from more_itertools import peekable
 
-from typelib import compat, inspection
+from typelib import compat, constants, inspection
 
 
 @t.overload
-def decode(val: bytes | bytearray | memoryview, *, encoding: str = "utf8") -> str: ...  # type: ignore[overload-overlap]
+def decode(  # type: ignore[overload-overlap]
+    val: bytes | bytearray | memoryview, *, encoding: str = constants.DEFAULT_ENCODING
+) -> str: ...
 
 
 @t.overload
 def decode(val: _T) -> _T: ...  # type: ignore[overload-overlap]
 
 
-def decode(val: t.Any, *, encoding: str = "utf8") -> t.Any:
+def decode(val: t.Any, *, encoding: str = constants.DEFAULT_ENCODING) -> t.Any:
     """Decode a bytes-like object into a str.
 
     Notes:
@@ -42,7 +44,7 @@ def decode(val: t.Any, *, encoding: str = "utf8") -> t.Any:
 
 
 @compat.lru_cache(maxsize=100_000)
-def isoformat(t: datetime.date | datetime.time | datetime.timedelta) -> str:
+def isoformat(dt: datetime.date | datetime.time | datetime.timedelta) -> str:
     """Format any date/time object into an ISO-8601 string.
 
     Notes:
@@ -54,41 +56,41 @@ def isoformat(t: datetime.date | datetime.time | datetime.timedelta) -> str:
 
     Examples:
         >>> import datetime
-        >>> from typelib import interchange
-        >>> interchange.isoformat(datetime.date(1970, 1, 1))
+        >>> from typelib import serdes
+        >>> serdes.isoformat(datetime.date(1970, 1, 1))
         '1970-01-01'
-        >>> interchange.isoformat(datetime.time())
+        >>> serdes.isoformat(datetime.time())
         '00:00:00'
-        >>> interchange.isoformat(datetime.datetime(1970, 1, 1))
+        >>> serdes.isoformat(datetime.datetime(1970, 1, 1))
         '1970-01-01T00:00:00'
-        >>> interchange.isoformat(datetime.timedelta(hours=1))
+        >>> serdes.isoformat(datetime.timedelta(hours=1))
         'PT1H'
     """
-    if isinstance(t, (datetime.date, datetime.time)):
-        return t.isoformat()
-    d: pendulum.Duration = (
-        t
-        if isinstance(t, pendulum.Duration)
+    if isinstance(dt, (datetime.date, datetime.time)):
+        return dt.isoformat()
+    dur: pendulum.Duration = (
+        dt
+        if isinstance(dt, pendulum.Duration)
         else pendulum.duration(
-            days=t.days,
-            seconds=t.seconds,
-            microseconds=t.microseconds,
+            days=dt.days,
+            seconds=dt.seconds,
+            microseconds=dt.microseconds,
         )
     )
     datepart = "".join(
         f"{p}{s}"
-        for p, s in ((d.years, "Y"), (d.months, "M"), (d.remaining_days, "D"))
+        for p, s in ((dur.years, "Y"), (dur.months, "M"), (dur.remaining_days, "D"))
         if p
     )
     timepart = "".join(
         f"{p}{s}"
         for p, s in (
-            (d.hours, "H"),
-            (d.minutes, "M"),
+            (dur.hours, "H"),
+            (dur.minutes, "M"),
             (
-                f"{d.remaining_seconds}.{d.microseconds:06}"
-                if d.microseconds
-                else d.remaining_seconds,
+                f"{dur.remaining_seconds}.{dur.microseconds:06}"
+                if dur.microseconds
+                else dur.remaining_seconds,
                 "S",
             ),
         )
@@ -101,7 +103,7 @@ def isoformat(t: datetime.date | datetime.time | datetime.timedelta) -> str:
 _T = t.TypeVar("_T")
 
 
-def unixtime(t: datetime.date | datetime.time | datetime.timedelta) -> float:
+def unixtime(dt: datetime.date | datetime.time | datetime.timedelta) -> float:
     """Convert a date/time object to a unix timestamp.
 
     Notes:
@@ -117,36 +119,36 @@ def unixtime(t: datetime.date | datetime.time | datetime.timedelta) -> float:
         explicit!*
 
     Args:
-        t: The object to be converted.
+        dt: The object to be converted.
 
     Examples:
         >>> import datetime
-        >>> from typelib import interchange
+        >>> from typelib import serdes
         >>>
-        >>> interchange.unixtime(datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc))
+        >>> serdes.unixtime(datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc))
         0.0
-        >>> interchange.unixtime(datetime.date(1970, 1, 1))
+        >>> serdes.unixtime(datetime.date(1970, 1, 1))
         0.0
     """
-    if isinstance(t, datetime.timedelta):
-        return t.total_seconds()
+    if isinstance(dt, datetime.timedelta):
+        return dt.total_seconds()
 
-    if isinstance(t, datetime.time):
-        t = datetime.datetime.now(tz=t.tzinfo).replace(
-            hour=t.hour,
-            minute=t.minute,
-            second=t.second,
-            microsecond=t.microsecond,
+    if isinstance(dt, datetime.time):
+        dt = datetime.datetime.now(tz=dt.tzinfo).replace(
+            hour=dt.hour,
+            minute=dt.minute,
+            second=dt.second,
+            microsecond=dt.microsecond,
         )
-    if isinstance(t, datetime.date) and not isinstance(t, datetime.datetime):
-        t = datetime.datetime(
-            year=t.year,
-            month=t.month,
-            day=t.day,
+    if isinstance(dt, datetime.date) and not isinstance(dt, datetime.datetime):
+        dt = datetime.datetime(
+            year=dt.year,
+            month=dt.month,
+            day=dt.day,
             tzinfo=datetime.timezone.utc,
         )
 
-    return t.timestamp()
+    return dt.timestamp()
 
 
 DateTimeT = t.TypeVar("DateTimeT", datetime.date, datetime.time, datetime.timedelta)
@@ -233,9 +235,8 @@ def iteritems(val: t.Any) -> t.Iterable[tuple[t.Any, t.Any]]:
 
 
 def _is_iterable_of_pairs(val: t.Any) -> bool:
-    if not inspection.isiterabletype(val.__class__) or inspection.ismappingtype(
-        val.__class__
-    ):
+    cls = val.__class__
+    if not inspection.isiterabletype(cls) or inspection.ismappingtype(cls):
         return False
     peek = peekable(val).peek()
     return inspection.iscollectiontype(peek.__class__) and len(peek) == 2

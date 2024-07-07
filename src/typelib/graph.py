@@ -93,7 +93,7 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
 
         Resolution of cyclic/recursive types is always (necessarily) lazy and should only
         resolve one level deep on each attempt, otherwise we will find ourselves stuck
-        in a closed loop that never terminates (infinite recursion).
+        in a closed loop which never terminates (infinite recursion).
     """
     graph: graphlib.TopologicalSorter = graphlib.TopologicalSorter()
     root = TypeNode(t)

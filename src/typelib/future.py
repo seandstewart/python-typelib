@@ -17,7 +17,7 @@ def transform(annotation: str, *, union: str = "typing.Union") -> str:
 
     Args:
         annotation: The annotation to transform, as a string.
-        union: The name of the Union type to subscript (defaults "Union").
+        union: The name of the Union type to subscript (defaults `"typing.Union"`).
 
     Notes:
         This is a raw string transformation that does not test for the *correctness*
@@ -26,12 +26,15 @@ def transform(annotation: str, *, union: str = "typing.Union") -> str:
         error in the transformed annotation as well.
     """
     parsed = ast.parse(annotation, mode="eval")
-    transformed = TransformUnion().generic_visit(parsed)
+    transformed = TransformUnion(union=union).generic_visit(parsed)
     unparsed = ast.unparse(transformed).strip()
     return unparsed
 
 
 class TransformUnion(ast.NodeTransformer):
+    def __init__(self, union: str = "typing.Union") -> None:
+        self.union = union
+
     def visit_BinOp(self, node: ast.BinOp):
         # Ignore anython but a bitwise OR `|`
         if not isinstance(node.op, ast.BitOr):
@@ -47,7 +50,7 @@ class TransformUnion(ast.NodeTransformer):
         elts = [self.visit(n) for n in args]
         # Write the old-style `Union`.
         union = ast.Subscript(
-            value=ast.Name(id="Union", ctx=ast.Load()),
+            value=ast.Name(id=self.union, ctx=ast.Load()),
             slice=ast.Index(value=ast.Tuple(elts=elts, ctx=ast.Load())),
             ctx=ast.Load(),
         )
