@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 
-from typelib import classes
+from typelib.py import classes
 
 
 def test_slotted():

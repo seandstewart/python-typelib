@@ -1,10 +1,11 @@
-"""A simple hashmap type for working with types in a contextual manner."""
+"""A simple hashmap for working with types in a contextual manner."""
 
 from __future__ import annotations
 
 import dataclasses
 
-from typelib import graph, inspection, refs
+from typelib import graph
+from typelib.py import inspection, refs
 
 
 class TypeContext(dict):

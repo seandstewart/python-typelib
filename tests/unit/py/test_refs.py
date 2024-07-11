@@ -1,7 +1,7 @@
 from unittest import mock
 
 import pytest
-from typelib import refs
+from typelib.py import refs
 
 
 def evaluated_ref(t: str) -> refs.ForwardRef:

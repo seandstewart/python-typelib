@@ -7,7 +7,8 @@ import typing
 import uuid
 
 import pytest
-from typelib import compat, interchange, refs
+from typelib import interchange
+from typelib.py import compat, refs
 
 from tests import models
 

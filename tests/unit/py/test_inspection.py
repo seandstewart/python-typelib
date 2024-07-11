@@ -21,7 +21,7 @@ import uuid
 from unittest import mock
 
 import pytest
-from typelib import inspection, refs
+from typelib.py import inspection, refs
 
 
 class MyClass: ...

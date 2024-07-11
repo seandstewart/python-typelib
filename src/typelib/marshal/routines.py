@@ -12,7 +12,8 @@ import re
 import typing as tp
 import uuid
 
-from typelib import compat, graph, inspection, serdes
+from typelib import graph, serdes
+from typelib.py import compat, inspection
 
 T = tp.TypeVar("T")
 

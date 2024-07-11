@@ -8,7 +8,8 @@ import functools
 import inspect
 import typing as tp
 
-from typelib import classes, compat, inspection, unmarshal
+from typelib import unmarshal
+from typelib.py import classes, compat, inspection
 
 P = compat.ParamSpec("P")
 R = tp.TypeVar("R")

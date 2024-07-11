@@ -1,5 +1,5 @@
 import pytest
-from typelib import future
+from typelib.py import future
 
 
 @pytest.mark.suite(

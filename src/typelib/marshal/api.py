@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import typing as tp
 
-from typelib import compat, ctx, graph, inspection, refs, serdes
+from typelib import ctx, graph, serdes
 from typelib.marshal import routines
+from typelib.py import compat, inspection, refs
 
 T = tp.TypeVar("T")
 

@@ -13,30 +13,34 @@ __all__ = ("transform_annotation",)
 
 @functools.cache
 def transform(annotation: str, *, union: str = "typing.Union") -> str:
-    """Transform a :py:class:`types.UnionType` (``str | int``) into a :py:class:`typing.Union`.
+    """Transform a modern annotations into their :py:mod:`typing` equivalent:
+
+    - :py:class:`types.UnionType` into a :py:class:`typing.Union` (``str | int`` -> ``typing.Union[str, int]``)
+    - builtin generics into typing generics (``dict[str, int]`` -> ``typing.Dict[str, int]``)
 
     Args:
         annotation: The annotation to transform, as a string.
         union: The name of the Union type to subscript (defaults `"typing.Union"`).
 
     Notes:
-        This is a raw string transformation that does not test for the *correctness*
-        of your annotation. As such, if you attempt to evaluate the transformed string
-        at runtime and there are errors in your declaration, they will result in an
-        error in the transformed annotation as well.
+        While this transformation requires your expression be valid Python syntax, it
+        doesn't make sure the type annotation is valid.
     """
     parsed = ast.parse(annotation, mode="eval")
-    transformed = TransformUnion(union=union).generic_visit(parsed)
+    transformed = TransformAnnotation(union=union).generic_visit(parsed)
     unparsed = ast.unparse(transformed).strip()
     return unparsed
 
 
-class TransformUnion(ast.NodeTransformer):
+class TransformAnnotation(ast.NodeTransformer):
+    """A :py:class:`ast.NodeTransformer` that transforms :py:class:`typing.Union`."""
+
     def __init__(self, union: str = "typing.Union") -> None:
         self.union = union
 
     def visit_BinOp(self, node: ast.BinOp):
-        # Ignore anython but a bitwise OR `|`
+        """Transform a :py:class:`ast.BinOp` to :py:class:`typing.Union`."""
+        # Ignore anything but a bitwise OR `|`
         if not isinstance(node.op, ast.BitOr):
             return node
         # Build a stack of args to the bitor
@@ -59,6 +63,7 @@ class TransformUnion(ast.NodeTransformer):
         return union
 
     def visit_Name(self, node: ast.Name):
+        """Transform a builtin :py:class:`ast.Name` to the `typing` equivalent."""
         # Re-write new-style builtin generics as old-style typing generics
         if node.id not in _GENERICS:
             return node
@@ -68,6 +73,7 @@ class TransformUnion(ast.NodeTransformer):
         return new
 
     def visit_Subscript(self, node: ast.Subscript):
+        """Transform all subscripts within a :py:class:`ast.Subscript`."""
         # Scan all subscripts to we transform nested new-style types.
         transformed = self.visit(node.slice)
         new = ast.Subscript(
@@ -80,6 +86,7 @@ class TransformUnion(ast.NodeTransformer):
         return new
 
     def visit_Tuple(self, node: ast.Tuple):
+        """Transform all values within a :py:class:`ast.Tuple`."""
         # Scan all tuples to ensure we transform nested new-style types.
         transformed = [self.visit(n) for n in node.elts]
         new = ast.Tuple(elts=transformed, ctx=node.ctx)

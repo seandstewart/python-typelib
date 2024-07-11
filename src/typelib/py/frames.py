@@ -1,4 +1,4 @@
-"""Utilities for with stack traces and frames."""
+"""Utilities for working with stack traces and frames."""
 
 from __future__ import annotations
 

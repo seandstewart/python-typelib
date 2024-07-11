@@ -14,7 +14,8 @@ import types
 import typing as tp
 import uuid
 
-from typelib import compat, constants, graph, inspection, serdes
+from typelib import constants, graph, serdes
+from typelib.py import compat, inspection
 
 T = tp.TypeVar("T")
 

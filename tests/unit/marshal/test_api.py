@@ -9,8 +9,8 @@ import typing
 import uuid
 
 import pytest
-from typelib import compat, refs
 from typelib.marshal import api
+from typelib.py import compat, refs
 
 from tests import models
 

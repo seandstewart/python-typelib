@@ -5,10 +5,10 @@ from __future__ import annotations
 import dataclasses
 import typing as tp
 
-from typelib import classes, compat, inspection
 from typelib import codec as mcodec
 from typelib import marshal as mmarshal
 from typelib import unmarshal as munmarshal
+from typelib.py import classes, compat, inspection
 
 __all__ = ("protocol", "InterchangeProtocol")
 

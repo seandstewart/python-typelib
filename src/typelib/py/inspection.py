@@ -41,7 +41,8 @@ from typing import (
     overload,
 )
 
-from typelib import compat, constants, contrib, refs
+from typelib import constants
+from typelib.py import compat, contrib, refs
 
 __all__ = (
     "BUILTIN_TYPES",
@@ -94,7 +95,7 @@ def origin(annotation: Any) -> Any:
     For the purposes of this library, if we can resolve to a builtin type, we will.
 
     Examples:
-        >>> from typelib import inspection
+        >>> from typelib.py import inspection
         >>> from typing import Dict, Mapping, NewType, Optional
         >>> origin(Dict)
         <class 'dict'>
@@ -167,7 +168,7 @@ def get_args(annotation: Any) -> Tuple[Any, ...]:
                 -> return Any
 
     Examples:
-        >>> from typelib import inspection
+        >>> from typelib.py import inspection
         >>> from typing import Dict, TypeVar, Any
         >>> T = TypeVar("T")
         >>> get_args(Dict)
@@ -213,7 +214,7 @@ def get_name(obj: Union[type, refs.ForwardRef, Callable]) -> str:
     """Safely retrieve the name of either a standard object or a type annotation.
 
     Examples:
-        >>> from typelib import inspection
+        >>> from typelib.py import inspection
         >>> from typing import Dict, Any
         >>> T = TypeVar("T")
         >>> get_name(Dict)
@@ -234,7 +235,7 @@ def get_qualname(obj: Union[type, refs.ForwardRef, Callable]) -> str:
     """Safely retrieve the qualname of either a standard object or a type annotation.
 
     Examples:
-        >>> from typelib import inspection
+        >>> from typelib.py import inspection
         >>> from typing import Dict, Any
         >>> T = TypeVar("T")
         >>> get_qualname(Dict)
@@ -269,7 +270,7 @@ def resolve_supertype(annotation: type[Any] | types.FunctionType) -> Any:
     """Get the highest-order supertype for a NewType.
 
     Examples:
-        >>> from typelib import inspection
+        >>> from typelib.py import inspection
         >>> from typing import NewType
         >>> UserID = NewType("UserID", int)
         >>> AdminID = NewType("AdminID", UserID)
@@ -579,7 +580,7 @@ def isfinal(obj: type) -> bool:
     Examples:
 
         >>> from typing import NewType
-        >>> from typelib.compat import Final
+        >>> from typelib.py.compat import Final
         >>> isfinal(Final[str])
         True
         >>> isfinal(NewType("Foo", Final[str]))

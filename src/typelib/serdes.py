@@ -13,7 +13,8 @@ import typing as t
 import pendulum
 from more_itertools import peekable
 
-from typelib import compat, constants, inspection
+from typelib import constants
+from typelib.py import compat, inspection
 
 
 @t.overload

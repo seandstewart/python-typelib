@@ -157,7 +157,9 @@ def test_date_unmarshaller(given_input, expected_output):
     ),
     time=dict(
         given_input=datetime.time(tzinfo=datetime.timezone.utc),
-        expected_output=datetime.datetime.today().replace(
+        expected_output=datetime.datetime.today()
+        .astimezone(tz=datetime.timezone.utc)
+        .replace(
             hour=0, minute=0, second=0, microsecond=0, tzinfo=datetime.timezone.utc
         ),
     ),

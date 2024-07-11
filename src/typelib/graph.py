@@ -8,7 +8,8 @@ import graphlib
 import inspect
 import typing
 
-from typelib import classes, compat, constants, inspection, refs
+from typelib import constants
+from typelib.py import classes, compat, inspection, refs
 
 __all__ = ("static_order", "itertypes", "get_type_graph")
 

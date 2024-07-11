@@ -7,7 +7,7 @@ import inspect
 import sys
 import typing
 
-from typelib import frames, future
+from typelib.py import frames, future
 
 __all__ = ("ForwardRef", "evaluate", "forwardref")
 
