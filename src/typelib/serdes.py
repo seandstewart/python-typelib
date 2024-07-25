@@ -1,4 +1,28 @@
-"""Utilities for type translation, serialization, and deserialization."""
+"""Utilities for type translation, serialization, and deserialization.
+
+Examples: Typical Usage
+    >>> from typelib import serdes
+    >>>
+    >>> serdes.load("1")
+    1
+
+    >>> import datetime
+    >>> from typelib import serdes
+    >>>
+    >>> serdes.unixtime(datetime.datetime(2020, 1, 1))
+    1577854800.0
+    >>> serdes.isoformat(datetime.timedelta(hours=1))
+    'PT1H'
+
+    >>> import dataclasses
+    >>> @dataclasses.dataclass
+    ... class Class:
+    ...     attr: str
+    ...
+    >>> instance = Class(attr="value")
+    >>> list(serdes.iteritems(instance))
+    [('attr', 'value')]
+"""
 
 from __future__ import annotations
 
@@ -16,6 +40,18 @@ from more_itertools import peekable
 from typelib import constants
 from typelib.py import compat, inspection
 
+__all__ = (
+    "decode",
+    "isoformat",
+    "unixtime",
+    "dateparse",
+    "iteritems",
+    "itervalues",
+    "get_items_iter",
+    "strload",
+    "load",
+)
+
 
 @t.overload
 def decode(  # type: ignore[overload-overlap]
@@ -30,7 +66,7 @@ def decode(val: _T) -> _T: ...  # type: ignore[overload-overlap]
 def decode(val: t.Any, *, encoding: str = constants.DEFAULT_ENCODING) -> t.Any:
     """Decode a bytes-like object into a str.
 
-    Notes:
+    Note:
         If a non-bytes-like object is passed, it will be returned unchanged.
 
     Args:
@@ -48,11 +84,11 @@ def decode(val: t.Any, *, encoding: str = constants.DEFAULT_ENCODING) -> t.Any:
 def isoformat(dt: datetime.date | datetime.time | datetime.timedelta) -> str:
     """Format any date/time object into an ISO-8601 string.
 
-    Notes:
+    Note:
         While the standard library includes `isoformat()` methods for
-        :py:class:`datetime.date`, :py:class:`datetime.time`, &
-        :py:class:`datetime.datetime`, they do not include a method for serializing
-        :py:class:`datetime.timedelta`, even though durations are included in the
+        [`datetime.date`][], [`datetime.time`][], &
+        [`datetime.datetime`][], they do not include a method for serializing
+        [`datetime.timedelta`][], even though durations are included in the
         ISO 8601 specification. This function fills that gap.
 
     Examples:
@@ -107,7 +143,7 @@ _T = t.TypeVar("_T")
 def unixtime(dt: datetime.date | datetime.time | datetime.timedelta) -> float:
     """Convert a date/time object to a unix timestamp.
 
-    Notes:
+    Note:
         Time is messy. Here is how we've decided to make this work:
 
         - `datetime.datetime` instances will preserve the current tzinfo (even if naive).
@@ -215,7 +251,7 @@ def _normalize_number(*, numval: float, td: type[DateTimeT]) -> DateTimeT:
 def iteritems(val: t.Any) -> t.Iterable[tuple[t.Any, t.Any]]:
     """Iterate over (field, value) pairs for any object.
 
-    Notes:
+    Note:
         If the given item is detected to be an iterable of pairs (e.g., `[('a', 1), ('b', 2)]`),
         we will iterate directly over that.
 
@@ -244,6 +280,11 @@ def _is_iterable_of_pairs(val: t.Any) -> bool:
 
 
 def itervalues(val: t.Any) -> t.Iterator[t.Any]:
+    """Iterate over the contained values for any object.
+
+    Args:
+        val: The object to iterate over.
+    """
     iterate = get_items_iter(val.__class__)
     return (v for k, v in iterate(val))
 
@@ -301,7 +342,7 @@ def _make_fields_iterator(
 
 
 def load(val: _T) -> PythonValueT | _T:
-    """Attempt to decode :py:param:`val` if it is a text-like object.
+    """Attempt to decode `val` if it is a text-like object.
 
     Args:
         val: The value to decode.
@@ -327,6 +368,7 @@ def strload(val: str | bytes | bytearray | memoryview) -> PythonValueT:
 
 
 PythonPrimitiveT: t.TypeAlias = "bool | int | float | str | None"
+"""Type alias for serializable, non-container Python types."""
 PythonValueT: t.TypeAlias = (
     "PythonPrimitiveT | "
     "dict[PythonPrimitiveT, PythonValueT] | "
@@ -334,7 +376,9 @@ PythonValueT: t.TypeAlias = (
     "tuple[PythonValueT, ...] | "
     "set[PythonValueT]"
 )
+"""Type alias for any Python builtin type."""
 MarshalledValueT: t.TypeAlias = "PythonPrimitiveT | dict[PythonPrimitiveT, MarshalledValueT] | list[MarshalledValueT]"
+"""Type alias for a Python value which is ready for over-the-wire serialization."""
 
 
 _itemscaller = operator.methodcaller("items")

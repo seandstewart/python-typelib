@@ -1,4 +1,15 @@
-"""Utilities for working with stack traces and frames."""
+"""Utilities for working with stack traces and frames.
+
+Examples: Typical Usage
+    >>> import inspect
+    >>> from typelib.py import frames
+    >>> var = 1
+    >>> frames.extract("var")
+    1
+    >>> current_frame = inspect.currentframe()
+    >>> frames.getcaller() == current_frame
+    True
+"""
 
 from __future__ import annotations
 
@@ -20,7 +31,7 @@ def extract(name: str, *, frame: types.FrameType = None) -> Any | None:
 
     Args:
         name: The name of the object to extract from the stacktrace.
-        frame: The :py:class:`types.FrameType` instance to start from (optional).
+        frame: The [`types.FrameType`][] instance to start from (optional).
     """
     frame = frame or inspect.currentframe()
     seen: set[types.FrameType] = set()
@@ -42,7 +53,7 @@ def getcaller(frame: types.FrameType = None) -> types.FrameType:
     If `frame` is not provided, this function will use the current frame.
 
     Args:
-        frame: The :py:class:`types.FrameType` instance to start from (optional).
+        frame: The [`types.FrameType`][] instance to start from (optional).
     """
 
     frame = frame or inspect.currentframe()

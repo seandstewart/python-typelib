@@ -1,4 +1,17 @@
-"""Utilities for automatic unmarshalling of inputs for a callable object's signature."""
+"""Utilities for automatic unmarshalling of inputs for a callable object's signature.
+
+Examples: Typical Usage
+    >>> from typelib import binding
+    >>>
+    >>> def foo(val: int) -> int:
+    ...     return val * 2
+    ...
+    >>> bound = binding.bind(foo)
+    >>> bound("2")
+    4
+    >>> bound.call("3")
+    '33'
+"""
 
 from __future__ import annotations
 
@@ -22,13 +35,17 @@ BindingT = compat.TypeAliasType(
 def bind(obj: tp.Callable[P, R]) -> BoundRoutine[P, R]:
     """Create a type-enforced, bound routine for a callable object.
 
-    Notes:
-        In contrast to :py:func:`~typelib.binding.wrap`, this function creates a new,
-        type-enforced :py:class:`~typelib.binding.BoundRoutine` instance. Rather than
-        masquerading as the given :py:param:`obj`, we encapsulate it in the routine
+    Note:
+        In contrast to [`typelib.binding.wrap`][], this function creates a new,
+        type-enforced [`BoundRoutine`][typelib.binding.BoundRoutine] instance. Rather than
+        masquerading as the given `obj`, we encapsulate it in the routine
         instance, which is more obvious and provides developers with the ability to
         side-step type enforcement when it is deemed unnecessary, which should be
         most of the time if your code is strongly typed and statically analyzed.
+
+    Tip: TL;DR
+        This function returns an object that walks like your duck and quacks like your duck,
+        but doesn't look like your duck.
 
     Args:
         obj: The callable object to bind.
@@ -44,16 +61,19 @@ def bind(obj: tp.Callable[P, R]) -> BoundRoutine[P, R]:
 def wrap(obj: tp.Callable[P, R]) -> tp.Callable[..., R]:
     """Wrap a callable object for runtime type coercion of inputs.
 
-    Notes:
+    Note:
         If a class is given, we will attempt to wrap the init method.
 
-    Warnings:
+    Warning:
         This is a useful feature. It is also very *surprising*. By wrapping a callable
         in this decorator, we end up with *implicit* behavior that's not obvious to the
         caller or a fellow developer.
 
-        You're encouraged to prefer :py:func:`~typelib.binding.bind` for similar
+        You're encouraged to prefer [`typelib.binding.bind`][] for similar
         functionality, less the implicit nature, especially when a class is given.
+
+    Tip: TL;DR
+        This function returns an object walks, quacks, and tries to look like your duck.
 
     Args:
         obj: The callable object to wrap.
@@ -77,10 +97,17 @@ def wrap(obj: tp.Callable[P, R]) -> tp.Callable[..., R]:
 @classes.slotted(dict=False, weakref=True)
 @dataclasses.dataclass
 class BoundRoutine(tp.Generic[P, R]):
+    """A type-enforced, bound routine for a callable object."""
+
     call: tp.Callable[P, R]
+    """The callable object."""
     binding: AbstractBinding[P]
+    """The parameter->type binding."""
 
     def __call__(self, *args: tp.Any, **kwargs: tp.Any) -> R:
+        """Binding an input to the parameters of `call`,
+
+        then call the callable and return the result."""
         bargs, bkwargs = self.binding(args=args, kwargs=kwargs)
         return self.call(*bargs, **bkwargs)
 
@@ -140,21 +167,22 @@ def _get_binding(obj: tp.Callable) -> AbstractBinding:
 class AbstractBinding(abc.ABC, tp.Generic[P]):
     """The abstract base class for all type-enforced bindings.
 
-    Notes:
+    Note:
         "Bindings" are callables which leverage the type annotations in a signature to
         unmarshal inputs.
 
         We differentiate each subclass based upon the possible combinations of parameter
         kinds:
-            - Positional-only arguments
-            - Keyword-only arguments
-            - Positional-or-Keyword arguments
-            - Variable-positional arguments (`*args`)
-            - Variable-keyword arguments (`**kwargs`)
 
-        This allows us to micro-optimize the call for each subclasses to exactly what is
-        necessary for the that combination, which can lead to a significant speedup at
-        runtime.
+        - Positional-only arguments
+        - Keyword-only arguments
+        - Positional-or-Keyword arguments
+        - Variable-positional arguments (`*args`)
+        - Variable-keyword arguments (`**kwargs`)
+
+        This allows us to micro-optimize the call for each subclass to exactly what is
+        necessary for the that combination, which can lead to a significant speedup in
+        hot loops.
     """
 
     __slots__ = ("binding", "signature", "varkwd", "varpos", "startpos")
@@ -192,7 +220,7 @@ class AbstractBinding(abc.ABC, tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:
-        """Inspect the given :py:param:`args` and :py:param:`kwargs` and unmarshal them.
+        """Inspect the given `args` and `kwargs` and unmarshal them.
 
         Args:
             args: The positional arguments.

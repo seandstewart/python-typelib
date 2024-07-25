@@ -1,4 +1,13 @@
-"""High-performance, Fine-grained runtime type inspections."""
+"""High-performance, Fine-grained runtime type inspections.
+
+Examples: Typical Usage
+    >>> from typelib.py import inspection
+    >>> inspection.ismappingtype(dict)
+    True
+    >>> inspection.isfixedtupletype(tuple[int, str])
+    True
+
+"""
 
 from __future__ import annotations
 
@@ -90,9 +99,10 @@ __all__ = (
 
 @compat.cache
 def origin(annotation: Any) -> Any:
-    """Get the highest-order 'origin'-type for subclasses of typing._SpecialForm.
+    """Get the highest-order 'origin'-type for a given type definition.
 
-    For the purposes of this library, if we can resolve to a builtin type, we will.
+    Tip:
+        For the purposes of this library, if we can resolve to a builtin type, we will.
 
     Examples:
         >>> from typelib.py import inspection
@@ -156,16 +166,17 @@ GENERIC_TYPE_MAP: dict[type, type] = {
 
 
 def get_args(annotation: Any) -> Tuple[Any, ...]:
-    """Get the args supplied to an annotation, normalizing :py:class:`typing.TypeVar`.
+    """Get the args supplied to an annotation, normalizing [`typing.TypeVar`][].
 
-    Notes:
+    Note:
         TypeVar normalization follows this strategy:
+
             -> If the TypeVar is bound
-                -> return the bound type
-            -> Else if the TypeVar has constraints
-                -> return a Union of the constraints
+            -----> return the bound type
+            -> Else If the TypeVar has constraints
+            -----> return a Union of the constraints
             -> Else
-                -> return Any
+            -----> return Any
 
     Examples:
         >>> from typelib.py import inspection
@@ -193,8 +204,9 @@ def _normalize_typevars(*args: Any) -> Iterable:
 def normalize_typevar(tvar: TypeVar) -> type[Any]:
     """Reduce a TypeVar to a simple type.
 
-    Notes:
+    Note:
         TypeVar normalization follows this strategy:
+
             -> If the TypeVar is bound
             -----> return the bound type
             -> Else If the TypeVar has constraints
@@ -301,15 +313,16 @@ cached_signature = compat.cache(signature)
 def get_type_hints(
     obj: Union[type, Callable], exhaustive: bool = True
 ) -> dict[str, type[Any]]:
-    """Wrapper for :py:func:`typing.get_type_hints`.
+    """Wrapper for [`typing.get_type_hints`][].
 
-    If :py:func:`typing.get_type_hints` raises `(NameError, TypeError)`, we will
+    If [`typing.get_type_hints`][] raises `([NameError][], [TypeError][])`, we will
     default to an empty dict.
 
     Args:
         obj: The object to inspect.
-        exhaustive: Whether to pull type hints from the signature of the object if
-                    none can be found via :py:func:`typing.get_type_hints`. (defaults True)
+        exhaustive:
+            Whether to pull type hints from the signature of the object if
+            none can be found via [`typing.get_type_hints`][]. (defaults True)
     """
     try:
         hints = typing.get_type_hints(obj)
@@ -378,9 +391,9 @@ cached_simple_attributes = compat.cache(simple_attributes)
 
 
 def typed_dict_signature(obj: Callable) -> inspect.Signature:
-    """A little faker for getting the "signature" of a :py:class:`TypedDict`.
+    """A little faker for getting the "signature" of a [`typing.TypedDict`][].
 
-    Notes:
+    Note:
         Technically, these are dicts at runtime, but we are enforcing a static shape,
         so we should be able to declare a matching signature for it.
     """
@@ -400,10 +413,10 @@ def typed_dict_signature(obj: Callable) -> inspect.Signature:
     )
 
 
-def tuple_signature(t: type[tuple]) -> inspect.Signature:
-    """A little faker for getting the "signature" of a :py:class:`tuple`.
+def tuple_signature(t: type[compat.TupleT]) -> inspect.Signature:
+    """A little faker for getting the "signature" of a [`tuple`][].
 
-    Notes:
+    Note:
         At runtime, tuples are just tuples, but we can make use of their type hints to
         define a predictable signature.
     """
@@ -426,6 +439,10 @@ def tuple_signature(t: type[tuple]) -> inspect.Signature:
 
 @compat.cache
 def safe_get_params(obj: type) -> Mapping[str, inspect.Parameter]:
+    """Try to extract the parameters of the given object.
+
+    Return an empty mapping if we encounter an error.
+    """
     params: Mapping[str, inspect.Parameter]
     try:
         if ismappingtype(obj) and not istypeddict(obj):
@@ -442,20 +459,19 @@ def isbuiltintype(
 ) -> compat.TypeIs[type[BuiltIntypeT]]:
     """Check whether the provided object is a builtin-type.
 
-    Notes:
+    Note:
         Python stdlib and Python documentation have no "definitive list" of
         builtin-**types**, despite the fact that they are well-known. The closest we have
         is https://docs.python.org/3.7/library/functions.html, which clumps the
         builtin-types with builtin-functions. Despite clumping these types with functions
         in the documentation, these types eval as False when compared to
-        :py:class:`types.BuiltinFunctionType`, which is meant to be an alias for the
+        [`types.BuiltinFunctionType`][], which is meant to be an alias for the
         builtin-functions listed in the documentation.
 
         All this to say, here we are with a custom check to determine whether a type is a
         builtin.
 
     Examples:
-
         >>> from typing import NewType, Mapping
         >>> isbuiltintype(str)
         True
@@ -487,7 +503,6 @@ def isbuiltinsubtype(t: type) -> compat.TypeIs[type[BuiltIntypeT]]:
     """Check whether the provided type is a subclass of a builtin-type.
 
     Examples:
-
         >>> from typing import NewType, Mapping
         >>> class SuperStr(str): ...
         ...
@@ -524,7 +539,6 @@ def isbuiltininstance(o: Any) -> compat.TypeIs[BuiltIntypeT]:
     """Test whether an object is an instance of a builtin type.
 
     Examples:
-
         >>> isbuiltininstance("")
         True
     """
@@ -538,13 +552,12 @@ def isstdlibinstance(o: Any) -> compat.TypeIs[STDLibtypeT]:
 
 @compat.cache
 def isoptionaltype(obj: type[_OT]) -> compat.TypeIs[type[Optional[_OT]]]:
-    """Test whether an annotation is :py:class`typing.Optional`, or can be treated as.
+    """Test whether an annotation is [`typing.Optional`][], or can be treated as.
 
-    :py:class:`typing.Optional` is an alias for `typing.Union[<T>, None]`, so both are
+    [`typing.Optional`][] is an alias for `typing.Union[<T>, None]`, so both are
     "optional".
 
     Examples:
-
         >>> from typing import Optional, Union, Dict, Literal
         >>> isoptionaltype(Optional[str])
         True
@@ -575,10 +588,9 @@ def isuniontype(obj: type) -> compat.TypeIs[Union]:
 
 @compat.cache
 def isfinal(obj: type) -> bool:
-    """Test whether an annotation is :py:class:`typing.Final`.
+    """Test whether an annotation is [`typing.Final`][].
 
     Examples:
-
         >>> from typing import NewType
         >>> from typelib.py.compat import Final
         >>> isfinal(Final[str])
@@ -591,10 +603,9 @@ def isfinal(obj: type) -> bool:
 
 @compat.cache
 def isliteral(obj) -> bool:
-    """Test whether an annotation is :py:class:`typing.Literal`.
+    """Test whether an annotation is [`typing.Literal`][].
 
     Examples:
-
         >>>
     """
     return origin(obj) is typing.Literal or (
@@ -609,7 +620,6 @@ def isdatetype(
     """Test whether this annotation is a a date/datetime object.
 
     Examples:
-
         >>> import datetime
         >>> from typing import NewType
         >>> isdatetype(datetime.datetime)
@@ -629,7 +639,6 @@ def isdatetimetype(
     """Test whether this annotation is a a date/datetime object.
 
     Examples:
-
         >>> import datetime
         >>> from typing import NewType
         >>> isdatetype(datetime.datetime)
@@ -647,7 +656,6 @@ def istimetype(obj: type) -> compat.TypeIs[type[datetime.time]]:
     """Test whether this annotation is a a date/datetime object.
 
     Examples:
-
         >>> import datetime
         >>> from typing import NewType
         >>> istimetype(datetime.time)
@@ -663,7 +671,6 @@ def istimedeltatype(obj: type) -> compat.TypeIs[type[datetime.timedelta]]:
     """Test whether this annotation is a a date/datetime object.
 
     Examples:
-
         >>> import datetime
         >>> from typing import NewType
         >>> istimedeltatype(datetime.timedelta)
@@ -679,7 +686,6 @@ def isdecimaltype(obj: type) -> compat.TypeIs[type[decimal.Decimal]]:
     """Test whether this annotation is a Decimal object.
 
     Examples:
-
         >>> import decimal
         >>> from typing import NewType
         >>> isdecimaltype(decimal.Decimal)
@@ -695,7 +701,6 @@ def isfractiontype(obj: type) -> compat.TypeIs[type[fractions.Fraction]]:
     """Test whether this annotation is a Decimal object.
 
     Examples:
-
         >>> import fractions
         >>> from typing import NewType
         >>> isdecimaltype(fractions.Fraction)
@@ -711,7 +716,6 @@ def isuuidtype(obj: type) -> compat.TypeIs[type[uuid.UUID]]:
     """Test whether this annotation is a a date/datetime object.
 
     Examples:
-
         >>> import uuid
         >>> from typing import NewType
         >>> isuuidtype(uuid.UUID)
@@ -731,7 +735,6 @@ def isiterabletype(obj: type) -> compat.TypeIs[type[Iterable]]:
     """Test whether the given type is iterable.
 
     Examples:
-
         >>> from typing import Sequence, Collection
         >>> isiterabletype(Sequence[str])
         True
@@ -753,7 +756,6 @@ def isiteratortype(obj: type) -> compat.TypeIs[type[Iterator]]:
     """Check whether the given object is a subclass of an Iterator.
 
     Examples:
-
         >>> def mygen(): yield 1
         ...
         >>> isiteratortype(mygen().__class__)
@@ -771,10 +773,9 @@ def isiteratortype(obj: type) -> compat.TypeIs[type[Iterator]]:
 
 @compat.cache
 def istupletype(obj: Callable[..., Any] | type[Any]) -> compat.TypeIs[type[tuple]]:
-    """Tests whether the given type is a subclass of :py:class:`tuple`.
+    """Tests whether the given type is a subclass of [`tuple`][].
 
     Examples:
-
         >>> from typing import NamedTuple, Tuple
         >>> class MyTup(NamedTuple):
         ...     field: int
@@ -792,12 +793,11 @@ def istupletype(obj: Callable[..., Any] | type[Any]) -> compat.TypeIs[type[tuple
 
 @compat.cache
 def iscollectiontype(obj: type) -> compat.TypeIs[type[Collection]]:
-    """Test whether this annotation is a subclass of :py:class:`typing.Collection`.
+    """Test whether this annotation is a subclass of [`typing.Collection`][].
 
     Includes builtins.
 
     Examples:
-
         >>> from typing import Collection, Mapping, NewType
         >>> iscollectiontype(Collection)
         True
@@ -844,10 +844,9 @@ _ArgsT = TypeVar("_ArgsT")
 
 @compat.cache
 def ismappingtype(obj: type) -> compat.TypeIs[type[Mapping]]:
-    """Test whether this annotation is a subtype of :py:class:`typing.Mapping`.
+    """Test whether this annotation is a subtype of [`typing.Mapping`][].
 
     Examples:
-
         >>> from typing import Mapping, Dict, DefaultDict, NewType
         >>> ismappingtype(Mapping)
         True
@@ -877,10 +876,9 @@ _MAPPING_TYPES = (dict, sqlite3.Row, types.MappingProxyType)
 
 @compat.cache
 def isenumtype(obj: type) -> compat.TypeIs[type[enum.Enum]]:
-    """Test whether this annotation is a subclass of :py:class:`enum.Enum`
+    """Test whether this annotation is a subclass of [`enum.Enum`][]
 
     Examples:
-
         >>> import enum
         >>>
         >>> class FooNum(enum.Enum): ...
@@ -896,7 +894,6 @@ def isclassvartype(obj: type) -> bool:
     """Test whether an annotation is a ClassVar annotation.
 
     Examples:
-
         >>> from typing import ClassVar, NewType
         >>> isclassvartype(ClassVar[str])
         True
@@ -953,11 +950,10 @@ __hashgetter = attrgetter("__hash__")
 def ishashable(obj: Any) -> compat.TypeIs[Hashable]:
     """Check whether an object is hashable.
 
-    An order of magnitude faster than :py:class:`isinstance` with
-    :py:class:`typing.Hashable`
+    An order of magnitude faster than [`isinstance`][] with
+    [`typing.Hashable`][]
 
     Examples:
-
         >>> ishashable(str())
         True
         >>> ishashable(frozenset())
@@ -970,10 +966,9 @@ def ishashable(obj: Any) -> compat.TypeIs[Hashable]:
 
 @compat.cache
 def istypeddict(obj: Any) -> bool:
-    """Check whether an object is a :py:class:`typing.TypedDict`.
+    """Check whether an object is a [`typing.TypedDict`][].
 
     Examples:
-
         >>> from typing import TypedDict
         >>>
         >>> class FooMap(TypedDict):
@@ -991,10 +986,9 @@ def istypeddict(obj: Any) -> bool:
 
 @compat.cache
 def istypedtuple(obj: type) -> compat.TypeIs[type[NamedTuple]]:
-    """Check whether an object is a "typed" tuple (:py:class:`typing.NamedTuple`).
+    """Check whether an object is a "typed" tuple ([`typing.NamedTuple`][]).
 
     Examples:
-
         >>> from typing import NamedTuple
         >>>
         >>> class FooTup(NamedTuple):
@@ -1012,10 +1006,9 @@ def istypedtuple(obj: type) -> compat.TypeIs[type[NamedTuple]]:
 
 @compat.cache
 def isnamedtuple(obj: type) -> compat.TypeIs[type[NamedTuple]]:
-    """Check whether an object is a "named" tuple (:py:func:`collections.namedtuple`).
+    """Check whether an object is a "named" tuple ([`collections.namedtuple`][]).
 
     Examples:
-
         >>> from collections import namedtuple
         >>>
         >>> FooTup = namedtuple("FooTup", ["bar"])
@@ -1027,10 +1020,9 @@ def isnamedtuple(obj: type) -> compat.TypeIs[type[NamedTuple]]:
 
 @compat.cache
 def isfixedtupletype(obj: type) -> compat.TypeIs[type[tuple]]:
-    """Check whether an object is a "fixed" tuple, e.g., tuple[int, int].
+    """Check whether an object is a "fixed" tuple, e.g., `tuple[int, int]`.
 
     Examples:
-
         >>> from typing import Tuple
         >>>
         >>>
@@ -1047,12 +1039,12 @@ def isfixedtupletype(obj: type) -> compat.TypeIs[type[tuple]]:
 
 
 def isforwardref(obj: Any) -> compat.TypeIs[refs.ForwardRef]:
-    """Tests whether the given object is a :py:class:`typing.ForwardRef`."""
+    """Tests whether the given object is a [`typing.ForwardRef`][]."""
     return obj.__class__ is refs.ForwardRef
 
 
 def isproperty(obj) -> compat.TypeIs[types.DynamicClassAttribute]:
-    """Test whether the given object is an instance of :py:class:`property` or :py:class:`functools.cached_property.
+    """Test whether the given object is an instance of [`property`] or [`functools.cached_property`][].
 
     Examples:
         >>> import functools
@@ -1076,10 +1068,9 @@ def isproperty(obj) -> compat.TypeIs[types.DynamicClassAttribute]:
 
 
 def isdescriptor(obj) -> compat.TypeIs[DescriptorT]:
-    """Test whether the given object is a :py:class:`types.GetSetDescriptortype`
+    """Test whether the given object is a [`types.GetSetDescriptortype`][]
 
     Examples:
-
         >>> class StringDescriptor:
         ...     __slots__ = ("value",)
         ...
@@ -1137,7 +1128,6 @@ def issimpleattribute(v) -> bool:
     (e.g., not a function, class, or descriptor).
 
     Examples:
-
         >>> class MyOperator:
         ...     type = str
         ...
@@ -1190,7 +1180,6 @@ def istexttype(t: type[Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
     """Test whether the given type is a subclass of text or bytes.
 
     Examples:
-
         >>> class MyStr(str): ...
         ...
         >>> istexttype(MyStr)
@@ -1204,7 +1193,6 @@ def isstringtype(t: type[Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
     """Test whether the given type is a subclass of text or bytes.
 
     Examples:
-
         >>> class MyStr(str): ...
         ...
         >>> istexttype(MyStr)
@@ -1218,7 +1206,6 @@ def isbytestype(t: type[Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
     """Test whether the given type is a subclass of text or bytes.
 
     Examples:
-
         >>> class MyStr(str): ...
         ...
         >>> istexttype(MyStr)
@@ -1229,7 +1216,7 @@ def isbytestype(t: type[Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
 
 @compat.cache
 def isnumbertype(t: type[Any]) -> compat.TypeIs[type[numbers.Number]]:
-    """Test whether `t` is a subclass of the :py:class:`numbers.Number` protocol.
+    """Test whether `t` is a subclass of the [`numbers.Number`][] protocol.
 
     Examples:
         >>> import decimal
@@ -1246,7 +1233,7 @@ def isnumbertype(t: type[Any]) -> compat.TypeIs[type[numbers.Number]]:
 
 @compat.cache
 def isintegertype(t: type[Any]) -> compat.TypeIs[type[int]]:
-    """Test whether `t` is a subclass of the :py:class:`numbers.Number` protocol.
+    """Test whether `t` is a subclass of the [`numbers.Number`][] protocol.
 
     Examples:
         >>> import decimal
@@ -1263,7 +1250,7 @@ def isintegertype(t: type[Any]) -> compat.TypeIs[type[int]]:
 
 @compat.cache
 def isfloattype(t: type[Any]) -> compat.TypeIs[type[float]]:
-    """Test whether `t` is a subclass of the :py:class:`numbers.Number` protocol.
+    """Test whether `t` is a subclass of the [`numbers.Number`][] protocol.
 
     Examples:
         >>> import decimal
@@ -1413,7 +1400,7 @@ _UNRESOLVABLE = (
 
 @compat.cache
 def isnonetype(t: Any) -> compat.TypeIs[None]:
-    """Detect if the given type is a :py:class:`NoneType`.
+    """Detect if the given type is a [`types.NoneType`][].
 
     Examples:
         >>> isnonetype(None)
@@ -1428,7 +1415,7 @@ def isnonetype(t: Any) -> compat.TypeIs[None]:
 
 @compat.cache
 def ispatterntype(t: Any) -> compat.TypeIs[re.Pattern]:
-    """Detect if the given type is a :py:class:`re.Pattern`.
+    """Detect if the given type is a [`re.Pattern`][].
 
     Examples:
         >>> import re
@@ -1442,7 +1429,7 @@ def ispatterntype(t: Any) -> compat.TypeIs[re.Pattern]:
 
 @compat.cache
 def ispathtype(t: Any) -> compat.TypeIs[pathlib.Path]:
-    """Detect if the given type is a :py:class:`pathlib.Path`.
+    """Detect if the given type is a [`pathlib.Path`][].
 
     Examples:
         >>> import pathlib
@@ -1456,7 +1443,7 @@ def ispathtype(t: Any) -> compat.TypeIs[pathlib.Path]:
 
 @compat.cache
 def istypealiastype(t: Any) -> compat.TypeIs[compat.TypeAliasType]:
-    """Detect if the given object is a :py:class:`typing.TypeAliasType`.
+    """Detect if the given object is a [`typing.TypeAliasType`][].
 
     Examples:
         >>> type IntList = list[int]

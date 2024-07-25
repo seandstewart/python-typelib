@@ -1,4 +1,15 @@
-"""Utilities for maintaining runtime compatibility with emerging type annotation operations."""
+"""Utilities for maintaining runtime compatibility with emerging type annotation operations.
+
+Notes:
+    This module's functionality is unnecessary for Python versions >= 3.10
+
+Examples: Typical Usage
+    >>> from typelib.py import future
+    >>> future.transform_annotation("str | int")
+    'typing.Union[str, int]'
+    >>> future.transform_annotation("dict[str, int]")
+    'typing.Dict[str, int]'
+"""
 
 from __future__ import annotations
 
@@ -13,16 +24,16 @@ __all__ = ("transform_annotation",)
 
 @functools.cache
 def transform(annotation: str, *, union: str = "typing.Union") -> str:
-    """Transform a modern annotations into their :py:mod:`typing` equivalent:
+    """Transform a modern annotations into their [`typing`][] equivalent:
 
-    - :py:class:`types.UnionType` into a :py:class:`typing.Union` (``str | int`` -> ``typing.Union[str, int]``)
-    - builtin generics into typing generics (``dict[str, int]`` -> ``typing.Dict[str, int]``)
+    - [`types.UnionType`][] into a [`typing.Union`][] (`str | int` -> `typing.Union[str, int]`)
+    - builtin generics into typing generics (`dict[str, int]` -> `typing.Dict[str, int]`)
 
     Args:
         annotation: The annotation to transform, as a string.
         union: The name of the Union type to subscript (defaults `"typing.Union"`).
 
-    Notes:
+    Note:
         While this transformation requires your expression be valid Python syntax, it
         doesn't make sure the type annotation is valid.
     """
@@ -33,13 +44,13 @@ def transform(annotation: str, *, union: str = "typing.Union") -> str:
 
 
 class TransformAnnotation(ast.NodeTransformer):
-    """A :py:class:`ast.NodeTransformer` that transforms :py:class:`typing.Union`."""
+    """A [`ast.NodeTransformer`][] that transforms [`typing.Union`][]."""
 
     def __init__(self, union: str = "typing.Union") -> None:
         self.union = union
 
     def visit_BinOp(self, node: ast.BinOp):
-        """Transform a :py:class:`ast.BinOp` to :py:class:`typing.Union`."""
+        """Transform a [`ast.BinOp`][] to [`typing.Union`][]."""
         # Ignore anything but a bitwise OR `|`
         if not isinstance(node.op, ast.BitOr):
             return node
@@ -63,7 +74,7 @@ class TransformAnnotation(ast.NodeTransformer):
         return union
 
     def visit_Name(self, node: ast.Name):
-        """Transform a builtin :py:class:`ast.Name` to the `typing` equivalent."""
+        """Transform a builtin [`ast.Name`][] to the `typing` equivalent."""
         # Re-write new-style builtin generics as old-style typing generics
         if node.id not in _GENERICS:
             return node
@@ -73,7 +84,7 @@ class TransformAnnotation(ast.NodeTransformer):
         return new
 
     def visit_Subscript(self, node: ast.Subscript):
-        """Transform all subscripts within a :py:class:`ast.Subscript`."""
+        """Transform all subscripts within a [`ast.Subscript`][]."""
         # Scan all subscripts to we transform nested new-style types.
         transformed = self.visit(node.slice)
         new = ast.Subscript(
@@ -86,7 +97,7 @@ class TransformAnnotation(ast.NodeTransformer):
         return new
 
     def visit_Tuple(self, node: ast.Tuple):
-        """Transform all values within a :py:class:`ast.Tuple`."""
+        """Transform all values within a [`ast.Tuple`][]."""
         # Scan all tuples to ensure we transform nested new-style types.
         transformed = [self.visit(n) for n in node.elts]
         new = ast.Tuple(elts=transformed, ctx=node.ctx)

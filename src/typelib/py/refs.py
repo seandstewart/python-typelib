@@ -1,4 +1,15 @@
-"""Utilities for working with :py:class:`typing.ForwardRef`."""
+"""Utilities for working with [`typing.ForwardRef`][].
+
+This module allows the developer to create and evaluate [`typing.ForwardRef`][] instances
+with additional logic to support forwards compatibility.
+
+Examples: Typical Usage
+    >>> from typelib.py import refs
+    >>> ref = refs.forwardref("str")
+    >>> cls = refs.evaluate(ref)
+    >>> cls is str
+    True
+"""
 
 from __future__ import annotations
 
@@ -21,7 +32,7 @@ def forwardref(
     module: typing.Any | None = None,
     is_class: bool = True,
 ) -> ForwardRef:
-    """Create a :py:class:`typing.ForwardRef` instance from a :py:param:`ref` string.
+    """Create a [`typing.ForwardRef`][] instance from a `ref` string.
 
     This wrapper function will attempt to determine the module name ahead of instantiation
     if not provided. This is important when resolving the reference to an actual type.
@@ -64,10 +75,10 @@ else:
             localns: typing.Mapping[str, typing.Any] | None = None,
             recursive_guard: set | None = None,
         ) -> typing.Any:
-            """Evaluate the :py:class:`typing.ForwardRef` instance into a proper type.
+            """Evaluate the [`typing.ForwardRef`][] instance into a proper type.
 
-            Notes:
-                Most of the time you will not need to provide anything but :py:param:`ref`.
+            Note:
+                Most of the time you will not need to provide anything but `ref`.
 
                 In Python 3.9, we will automatically transform "new-style" type hints into
                 runtime-compatible type hints:
@@ -75,7 +86,7 @@ else:
                   - builtin generics (`dict[str, str]` -> `typing.Dict[str, str]`)
 
             Args:
-                ref: The :py:class:`typing.ForwardRef` instance to evaluate.
+                ref: The [`typing.ForwardRef`][] instance to evaluate.
                 globalns: A mapping of global variable names to values (optional).
                 localns: A mapping of local variable names to values (optional).
                 recursive_guard: A set instance to prevent recursion during evaluation (optional).

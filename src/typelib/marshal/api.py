@@ -20,12 +20,13 @@ __all__ = (
 def marshal(
     value: tp.Any, *, t: type[T] | refs.ForwardRef | str | None = None
 ) -> serdes.MarshalledValueT:
-    """Marshal :py:param:`value` from :py:param:`typ` into :py:class:~typelib.serdes.MarshalledValueT`.
+    """Marshal `value` from `typ` into [`MarshalledValueT`][typelib.serdes.MarshalledValueT].
 
     Args:
-        value: The value to reduce to a simple, encodable type.
-        t: The type to use for building the marshaller (optional).
-           If not provided, we'll default to the type of the input value.
+        value: The value to reduce to a simple, encode-able type.
+        t:
+            The type to use for building the marshaller (optional).
+            If not provided, we'll default to the type of the input value.
     """
     typ = value.__class__ if t is None else t
     routine: routines.AbstractMarshaller[T] = marshaller(typ)
@@ -40,8 +41,8 @@ def marshaller(
     """Get a marshaller routine for a given type.
 
     Args:
-        typ: The type annotation to generate an marshaller for.
-             May be a type, type alias, :py:class:`typing.ForwardRef`, or string reference.
+        typ: The type annotation to generate a marshaller for.
+             May be a type, type alias, [`typing.ForwardRef`][], or string reference.
     """
     nodes = graph.static_order(typ)
     context: dict[type | graph.TypeNode, routines.AbstractMarshaller] = (

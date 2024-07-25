@@ -1,4 +1,21 @@
-"""Interface for marshalling, unmarshalling, encoding, and decoding data to and from a bound type."""
+"""Interface for marshalling, unmarshalling, encoding, and decoding data to and from a bound type.
+
+Examples: Typical Usage
+    >>> import dataclasses
+    >>> from typelib import interchange
+    >>>
+    >>> @dataclasses.dataclass
+    ... class Class:
+    ...     attr: str
+    ...
+    >>> protocol = interchange.protocol(Class)
+    >>> protocol.unmarshal({"attr": "value"})
+    Class(attr="value")
+    >>> protocol.codec.decode(b'{"attr": "value"}')
+    Class(attr="value")
+    >>> protocol.codec.encode(Class(attr="value"))
+    b'{"attr":"value"}'
+"""
 
 from __future__ import annotations
 
@@ -23,29 +40,29 @@ def protocol(
     encoder: mcodec.EncoderT = compat.json.dumps,
     decoder: mcodec.DecoderT = compat.json.loads,
 ) -> InterchangeProtocol[T]:
-    """Factory function for creating an :py:class:`InterchangeProtocol` instance.
+    """Factory function for creating an [`InterchangeProtocol`][typelib.interchange.InterchangeProtocol] instance.
 
-    Notes:
-        In the simplest case, all that needs be provided is :py:param:`t`. We will
+    Note:
+        In the simplest case, all that needs be provided is `t`. We will
         generate a marshaller, unmarshaller and codec. In most cases, you probably
         don't need to override the default marshaller and unmarshaller behavior.
 
-        If no :py:param:`codec` is passed, we create a :py:class:`typelib.codec.Codec`
-        instance with :py:param:`marshaller`, :py:param:`unmarshaller`, :py:param:`encoder`
-        and :py:param:`decoder`. This codec instance combines your marshalling protocol
-        and your wire protocol, allowing you to pass instances of :py:param:`t` directly
-        to :py:meth:`~typelib.codec.Codec.encode` and recieve instances of :py:param:`t`
-        directly from :py:meth:`~typelib.codec.Codec.decode`.
+        If no `codec` is passed, we create a [`Codec`][typelib.codec.Codec]
+        instance with `marshaller`, `unmarshaller`, `encoder`
+        and `decoder`. This codec instance combines your marshalling protocol
+        and your wire protocol, allowing you to pass instances of `t` directly
+        to [`Codec.encode`][typelib.codec.Codec.encode] and receive instances of `t`
+        directly from [`Codec.decode`][typelib.codec.Codec.decode].
 
-        The :py:param:`encoder` and :py:param:`decoder` default to JSON, using either
-        stdlib :py:mod:`json` or :py:mod:`orjson` if available.
+        The `encoder` and `decoder` default to JSON, using either
+        stdlib [`json`][] or [`orjson`](https://github.com/ijl/orjson) if available.
 
         You can customize your wire protocol in two ways:
-            1. Pass in a custom :py:class:`typelib.codec.AbstractCodec` instance.
+            1. Pass in a custom [`AbstractCodec`][typelib.codec.AbstractCodec] instance.
                * This will override the behavior described above. Useful when you have
                  your own optimized path for your wire protocol and don't desire our
                  marshalling capabilities.
-            2. Pass in custom :py:param:`encoder` and :py:param:`decoder` values.
+            2. Pass in custom `encoder` and `decoder` values.
                * This will follow the behavior described above. Useful when you use a
                  wire protocol other than JSON.
 
@@ -59,7 +76,7 @@ def protocol(
 
 
     See Also:
-        * :py:mod:`typelib.codec`
+        * [`typelib.codec`][]
     """
     marshal = marshaller or mmarshal.marshaller(typ=t)
     unmarshal = unmarshaller or munmarshal.unmarshaller(typ=t)

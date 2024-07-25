@@ -1,4 +1,19 @@
-"""Utilities for working with types as graphs."""
+"""Utilities for working with types as graphs.
+
+Examples: Typical Usage
+    >>> import dataclasses
+    >>> from typelib import graph
+    >>> graph.static_order(dict[str, str])
+    [TypeNode(type=<class 'str'>, var=None, cyclic=False), TypeNode(type=dict[str, str], var=None, cyclic=False)]
+    >>>
+    >>> @dataclasses.dataclass
+    ... class Class:
+    ...     attr: str
+    ...
+    >>> graph.static_order(Class)
+    [TypeNode(type=<class 'str'>, var='attr', cyclic=False), TypeNode(type=<class '__main__.Class'>, var=None, cyclic=False)]
+
+"""
 
 from __future__ import annotations
 
@@ -23,7 +38,7 @@ def static_order(
     Args:
         t: The type to extract an ordered stack from.
 
-    Notes:
+    Note:
         The order of types is guaranteed to rank from edges to root. If there are
         multiple edges, the order of those edges is not guaranteed.
 
@@ -31,7 +46,7 @@ def static_order(
         multiple times at runtime, which would be wasted effort, as types don't change
         at runtime.
 
-        To avoid memoization, you can make use of :py:func:`itertypes`.
+        To avoid memoization, you can make use of [`itertypes`][typelib.graph.itertypes].
     """
     # We want to leverage the cache if possible, hence the recursive call.
     #   Shouldn't actually recurse more than once or twice.
@@ -54,14 +69,15 @@ def itertypes(
         t: The "root" type.
 
     Yields:
-        :py:class:`TypeNode`
+        [`TypeNode`][typelib.graph.TypeNode]
 
-    Notes:
+    Note:
         We will build a graph of types with the given type `t` as the root node,
         then iterate from the outermost leaves back to the root using BFS.
 
-        This is computationally expensive, so you are encouraged to use :py:func:`static_order`
-        instead of :py:func:`itertypes`.
+        This is computationally expensive, so you are encouraged to use
+        [`static_order`][typelib.graph.static_order] instead of
+        [`itertypes`][typelib.graph.itertypes].
     """
     if inspection.istypealiastype(t):
         t = t.__value__
@@ -80,13 +96,13 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
         t: A type annotation.
 
     Returns:
-        :py:class:`graphlib.TopologicalSorter`
+        [`graphlib.TopologicalSorter`][]
 
-    Notes:
+    Note:
         A key aspect of building a directed graph of a given type is pre-emptive
         detection and termination of cycles in the graph. If we detect a cycle, we
-        will wrap the type in a :py:class:`typing.ForwardRef` and mark the
-        :py:class:`TypeNode` instance as `cyclic=True`.
+        will wrap the type in a [`typing.ForwardRef`][] and mark the
+        [`TypeNode`][typelib.graph.TypeNode] instance as `cyclic=True`.
 
         Consumers of the graph can "delay" the resolution of a forward reference until
         the graph's `static_order()` has been exhausted, at which point they have
@@ -151,9 +167,14 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
 @classes.slotted(dict=False, weakref=True)
 @dataclasses.dataclass(unsafe_hash=True)
 class TypeNode:
+    """A "node" in a type graph."""
+
     type: typing.Any
+    """The type annotation for this node."""
     var: str | None = None
+    """The variable or parameter name associated to the type annotation for this node."""
     cyclic: bool = dataclasses.field(default=False, hash=False, compare=False)
+    """Whether this type annotation is cyclic."""
 
 
 def _level(t: typing.Any) -> typing.Iterable[tuple[str | None, type]]:

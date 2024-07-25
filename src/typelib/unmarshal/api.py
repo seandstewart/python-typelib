@@ -18,7 +18,7 @@ __all__ = (
 
 
 def unmarshal(typ: type[T] | refs.ForwardRef | str, value: tp.Any) -> T:
-    """Unmarshal :py:param:`value` into :py:param:`typ`.
+    """Unmarshal `value` into `typ`.
 
     Args:
         typ: The type annotation or reference to unmarshal into.
@@ -37,7 +37,7 @@ def unmarshaller(
 
     Args:
         typ: The type annotation to generate an unmarshaller for.
-             May be a type, type alias, :py:class:`typing.ForwardRef`, or string reference.
+             May be a type, type alias, [`typing.ForwardRef`][], or string reference.
     """
     nodes = graph.static_order(typ)
     context: dict[type | graph.TypeNode, routines.AbstractUnmarshaller] = (

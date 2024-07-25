@@ -1,4 +1,22 @@
-"""Vendored class decorators for dataclasses."""
+"""Vendored class decorators for dataclasses.
+
+Notes:
+    This module is unnecessary for Python versions >= 3.10.
+
+Info: Typical Usage
+    ```pycon
+    >>> import dataclasses
+    >>> from typelib.py import classes
+    >>>
+    >>> @classes.slotted
+    >>> @dataclasses.dataclass
+    >>> class Slotted:
+    ...     attr: str
+    ...
+    >>> Slotted.__slots__
+    ('attr',)
+    ```
+"""
 
 from __future__ import annotations
 
@@ -30,9 +48,17 @@ def slotted(  # noqa: C901
 ) -> Callable[[_ClsT], _ClsT] | _ClsT:
     """Decorator to create a "slotted" version of the provided class.
 
-    Returns new class object as it's not possible to add __slots__ after class creation.
+    Args:
+        _cls: The class to decorate.
+        dict: Whether to add a slot for `__dict__`.
+        weakref: Whether to add a slot for `__weakref__`.
 
-    Source: https://github.com/starhel/dataslots/blob/master/src/dataslots/__init__.py
+    Warning:
+        This function returns new class object as it's not possible to add `__slots__`
+        after class creation.
+
+    See Also:
+        - [dataslots](https://github.com/starhel/dataslots/blob/master/src/dataslots/__init__.py)
     """
 
     def _slots_setstate(self, state):

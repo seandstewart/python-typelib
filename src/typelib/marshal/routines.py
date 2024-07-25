@@ -56,8 +56,8 @@ class AbstractMarshaller(abc.ABC, tp.Generic[T]):
 
     Attributes:
         t: The root type of this marshaller.
-        origin: If :py:attr:`t` is a generic, this will be an actionable runtime type
-                related to `t`, otherwise it is the same as :py:attr:`t`.
+        origin: If `t` is a generic, this will be an actionable runtime type
+                related to `t`, otherwise it is the same as `t`.
         context: The complete type context for this unmarshaller.
         var: If this unmarshaller is used in a nested context, this will reference the
              field/parameter/index at which this unmarshaller should be used.
@@ -156,7 +156,7 @@ PatternT = tp.TypeVar("PatternT", bound=re.Pattern)
 
 
 class PatternMarshaller(AbstractMarshaller[PatternT]):
-    """A marshaller that converts a :py:class:`re.Pattern` to a string."""
+    """A marshaller that converts a [`re.Pattern`][] to a string."""
 
     def __call__(self, val: PatternT) -> str:
         """Marshal a compiled regex pattern into a string.
@@ -176,7 +176,7 @@ class ToISOTimeMarshaller(AbstractMarshaller[DateOrTimeT], tp.Generic[DateOrTime
     """A marshaller that converts any date/time object to a ISO time string.
 
     See Also:
-        - :py:func:`typelib.serdes.isoformat`
+        - [`typelib.serdes.isoformat`]
     """
 
     def __call__(self, val: DateOrTimeT) -> str:
@@ -205,7 +205,7 @@ LiteralT = tp.TypeVar("LiteralT")
 
 
 class LiteralMarshaller(AbstractMarshaller[LiteralT], tp.Generic[LiteralT]):
-    """A marshaller that enforces the given value be one of the values in the defined :py:class:`typing.Literal`"""
+    """A marshaller that enforces the given value be one of the values in the defined [`typing.Literal`][]"""
 
     __slots__ = ("values",)
 
@@ -227,7 +227,7 @@ class LiteralMarshaller(AbstractMarshaller[LiteralT], tp.Generic[LiteralT]):
             val: The value to enforce.
 
         Raises:
-            ValueError: If :py:param:`val` is not a member of the bound `Literal` type.
+            ValueError: If `val` is not a member of the bound `Literal` type.
         """
         if val in self.values:
             return val  # type: ignore[return-value]
@@ -242,7 +242,7 @@ class UnionMarshaller(AbstractMarshaller[UnionT], tp.Generic[UnionT]):
     """A marshaller for dumping a given value via one of the types in the defined bound union.
 
     See Also:
-        - :py:class:`~typelib.unmarshal.routines.UnionUnmarshaller`
+        - [`UnionUnmarshaller`][typelib.unmarshal.routines.UnionUnmarshaller]
     """
 
     __slots__ = ("stack", "ordered_routines")
@@ -280,10 +280,10 @@ MappingT = tp.TypeVar("MappingT", bound=tp.Mapping)
 
 
 class MappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[MappingT]):
-    """A marshaller for dumping any mapping into a simple :py:class:`builtins.dict`."""
+    """A marshaller for dumping any mapping into a simple [`dict`][]."""
 
     def __call__(self, val: MappingT) -> MarshalledMappingT:
-        """Marshal a mapping into a simple :py:class:`builtins.dict`.
+        """Marshal a mapping into a simple [`dict`][].
 
         Args:
             val: The mapping object to marshal.
@@ -295,10 +295,10 @@ IterableT = tp.TypeVar("IterableT", bound=tp.Iterable)
 
 
 class IterableMarshaller(AbstractMarshaller[IterableT], tp.Generic[IterableT]):
-    """A marshaller for dumping any iterable into a simple :py:class:`builtins.list`."""
+    """A marshaller for dumping any iterable into a simple [`list`][]."""
 
     def __call__(self, val: IterableT) -> MarshalledIterableT:
-        """Marshal an iterable into a simple :py:class:`builtins.list`.
+        """Marshal an iterable into a simple [`list`][].
 
         Args:
             val: The iterable to marshal.
@@ -307,12 +307,12 @@ class IterableMarshaller(AbstractMarshaller[IterableT], tp.Generic[IterableT]):
 
 
 class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[MappingT]):
-    """A marshaller for dumping a subscripted mapping into a simple :py:class:`builtins.dict`.
+    """A marshaller for dumping a subscripted mapping into a simple [`dict`][].
 
     Keys are marshalled according to the defined key-type, values according to the defined value-type.
 
     See Also:
-        - :py:class:`~typelib.unmarshal.routines.SubscriptedMappingUnmarshaller`
+        - [`SubscriptedMappingUnmarshaller`][typelib.unmarshal.routines.SubscriptedMappingUnmarshaller]
     """
 
     __slots__ = (
@@ -342,12 +342,12 @@ class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[Mapp
 class SubscriptedIterableMarshaller(
     AbstractMarshaller[IterableT], tp.Generic[IterableT]
 ):
-    """A marshaller for dumping a subscripted iterable into a simple :py:class:`builtins.list`.
+    """A marshaller for dumping a subscripted iterable into a simple [`list`][].
 
     Values are marshalled according to the defined value-type.
 
     See Also:
-        - :py:class:`~typelib.unmarshal.routines.SubscriptedIterableUnmarshaller`
+        - [`SubscriptedIterableUnmarshaller`][typelib.unmarshal.routines.SubscriptedIterableUnmarshaller]
     """
 
     __slots__ = ("values",)
@@ -368,7 +368,7 @@ class SubscriptedIterableMarshaller(
         self.values = context[value_t]
 
     def __call__(self, val: IterableT) -> MarshalledIterableT:
-        """Marshal an iterable into a simple :py:class:`builtins.list`.
+        """Marshal an iterable into a simple [`list`][].
 
         Args:
             val: The iterable to marshal.
@@ -379,12 +379,12 @@ class SubscriptedIterableMarshaller(
 
 
 class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
-    """A marshaller for dumping a "fixed" tuple to a simple :py:class:`builtins.list`.
+    """A marshaller for dumping a "fixed" tuple to a simple [`list`][].
 
     Values are marshalled according to the value-type in the order they are defined.
 
     See Also:
-        - :py:class:`~typelib.unmarshal.routines.FixedTupleUnmarshaller`
+        - [`FixedTupleUnmarshaller`][typelib.unmarshal.routines.FixedTupleUnmarshaller]
     """
 
     __slots__ = ("ordered_routines", "stack")
@@ -404,7 +404,7 @@ class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
     def __call__(self, val: compat.TupleT) -> MarshalledIterableT:
-        """Marshal a tuple into a simple :py:class:`builtins.list`.
+        """Marshal a tuple into a simple [`list`][].
 
         Args:
             val: The tuple to marshal.
@@ -419,10 +419,10 @@ _ST = tp.TypeVar("_ST")
 
 
 class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
-    """A marshaller for dumping a structured (user-defined) type to a simple :py:class:`builtins.dict`.
+    """A marshaller for dumping a structured (user-defined) type to a simple [`dict`][].
 
     See Also:
-        - :py:class:`~typelib.unmarshal.routines.StructuredTypeUnmarshaller`
+        - [`StructuredTypeUnmarshaller`][typelib.unmarshal.routines.StructuredTypeUnmarshaller]
     """
 
     __slots__ = ("fields_by_var",)
@@ -439,7 +439,7 @@ class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
         self.fields_by_var = {m.var: m for m in self.context.values() if m.var}
 
     def __call__(self, val: _ST) -> MarshalledMappingT:
-        """Marshal a structured type into a simple :py:class:`builtins.dict`.
+        """Marshal a structured type into a simple [`dict`][].
 
         Args:
             val: The structured type to marshal.

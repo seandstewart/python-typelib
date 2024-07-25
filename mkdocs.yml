@@ -1,0 +1,128 @@
+#file: noinspection YAMLSchemaValidation
+site_name: typelib
+site_url: https://pages.github.io/python-typelib
+repo_name: seandstewart/python-typelib
+repo_url: https://github.com/seandstewart/python-typelib
+watch: [mkdocs.yml, README.md, CHANGELOG.md, src/typelib, docs]
+theme:
+  name: material
+  features:
+    - search.highlight
+    - search.share
+    - search.suggest
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tabs
+    - navigation.top
+    - toc.integrate
+    - toc.follow
+    - content.code.select
+    - content.code.copy
+    - content.code.annotate
+  palette:
+  # Palette toggle for automatic mode
+  - media: "(prefers-color-scheme)"
+    toggle:
+      icon: material/brightness-auto
+      name: Switch to light mode
+
+  # Palette toggle for light mode
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    primary: white
+    accent: black
+    toggle:
+      icon: material/brightness-7
+      name: Switch to dark mode
+
+  # Palette toggle for dark mode
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    primary: black
+    accent: white
+    toggle:
+      icon: material/brightness-4
+      name: Switch to system preference
+  font:
+    text: "IBM Plex Mono"
+    code: "Fira Code"
+
+extra_css:
+  - css/typelib.css
+
+plugins:
+  - gen-files:
+      scripts:
+      - scripts/gen_ref_pages.py
+  - awesome-pages
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - mkdocstrings:
+      enable_inventory: true
+      handlers:
+        python:
+          import:
+          - https://docs.python.org/3/objects.inv
+          options:
+            docstring_options:
+              ignore_init_summary: true
+            docstring_section_style: list
+            heading_level: 1
+            inherited_members: true
+            merge_init_into_class: true
+            parameter_headings: true
+            separate_signature: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_signature_annotations: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            signature_crossrefs: true
+            summary: true
+  - open-in-new-tab
+  - tags
+  - social
+  - search
+  - autorefs
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - footnotes
+  - md_in_html
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      pygments_lang_class: true
+      anchor_linenums: true
+      line_spans: __span
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+      - name: mermaid
+        class: mermaid
+        format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - toc:
+      permalink: true
+      permalink_title: Anchor link to this section for reference
+
+
+extra:
+  version:
+    provider: mike
+

@@ -1,5 +1,3 @@
-"""Compatibility layer for typing and Python features."""
-
 # flake8: noqa
 from __future__ import annotations
 
