@@ -1,4 +1,4 @@
-"""Utilities for automatic unmarshalling of inputs for a callable object's signature.
+"""Utilities for automatic unmarshalling of inputs according to a callable object's signature.
 
 Examples: Typical Usage
     >>> from typelib import binding
