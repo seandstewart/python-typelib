@@ -20,8 +20,8 @@ Examples: Typical Usage
     ...     attr: str
     ...
     >>> instance = Class(attr="value")
-    >>> list(serdes.iteritems(instance))
-    [('attr', 'value')]
+    >>> dict(serdes.iteritems(instance))
+    {'attr': 'value'}
 """
 
 from __future__ import annotations
@@ -68,6 +68,13 @@ def decode(val: t.Any, *, encoding: str = constants.DEFAULT_ENCODING) -> t.Any:
 
     Note:
         If a non-bytes-like object is passed, it will be returned unchanged.
+
+    Examples:
+        >>> from typelib import serdes
+        >>> serdes.decode(b"abc")
+        'abc'
+        >>> serdes.decode(memoryview(b"abc"))
+        'abc'
 
     Args:
         val: The object to be decoded.
@@ -195,6 +202,12 @@ DateTimeT = t.TypeVar("DateTimeT", datetime.date, datetime.time, datetime.timede
 def dateparse(val: str, td: type[DateTimeT]) -> DateTimeT:
     """Parse a date string into a datetime object.
 
+    Examples:
+        >>> import datetime
+        >>> from typelib import serdes
+        >>> serdes.dateparse("1970-01-01",t=datetime.datetime)
+        DateTime(1970, 1, 1, 0, 0, 0, tzinfo=Timezone('UTC'))
+
     Args:
         val: The date string to parse.
         td: The target datetime type.
@@ -251,6 +264,22 @@ def _normalize_number(*, numval: float, td: type[DateTimeT]) -> DateTimeT:
 def iteritems(val: t.Any) -> t.Iterable[tuple[t.Any, t.Any]]:
     """Iterate over (field, value) pairs for any object.
 
+    Examples:
+        >>> import dataclasses
+        >>> from typelib import serdes
+        >>>
+        >>> @dataclasses.dataclass
+        ... class Class:
+        ...     attr: str
+        ...
+        >>> instance = Class(attr="value")
+        >>> [*serdes.iteritems(instance)]
+        [('attr', 'value')]
+        >>> [*serdes.iteritems("string")]
+        [(0, 's'), (1, 't'), (2, 'r'), (3, 'i'), (4, 'n'), (5, 'g')]
+        >>> [*serdes.iteritems(serdes.iteritems(instance))]
+        [('attr', 'value')]
+
     Note:
         If the given item is detected to be an iterable of pairs (e.g., `[('a', 1), ('b', 2)]`),
         we will iterate directly over that.
@@ -282,6 +311,18 @@ def _is_iterable_of_pairs(val: t.Any) -> bool:
 def itervalues(val: t.Any) -> t.Iterator[t.Any]:
     """Iterate over the contained values for any object.
 
+    Examples:
+        >>> import dataclasses
+        >>> from typelib import serdes
+        >>>
+        >>> @dataclasses.dataclass
+        ... class Class:
+        ...     attr: str
+        ...
+        >>> instance = Class(attr="value")
+        >>> [*serdes.itervalues(instance)]
+        ['value']
+
     Args:
         val: The object to iterate over.
     """
@@ -289,9 +330,26 @@ def itervalues(val: t.Any) -> t.Iterator[t.Any]:
     return (v for k, v in iterate(val))
 
 
-@functools.cache
+@compat.cache
 def get_items_iter(tp: type) -> t.Callable[[t.Any], t.Iterable[tuple[t.Any, t.Any]]]:
-    """Given a type, return a callable which will produce an iterator over (field, value) pairs."""
+    """Given a type, return a callable which will produce an iterator over (field, value) pairs.
+
+    Examples:
+        >>> import dataclasses
+        >>> from typelib import serdes
+        >>>
+        >>> @dataclasses.dataclass
+        ... class Class:
+        ...     attr: str
+        ...
+        >>> instance = Class(attr="value")
+        >>> iteritems = get_items_iter(Class)
+        >>> next(iteritems(instance))
+        ('attr', 'value')
+
+    Args:
+        tp: The type to create an iterator for.
+    """
     ismapping, isnamedtuple, isiterable = (
         inspection.ismappingtype(tp),
         inspection.isnamedtuple(tp),
@@ -344,6 +402,19 @@ def _make_fields_iterator(
 def load(val: _T) -> PythonValueT | _T:
     """Attempt to decode `val` if it is a text-like object.
 
+    Otherwise, return `val` unchanged.
+
+    Examples:
+        >>> from typelib import serdes
+        >>> serdes.load(1)
+        1
+        >>> serdes.load("1")
+        1
+        >>> serdes.load("1,2")
+        (1, 2)
+        >>> serdes.load(b'{"a": 1, "b": 2}')
+        {'a': 1, 'b': 2}
+
     Args:
         val: The value to decode.
     """
@@ -353,6 +424,22 @@ def load(val: _T) -> PythonValueT | _T:
 @compat.lru_cache(maxsize=100_000)
 def strload(val: str | bytes | bytearray | memoryview) -> PythonValueT:
     """Attempt to decode a string-like input into a Python value.
+
+    Examples:
+        >>> from typelib import serdes
+        >>> serdes.strload("1")
+        1
+        >>> serdes.strload("1,2")
+        (1, 2)
+        >>> serdes.strload(b'{"a": 1, "b": 2}')
+        {'a': 1, 'b': 2}
+
+
+    Tip:
+        This function is memoized and only safe for text-type inputs.
+
+    See Also:
+         - [`load`][typelib.serdes.load]
 
     Args:
         val: The string-like input to be decoded.
