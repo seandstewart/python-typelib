@@ -44,6 +44,7 @@ from typing import (
     Mapping,
     NamedTuple,
     Optional,
+    Sequence,
     Tuple,
     TypeVar,
     Union,
@@ -79,6 +80,7 @@ __all__ = (
     "isnamedtuple",
     "isoptionaltype",
     "isproperty",
+    "issequencetype",
     "issimpleattribute",
     "isstdlibinstance",
     "isstdlibtype",
@@ -789,6 +791,31 @@ def istupletype(obj: Callable[..., Any] | type[Any]) -> compat.TypeIs[type[tuple
     """
     obj = origin(obj)
     return obj is tuple or issubclass(obj, tuple)  # type: ignore[arg-type]
+
+
+@compat.cache
+def issequencetype(obj: type) -> compat.TypeIs[type[Collection]]:
+    """Test whether this annotation is a subclass of [`typing.Collection`][].
+
+    Includes builtins.
+
+    Examples:
+        >>> from typing import Collection, Mapping, NewType, Sequence
+        >>> issequencetype(Sequence)
+        True
+        >>> issequencetype(Mapping[str, str])
+        True
+        >>> issequencetype(str)
+        True
+        >>> issequencetype(list)
+        True
+        >>> issequencetype(NewType("Foo", dict))
+        True
+        >>> issequencetype(int)
+        False
+    """
+    obj = origin(obj)
+    return obj in _COLLECTIONS or builtins.issubclass(obj, Sequence)
 
 
 @compat.cache

@@ -286,26 +286,39 @@ def iteritems(val: t.Any) -> t.Iterable[tuple[t.Any, t.Any]]:
 
         Otherwise, we will create an iterator over (field, value) pairs with the following
         strategy:
-            - For mappings -> `((key, value), ...)`
-            - For structured objects (user-defined classes) -> `((field, value), ...)`
-            - For all other iterables -> `((index, value), ...)`.
+
+        - For mappings -> `((key, value), ...)`
+        - For structured objects (user-defined classes) -> `((field, value), ...)`
+        - For all other iterables -> `((index, value), ...)`.
 
     Args:
         val: The object to iterate over.
     """
-    if _is_iterable_of_pairs(val):
-        return iter(val)
+    # If the given value is an iterable, we will create a `peekable` so we can inspect it.
+    #   In that case, we want to continue using the peekable, since the act of peeking
+    #   is destructive to the original iterable in the event it is an iterator.
+    is_pairs, it = _is_iterable_of_pairs(val)
+    if is_pairs:
+        return iter(it)
 
     iterate = get_items_iter(val.__class__)
-    return iterate(val)
+    return iterate(it)
 
 
-def _is_iterable_of_pairs(val: t.Any) -> bool:
+def _is_iterable_of_pairs(val: t.Any) -> tuple[bool, t.Any]:
     cls = val.__class__
     if not inspection.isiterabletype(cls) or inspection.ismappingtype(cls):
-        return False
-    peek = peekable(val).peek()
-    return inspection.iscollectiontype(peek.__class__) and len(peek) == 2
+        return False, val
+
+    if inspection.issequencetype(cls):
+        peek = next(iter(val), ())
+        is_pairs = inspection.iscollectiontype(peek.__class__) and len(peek) == 2
+        return is_pairs, val
+
+    it = peekable(val)
+    peek = it.peek()
+    is_pairs = inspection.iscollectiontype(peek.__class__) and len(peek) == 2
+    return is_pairs, it
 
 
 def itervalues(val: t.Any) -> t.Iterator[t.Any]:
