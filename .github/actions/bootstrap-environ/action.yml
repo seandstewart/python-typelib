@@ -25,5 +25,3 @@ runs:
     shell: bash
   - run: poetry env info
     shell: bash
-  - run: poetry show
-    shell: bash
