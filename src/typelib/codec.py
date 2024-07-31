@@ -40,7 +40,7 @@ class AbstractCodec(abc.ABC, t.Generic[T]):
     def decode(self, value: bytes) -> T: ...
 
 
-@classes.slotted(dict=False, weakref=True)
+@classes.slotted(dict=False, weakref=False)
 @dataclasses.dataclass(frozen=True)
 class Codec(AbstractCodec[T], t.Generic[T]):
     """A standard wire protocol (codec).
