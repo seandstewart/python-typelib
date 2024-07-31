@@ -485,7 +485,7 @@ class TimeDeltaUnmarshaller(AbstractUnmarshaller[TimeDeltaT], tp.Generic[TimeDel
 
         decoded = serdes.decode(val)
         td: datetime.timedelta = (
-            serdes.dateparse(decoded, td=datetime.timedelta)
+            serdes.dateparse(decoded, t=datetime.timedelta)
             if isinstance(decoded, str)
             else decoded
         )

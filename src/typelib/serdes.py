@@ -30,7 +30,6 @@ import ast
 import contextlib
 import dataclasses
 import datetime
-import functools
 import operator
 import typing as t
 
@@ -199,7 +198,7 @@ DateTimeT = t.TypeVar("DateTimeT", datetime.date, datetime.time, datetime.timede
 
 
 @compat.lru_cache(maxsize=100_000)
-def dateparse(val: str, td: type[DateTimeT]) -> DateTimeT:
+def dateparse(val: str, t: type[DateTimeT]) -> DateTimeT:
     """Parse a date string into a datetime object.
 
     Examples:
@@ -210,23 +209,24 @@ def dateparse(val: str, td: type[DateTimeT]) -> DateTimeT:
 
     Args:
         val: The date string to parse.
-        td: The target datetime type.
+        t: The target datetime type.
 
     Returns:
         The parsed datetime object.
 
     Raises:
-        ValueError: If `val` is not a date string or does not resolve to an instance of
-                    the target datetime type.
+        ValueError:
+            If `val` is not a date string or does not resolve to an instance of
+            the target datetime type.
     """
     try:
         # When `exact=False`, the only two possibilities are DateTime and Duration.
         parsed: pendulum.DateTime | pendulum.Duration = pendulum.parse(val)  # type: ignore[assignment]
-        normalized = _nomalize_dt(val=val, parsed=parsed, td=td)
+        normalized = _nomalize_dt(val=val, parsed=parsed, td=t)
         return normalized
     except ValueError:
         if val.isdigit() or val.isdecimal():
-            return _normalize_number(numval=float(val), td=td)
+            return _normalize_number(numval=float(val), td=t)
         raise
 
 
