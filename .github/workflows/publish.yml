@@ -1,51 +1,12 @@
-name: Create Release
+name: Publish Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      level:
-        description: "The level to bump the current version"
-        required: true
-        default: "patch"
-        options:
-          - "patch"
-          - "minor"
-          - "major"
-          - "prepatch"
-          - "preminor"
-          - "prerelease"
+  push:
+    tags:
+    - '*'
 
 jobs:
-  create-version:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest ]
-        python-version: [ "3.9" ]
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ./.github/actions/bootstrap-environ
-      id: bootstrap-environ
-      with:
-        python-version: ${{ matrix.python-version }}
-        runner: ${{ matrix.os }}
-    # In order to make a commit, we need to initialize a user.
-    - name: Initialize mandatory git config
-      run: |
-        git config user.name "GitHub actions"
-        git config user.email noreply@github.com
-    - run: |
-        echo "PRIOR_VERSION=v$(make report-version)" >> $GITHUB_ENV
-        make release-version rule=${{ inputs.level }}
-        echo "RELEASE_VERSION=v$(make report-version)" >> $GITHUB_ENV
-    - name: Update the Changelog
-      run: make changelog
-    - name: Push the Version and Changelog
-      run: git push origin ${{ github.ref_name}}
-
   build-wheels:
-    needs: [ release-version ]
     uses: ./.github/workflows/.build-matrix.yml
     secrets: inherit
     strategy:
@@ -58,7 +19,6 @@ jobs:
       python-version: ${{ matrix.python-version }}
 
   build-sdist:
-    needs: [release-version]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -107,7 +67,7 @@ jobs:
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
 
   create-release:
-    needs: [ release-version, build-wheels, build-sdist ]
+    needs: [ build-wheels, build-sdist ]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -115,11 +75,20 @@ jobs:
         os: [ ubuntu-latest ]
         python-version: [ "3.9" ]
     steps:
+    - name: Download distribution artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: typelib-dist
+        path: dist
     - name: Compile Release Notes
       run: make release-notes > release-notes.md
+    - name: Report Version
+      run: echo "RELEASE_VERSION=v$(make report-version)" >> $GITHUB_ENV
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         body_path: release-notes.md
         tag_name: ${{ github.env.RELEASE_VERSION }}
+        target_commitish: ${{ github.ref }}
         make_latest: true
+        files: dist/*
