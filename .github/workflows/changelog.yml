@@ -1,8 +1,14 @@
 name: Make Changelog
+
 on:
   push:
     branches:
     - "main"
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
   changelog:
     runs-on: ${{ matrix.os }}

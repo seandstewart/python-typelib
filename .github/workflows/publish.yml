@@ -5,6 +5,10 @@ on:
     tags:
     - '*'
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build-wheels:
     uses: ./.github/workflows/.build-matrix.yml
