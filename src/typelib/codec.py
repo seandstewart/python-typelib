@@ -1,7 +1,7 @@
 """Interfaces for managing type-enforced wire protocols (codecs).
 
 Tip:
-    It shouldn't be necessary to create your own [`Codec`][] instances, you can instead
+    It shouldn't be necessary to create your own [`Codec`][typelib.codec.Codec] instances, you can instead
     rely upon the higher-level API provided by [`interchange.protocol`][typelib.interchange.protocol].
 
     Use this module for type annotations, if you need.

@@ -1095,7 +1095,7 @@ def isproperty(obj) -> compat.TypeIs[types.DynamicClassAttribute]:
 
 
 def isdescriptor(obj) -> compat.TypeIs[DescriptorT]:
-    """Test whether the given object is a [`types.GetSetDescriptortype`][]
+    """Test whether the given object is a [`types.GetSetDescriptorType`][]
 
     Examples:
         >>> class StringDescriptor:
