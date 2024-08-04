@@ -55,8 +55,6 @@ plugins:
       scripts:
       - scripts/gen_ref_pages.py
   - awesome-pages
-  - literate-nav:
-      nav_file: SUMMARY.md
   - mkdocstrings:
       enable_inventory: true
       handlers:
@@ -79,11 +77,11 @@ plugins:
             show_symbol_type_toc: true
             signature_crossrefs: true
             summary: true
+  - autorefs
   - open-in-new-tab
   - tags
   - social
   - search
-  - autorefs
 
 markdown_extensions:
   - abbr
