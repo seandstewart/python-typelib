@@ -66,9 +66,9 @@ ConstrainedT = t.TypeVar("ConstrainedT", str, int)
         annotation=t.Dict[str, ConstrainedT], expected=(str, t.Union[str, int])
     ),
 )
-def test_get_args(annotation, expected):
+def test_args(annotation, expected):
     # When
-    actual = inspection.get_args(annotation)
+    actual = inspection.args(annotation)
     # Then
     assert actual == expected
 
@@ -79,9 +79,9 @@ def test_get_args(annotation, expected):
     subscripted_dict=dict(annotation=t.Dict[str, str], expected="Dict"),
     user_class=dict(annotation=MyClass, expected=MyClass.__name__),
 )
-def test_get_name(annotation, expected):
+def test_name(annotation, expected):
     # When
-    actual = inspection.get_name(annotation)
+    actual = inspection.name(annotation)
     # Then
     assert actual == expected
 
@@ -100,9 +100,9 @@ def outer():
     forwardref=dict(annotation=t.ForwardRef("foo"), expected="foo"),
     sanitize_local=dict(annotation=outer(), expected="outer.closure"),
 )
-def test_get_qualname(annotation, expected):
+def test_qualname(annotation, expected):
     # When
-    actual = inspection.get_qualname(annotation)
+    actual = inspection.qualname(annotation)
     # Then
     assert actual == expected
 

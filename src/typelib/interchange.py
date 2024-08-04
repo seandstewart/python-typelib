@@ -8,12 +8,12 @@ Examples: Typical Usage
     ... class Class:
     ...     attr: str
     ...
-    >>> protocol = interchange.protocol(Class)
-    >>> protocol.unmarshal({"attr": "value"})
+    >>> proto = interchange.protocol(Class)
+    >>> proto.unmarshal({"attr": "value"})
     Class(attr="value")
-    >>> protocol.codec.decode(b'{"attr": "value"}')
+    >>> proto.codec.decode(b'{"attr": "value"}')
     Class(attr="value")
-    >>> protocol.codec.encode(Class(attr="value"))
+    >>> proto.codec.encode(Class(attr="value"))
     b'{"attr":"value"}'
 """
 

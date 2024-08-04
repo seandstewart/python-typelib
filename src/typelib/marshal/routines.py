@@ -218,7 +218,7 @@ class LiteralMarshaller(AbstractMarshaller[LiteralT], tp.Generic[LiteralT]):
             var: A variable name for the indicated type annotation (unused, optional).
         """
         super().__init__(t, context, var=var)
-        self.values = inspection.get_args(t)
+        self.values = inspection.args(t)
 
     def __call__(self, val: LiteralT) -> serdes.MarshalledValueT:
         """Enforce the given value is a member of the bound `Literal` type.
@@ -256,7 +256,7 @@ class UnionMarshaller(AbstractMarshaller[UnionT], tp.Generic[UnionT]):
             var: A variable name for the indicated type annotation (unused, optional).
         """
         super().__init__(t, context, var=var)
-        self.stack = inspection.get_args(t)
+        self.stack = inspection.args(t)
         self.ordered_routines = [self.context[typ] for typ in self.stack]
 
     def __call__(self, val: UnionT) -> serdes.MarshalledValueT:
@@ -329,7 +329,7 @@ class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[Mapp
             var: A variable name for the indicated type annotation (unused, optional).
         """
         super().__init__(t, context, var=var)
-        key_t, value_t = inspection.get_args(t)
+        key_t, value_t = inspection.args(t)
         self.keys = context[key_t]
         self.values = context[value_t]
 
@@ -364,7 +364,7 @@ class SubscriptedIterableMarshaller(
         """
         super().__init__(t=t, context=context, var=var)
         # supporting tuple[str, ...]
-        (value_t, *_) = inspection.get_args(t)
+        (value_t, *_) = inspection.args(t)
         self.values = context[value_t]
 
     def __call__(self, val: IterableT) -> MarshalledIterableT:
@@ -400,7 +400,7 @@ class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
             var: A variable name for the indicated type annotation (unused, optional).
         """
         super().__init__(t, context, var=var)
-        self.stack = inspection.get_args(t)
+        self.stack = inspection.args(t)
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
     def __call__(self, val: compat.TupleT) -> MarshalledIterableT:

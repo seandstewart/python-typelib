@@ -139,7 +139,7 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
             #   wrap in a ForwardRef and don't add it to the stack
             #   This will terminate this edge to prevent infinite cycles.
             if is_visited and can_be_cyclic:
-                qualname = inspection.get_qualname(child)
+                qualname = inspection.qualname(child)
                 *rest, refname = qualname.split(".", maxsplit=1)
                 is_argument = var is not None
                 module = getattr(child, "__module__", None)
@@ -178,7 +178,7 @@ class TypeNode:
 
 
 def _level(t: typing.Any) -> typing.Iterable[tuple[str | None, type]]:
-    args = inspection.get_args(t)
+    args = inspection.args(t)
     # Only pull annotations from the signature if this is a user-defined type.
     is_structured = inspection.isstructuredtype(t)
     members = inspection.get_type_hints(t, exhaustive=is_structured)
