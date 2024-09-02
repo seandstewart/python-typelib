@@ -242,7 +242,7 @@ class UnionMarshaller(AbstractMarshaller[UnionT], tp.Generic[UnionT]):
     """A marshaller for dumping a given value via one of the types in the defined bound union.
 
     See Also:
-        - [`UnionUnmarshaller`][typelib.unmarshal.routines.UnionUnmarshaller]
+        - [`UnionUnmarshaller`][typelib.unmarshals.routines.UnionUnmarshaller]
     """
 
     __slots__ = ("stack", "ordered_routines")
@@ -312,7 +312,7 @@ class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[Mapp
     Keys are marshalled according to the defined key-type, values according to the defined value-type.
 
     See Also:
-        - [`SubscriptedMappingUnmarshaller`][typelib.unmarshal.routines.SubscriptedMappingUnmarshaller]
+        - [`SubscriptedMappingUnmarshaller`][typelib.unmarshals.routines.SubscriptedMappingUnmarshaller]
     """
 
     __slots__ = (
@@ -324,7 +324,7 @@ class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[Mapp
         """Constructor.
 
         Args:
-            t: The type to unmarshal from.
+            t: The type to unmarshals from.
             context: Any nested type context. Used to resolve the member marshallers.
             var: A variable name for the indicated type annotation (unused, optional).
         """
@@ -347,7 +347,7 @@ class SubscriptedIterableMarshaller(
     Values are marshalled according to the defined value-type.
 
     See Also:
-        - [`SubscriptedIterableUnmarshaller`][typelib.unmarshal.routines.SubscriptedIterableUnmarshaller]
+        - [`SubscriptedIterableUnmarshaller`][typelib.unmarshals.routines.SubscriptedIterableUnmarshaller]
     """
 
     __slots__ = ("values",)
@@ -358,7 +358,7 @@ class SubscriptedIterableMarshaller(
         """Constructor.
 
         Args:
-            t: The type to unmarshal from.
+            t: The type to unmarshals from.
             context: Any nested type context. Used to resolve the member marshallers.
             var: A variable name for the indicated type annotation (unused, optional).
         """
@@ -384,7 +384,7 @@ class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
     Values are marshalled according to the value-type in the order they are defined.
 
     See Also:
-        - [`FixedTupleUnmarshaller`][typelib.unmarshal.routines.FixedTupleUnmarshaller]
+        - [`FixedTupleUnmarshaller`][typelib.unmarshals.routines.FixedTupleUnmarshaller]
     """
 
     __slots__ = ("ordered_routines", "stack")
@@ -422,7 +422,7 @@ class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
     """A marshaller for dumping a structured (user-defined) type to a simple [`dict`][].
 
     See Also:
-        - [`StructuredTypeUnmarshaller`][typelib.unmarshal.routines.StructuredTypeUnmarshaller]
+        - [`StructuredTypeUnmarshaller`][typelib.unmarshals.routines.StructuredTypeUnmarshaller]
     """
 
     __slots__ = ("fields_by_var",)
@@ -431,7 +431,7 @@ class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
         """Constructor.
 
         Args:
-            t: The type to unmarshal from.
+            t: The type to unmarshals from.
             context: Any nested type context. Used to resolve the member marshallers.
             var: A variable name for the indicated type annotation (unused, optional).
         """

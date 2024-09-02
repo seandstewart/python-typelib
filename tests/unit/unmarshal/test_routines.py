@@ -9,7 +9,7 @@ import typing
 import uuid
 
 import pytest
-from typelib.unmarshal import routines
+from typelib.unmarshals import routines
 
 from tests import models
 

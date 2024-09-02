@@ -6,7 +6,7 @@ import typing as tp
 
 from typelib import ctx, graph
 from typelib.py import compat, inspection, refs
-from typelib.unmarshal import routines
+from typelib.unmarshals import routines
 
 T = tp.TypeVar("T")
 
@@ -17,34 +17,34 @@ __all__ = (
 )
 
 
-def unmarshal(typ: type[T] | refs.ForwardRef | str, value: tp.Any) -> T:
+def unmarshal(t: type[T] | refs.ForwardRef | str, value: tp.Any) -> T:
     """Unmarshal `value` into `typ`.
 
     Args:
-        typ: The type annotation or reference to unmarshal into.
+        t: The type annotation or reference to unmarshal into.
         value: The value to unmarshal.
     """
-    routine = unmarshaller(typ)
+    routine = unmarshaller(t)
     unmarshalled = routine(value)
     return unmarshalled
 
 
 @compat.cache
 def unmarshaller(
-    typ: type[T] | refs.ForwardRef | compat.TypeAliasType | str,
+    t: type[T] | refs.ForwardRef | compat.TypeAliasType | str,
 ) -> routines.AbstractUnmarshaller[T]:
     """Get an un-marshaller routine for a given type.
 
     Args:
-        typ: The type annotation to generate an unmarshaller for.
+        t: The type annotation to generate an unmarshaller for.
              May be a type, type alias, [`typing.ForwardRef`][], or string reference.
     """
-    nodes = graph.static_order(typ)
+    nodes = graph.static_order(t)
     context: dict[type | graph.TypeNode, routines.AbstractUnmarshaller] = (
         ctx.TypeContext()
     )
     if not nodes:
-        return routines.NoOpUnmarshaller(t=typ, context=context, var=None)  # type: ignore[arg-type]
+        return routines.NoOpUnmarshaller(t=t, context=context, var=None)  # type: ignore[arg-type]
 
     # "root" type will always be the final node in the sequence.
     root = nodes[-1]
@@ -69,6 +69,13 @@ def _get_unmarshaller(  # type: ignore[return]
 
 
 class DelayedUnmarshaller(routines.AbstractUnmarshaller[T]):
+    """Delayed proxy for a given type's unmarshaller, used when we encounter a [`typing.ForwardRef`][].
+
+    Notes:
+        This allows us to delay the resolution of the given type reference until
+        call-time, enabling support for cyclic and recursive types.
+    """
+
     def __init__(
         self, t: type[T], context: routines.ContextT, *, var: str | None = None
     ):
@@ -77,6 +84,7 @@ class DelayedUnmarshaller(routines.AbstractUnmarshaller[T]):
 
     @property
     def resolved(self) -> routines.AbstractUnmarshaller[T]:
+        """The resolved unmarshaller."""
         if self._resolved is None:
             self._resolved = unmarshaller(self.t)
             for attr in self._resolved.__slots__:

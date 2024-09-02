@@ -5,7 +5,7 @@ from __future__ import annotations
 import typing as tp
 
 from typelib import ctx, graph, serdes
-from typelib.marshal import routines
+from typelib.marshals import routines
 from typelib.py import compat, inspection, refs
 
 T = tp.TypeVar("T")
@@ -36,20 +36,21 @@ def marshal(
 
 @compat.cache
 def marshaller(
-    typ: type[T] | refs.ForwardRef | compat.TypeAliasType | str,
+    t: type[T] | refs.ForwardRef | compat.TypeAliasType | str,
 ) -> routines.AbstractMarshaller[T]:
     """Get a marshaller routine for a given type.
 
     Args:
-        typ: The type annotation to generate a marshaller for.
-             May be a type, type alias, [`typing.ForwardRef`][], or string reference.
+        t:
+            The type annotation to generate a marshaller for. Can be a type, type alias,
+            [`typing.ForwardRef`][], or string reference.
     """
-    nodes = graph.static_order(typ)
+    nodes = graph.static_order(t)
     context: dict[type | graph.TypeNode, routines.AbstractMarshaller] = (
         ctx.TypeContext()
     )
     if not nodes:
-        return routines.NoOpMarshaller(t=typ, context=context, var=None)  # type: ignore[arg-type]
+        return routines.NoOpMarshaller(t=t, context=context, var=None)  # type: ignore[arg-type]
 
     # "root" type will always be the final node in the sequence.
     root = nodes[-1]
@@ -74,6 +75,13 @@ def _get_unmarshaller(  # type: ignore[return]
 
 
 class DelayedMarshaller(routines.AbstractMarshaller[T]):
+    """Delayed proxy for a given type's marshaller, used when we encounter a [`typing.ForwardRef`][].
+
+    Notes:
+        This allows us to delay the resolution of the given type reference until
+        call-time, enabling support for cyclic and recursive types.
+    """
+
     def __init__(
         self, t: type[T], context: routines.ContextT, *, var: str | None = None
     ):
@@ -82,6 +90,7 @@ class DelayedMarshaller(routines.AbstractMarshaller[T]):
 
     @property
     def resolved(self) -> routines.AbstractMarshaller[T]:
+        """The resolved marshaller."""
         if self._resolved is None:
             self._resolved = marshaller(self.t)
             for attr in self._resolved.__slots__:

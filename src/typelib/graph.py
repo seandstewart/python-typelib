@@ -182,4 +182,5 @@ def _level(t: typing.Any) -> typing.Iterable[tuple[str | None, type]]:
     # Only pull annotations from the signature if this is a user-defined type.
     is_structured = inspection.isstructuredtype(t)
     members = inspection.get_type_hints(t, exhaustive=is_structured)
-    return [*((None, t) for t in args), *(members.items())]  # type: ignore
+    yield from ((None, t) for t in args)
+    yield from members.items()

@@ -18,13 +18,13 @@ Notes:
     - [`dict`][]
 
 Tip:
-    You are safe to use this package directly, but we encourage you to work with the
-    higher-level API provided by the [`interchange`][typelib.interchange] module.
+    You may use this package directly, but we encourage you to work with our
+    high-level API provided by the top-level [`typelib`][] module.
 
 Examples: Typical Usage
     >>> import dataclasses
     >>> import decimal
-    >>> from typelib import marshal
+    >>> from typelib import marshals
     >>>
     >>> @dataclasses.dataclass(slots=True, weakref_slot=True, kw_only=True)
     ... class Struct:
@@ -33,17 +33,17 @@ Examples: Typical Usage
     ...
     >>>
     >>> data = Struct(key="some-key", number=decimal.Decimal("1.0"))
-    >>> marshal.marshal(data)
+    >>> marshals.marshal(data)
     {'key': 'some-key', 'number': '1.0'}
-    >>> marshaller = marshal.marshaller(Struct)
+    >>> marshaller = marshals.marshaller(Struct)
     >>> marshaller(data)
     {'key': 'some-key', 'number': '1.0'}
 
 See Also:
-    * [`marshal`][typelib.marshal.marshal]
-    * [`marshaller`][typelib.marshal.marshaller]
-    * [`interchange.protocol`][typelib.interchange.protocol]
+    * [`marshal`][typelib.marshals.marshal]
+    * [`marshaller`][typelib.marshals.marshaller]
+    * [`typelib.codec`][]
 """
 
-from typelib.marshal.api import *
-from typelib.marshal.routines import *
+from typelib.marshals.api import *
+from typelib.marshals.routines import *

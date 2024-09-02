@@ -6,13 +6,13 @@ Notes:
     data type.
 
 Tip:
-    You are safe to use this package directly, but we encourage you to work with the
-    higher-level API provided by the [`interchange`][typelib.interchange] module.
+    You may use this package directly, but we encourage you to work with the
+    higher-level API provided by the [`typelib`][] module.
 
 Examples: Typical Usage
     >>> import dataclasses
     >>> import decimal
-    >>> from typelib import unmarshal
+    >>> from typelib import unmarshals
     >>>
     >>> @dataclasses.dataclass(slots=True, weakref_slot=True, kw_only=True)
     ... class Struct:
@@ -21,17 +21,17 @@ Examples: Typical Usage
     ...
     >>>
     >>> data = {"key": "some-key", "number": "3.14"}
-    >>> unmarshal.unmarshal(Struct, data)
+    >>> unmarshals.unmarshal(Struct, data)
     Struct(key='some-key', number=decimal.Decimal('3.14'))
-    >>> unmarshaller = unmarshal.unmarshaller(Struct)
+    >>> unmarshaller = unmarshals.unmarshaller(Struct)
     >>> unmarshaller(data)
     Struct(key='some-key', number=decimal.Decimal('3.14'))
 
 See Also:
-    * [`unmarshal`][typelib.unmarshal.unmarshal]
-    * [`unmarshaller`][typelib.unmarshal.unmarshaller]
-    * [`interchange.protocol`][typelib.interchange.protocol]
+    * [`unmarshals`][typelib.unmarshals.unmarshal]
+    * [`unmarshaller`][typelib.unmarshals.unmarshaller]
+    * [`typelib.codec`][]
 """
 
-from typelib.unmarshal.api import *
-from typelib.unmarshal.routines import *
+from typelib.unmarshals.api import *
+from typelib.unmarshals.routines import *
