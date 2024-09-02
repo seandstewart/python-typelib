@@ -3,7 +3,7 @@ site_name: typelib
 site_url: https://pages.github.io/python-typelib
 repo_name: seandstewart/python-typelib
 repo_url: https://github.com/seandstewart/python-typelib
-watch: [mkdocs.yml, README.md, CHANGELOG.md, src/typelib, docs]
+watch: [mkdocs.yml, CHANGELOG.md, src/typelib, docs]
 theme:
   name: material
   features:
@@ -85,7 +85,7 @@ plugins:
 
 markdown_extensions:
   - abbr
-  - admonition
+  - pymdownx.blocks.admonition
   - attr_list
   - footnotes
   - md_in_html

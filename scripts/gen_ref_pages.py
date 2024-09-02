@@ -15,10 +15,7 @@ def gen_files(source: pathlib.Path) -> None:
         if module_path.name == "__main__":
             continue
 
-        if module_path.name in ("api", "routines") and module_path.parent.name in (
-            "marshal",
-            "unmarshal",
-        ):
+        if module_path.name in ("api", "routines"):
             continue
 
         if module_path.name == "__init__":
