@@ -92,7 +92,7 @@ alias ?= latest
 
 changelog:  ## Compile the latest changelog for the current branch.
 	@$(RUN_PREFIX) git-changelog
-	@git add CHANGELOG.md
+	@git add docs/changelog.md
 	@git commit -m "[skip ci] Update changelog."
 .PHONY: changelog
 
