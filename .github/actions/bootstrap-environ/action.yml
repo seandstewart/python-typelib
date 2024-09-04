@@ -6,8 +6,6 @@ inputs:
     description: The Python version to build your environment with.
   runner:
     description: The Runner to build your environment on.
-  release-app-id:
-    description: The App ID used to manage releases.
   release-private-key:
     description: The private key used to authenticate the release bot app.
 
@@ -17,7 +15,7 @@ runs:
   - uses: actions/create-github-app-token@v1
     id: app-token
     with:
-      app-id: ${{ inputs.release-app-id }}
+      app-id: ${{ env.RELEASE_BOT_APP_ID }}
       private-key: ${{ inputs.release-app-private-key }}
   - uses: actions/checkout@v4
     with:

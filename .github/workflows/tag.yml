@@ -34,7 +34,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         runner: ${{ matrix.os }}
-        release-app-id: ${{ env.RELEASE_BOT_APP_ID }}
         release-private-key: ${{ secrets.RELEASE_BOT_APP_PKEY }}
     - name: Tag New Version
       run: make release-version rule=${{ inputs.level }}

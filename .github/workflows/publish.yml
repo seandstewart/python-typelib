@@ -84,7 +84,6 @@ jobs:
       with:
         python-version: 3.x
         runner: ubuntu-latest
-        release-app-id: ${{ env.RELEASE_BOT_APP_ID }}
         release-private-key: ${{ secrets.RELEASE_BOT_APP_PKEY }}
     - name: Download all the dists
       uses: actions/download-artifact@v4
