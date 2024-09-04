@@ -91,7 +91,7 @@ version ?= $(shell $(VERSION_CMD) | $(SED_CMD) $(DOCS_FILTER))
 alias ?= latest
 
 changelog:  ## Compile the latest changelog for the current branch.
-	@git changelog
+	@git-changelog
 	@git add CHANGELOG.md
 	@git commit -m "[skip ci] Update changelog."
 .PHONY: changelog

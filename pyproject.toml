@@ -141,8 +141,9 @@ exclude = ".*tests/.*|.*docs/.*"
 [tool.git-changelog]
 convention = "conventional"
 in-place = true
-output = "CHANGELOG.md"
+output = "docs/changelog.md"
 parse-refs = true
+parse-trailers = true
 
 [build-system]
 requires = ["poetry-core>=1.8.0"]
