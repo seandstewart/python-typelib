@@ -73,8 +73,22 @@ release-version:  ## Bump the version for this package.
 
 
 report-version:  ## Show the current version of this library.
-	@poetry version -s
+	@$(VERSION_CMD)
 .PHONY: report-version
+
+docs-version:  ## Show the current version of this library as applicable for documentation.
+	@$(VERSION_CMD) | $(SED_CMD) $(DOCS_FILTER)
+.PHONY: docs-version
+
+docs: ## Build the versioned documentation
+	@mike deploy -u --push $(version) $(alias)
+.PHONY: docs
+
+VERSION_CMD ?= poetry version -s
+SED_CMD ?= sed -En
+DOCS_FILTER ?= 's/^([[:digit:]]+.[[:digit:]]+).*$$/v\1/p'
+version ?= $(shell $(VERSION_CMD) | $(SED_CMD) $(DOCS_FILTER))
+alias ?= latest
 
 changelog:  ## Compile the latest changelog for the current branch.
 	@git changelog

@@ -2,8 +2,7 @@ name: Publish Release
 
 on:
   push:
-    tags:
-    - '*'
+    tags: ['*']
 
 defaults:
   run:
@@ -41,49 +40,56 @@ jobs:
     - name: Store dist artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: typelib-dist
+        name: python-package-distributions
         path: dist
 
-  publish-pypi:
-    runs-on: ${{ matrix.os }}
-    needs: [ build-wheels, build-sdist ]
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest ]
-        python-version: [ "3.9" ]
+  publish-to-pypi:
+    name: >-
+      Publish Python 🐍 distribution 📦 to PyPI
+    needs:
+    - build-wheels
+    - build-sdist
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/typelib
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+    - name: Publish distribution 📦 to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+
+  create-release:
+    name: >-
+      Sign the Python 🐍 distribution 📦 with Sigstore
+      and upload them to GitHub Release
+    needs:
+    - publish-to-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # IMPORTANT: mandatory for making GitHub Releases
+      id-token: write  # IMPORTANT: mandatory for sigstore
+
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/bootstrap-environ
-      id: bootstrap-environ
-      with:
-        python-version: ${{ matrix.python-version }}
-        runner: ubuntu-latest
-    - name: Download distribution artifact
+    - name: Download all the dists
       uses: actions/download-artifact@v4
       with:
-        name: typelib-dist
-        path: dist
-    - name: Publish to PyPI
-      run: poetry publish -u $PYPI_USERNAME -p $PYPI_PASSWORD
-      env:
-        PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-
-  create-release:
-    needs: [ build-wheels, build-sdist ]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest ]
-        python-version: [ "3.9" ]
-    steps:
-    - name: Download distribution artifact
-      uses: actions/download-artifact@v4
+        name: python-package-distributions
+        path: dist/
+    - name: Sign the dists with Sigstore
+      uses: sigstore/gh-action-sigstore-python@v2.1.1
       with:
-        name: typelib-dist
-        path: dist
+        inputs: >-
+          ./dist/*.tar.gz
+          ./dist/*.whl
     - name: Compile Release Notes
       run: make release-notes > release-notes.md
     - name: Report Version

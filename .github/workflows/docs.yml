@@ -1,22 +1,29 @@
-name: Make Changelog
+name: Make Documentation
 
 on:
   push:
-    branches:
-    - "main"
+    branches: ["main"]
+    tags: ["*"]
+
+env:
+  GIT_COMMITTER_NAME: "github-actions[bot]"
+  GIT_COMMITTER_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
 
 defaults:
   run:
     shell: bash
 
+permissions:
+  contents: write
+
 jobs:
-  changelog:
+  documentation:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest ]
-        python-version: [ "3.9" ]
+        python-version: [ "3.x" ]
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/bootstrap-environ
@@ -25,4 +32,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
         runner: ${{ matrix.os }}
     - name: Update the Changelog
-      run: make changelog
+      run: |
+        make changelog
+        git push origin ${{ github.ref_name }}
+    - name: Build the Docs
+      run: make docs

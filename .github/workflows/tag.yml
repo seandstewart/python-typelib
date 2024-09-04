@@ -19,6 +19,10 @@ defaults:
   run:
     shell: bash
 
+env:
+  GIT_COMMITTER_NAME: "github-actions[bot]"
+  GIT_COMMITTER_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+
 jobs:
   create-version:
     runs-on: ${{ matrix.os }}
@@ -34,12 +38,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         runner: ${{ matrix.os }}
-    # In order to make a commit, we need to initialize a user.
-    - name: Initialize mandatory git config
-      run: |
-        git config user.name "GitHub actions"
-        git config user.email noreply@github.com
     - name: Tag New Version
       run: make release-version rule=${{ inputs.level }}
     - name: Push New Version
-      run: git push --follow-tags origin ${{ github.ref_name}}
+      run: git push --follow-tags origin ${{ github.ref_name }}

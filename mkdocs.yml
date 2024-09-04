@@ -1,6 +1,6 @@
 #file: noinspection YAMLSchemaValidation
 site_name: typelib
-site_url: https://pages.github.io/python-typelib
+site_url: https://pages.github.io/python-typelib/
 repo_name: seandstewart/python-typelib
 repo_url: https://github.com/seandstewart/python-typelib
 watch: [mkdocs.yml, CHANGELOG.md, src/typelib, docs]
@@ -19,13 +19,19 @@ theme:
     - content.code.select
     - content.code.copy
     - content.code.annotate
+
+  extra:
+    version:
+      provider: mike
+      default: latest
+      alias: true
+
   palette:
   # Palette toggle for automatic mode
   - media: "(prefers-color-scheme)"
     toggle:
       icon: material/brightness-auto
       name: Switch to light mode
-
   # Palette toggle for light mode
   - media: "(prefers-color-scheme: light)"
     scheme: default
@@ -34,7 +40,6 @@ theme:
     toggle:
       icon: material/brightness-7
       name: Switch to dark mode
-
   # Palette toggle for dark mode
   - media: "(prefers-color-scheme: dark)"
     scheme: slate
@@ -43,6 +48,7 @@ theme:
     toggle:
       icon: material/brightness-4
       name: Switch to system preference
+
   font:
     text: "IBM Plex Mono"
     code: "Fira Code"
@@ -118,9 +124,3 @@ markdown_extensions:
   - toc:
       permalink: true
       permalink_title: Anchor link to this section for reference
-
-
-extra:
-  version:
-    provider: mike
-
