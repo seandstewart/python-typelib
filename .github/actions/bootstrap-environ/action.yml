@@ -15,7 +15,7 @@ runs:
   - uses: actions/create-github-app-token@v1
     id: app-token
     with:
-      app-id: ${{ env.RELEASE_BOT_APP_ID }}
+      app-id: 988070
       private-key: ${{ inputs.release-app-private-key }}
   - uses: actions/checkout@v4
     with:
