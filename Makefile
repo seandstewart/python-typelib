@@ -81,7 +81,7 @@ docs-version:  ## Show the current version of this library as applicable for doc
 .PHONY: docs-version
 
 docs: ## Build the versioned documentation
-	@mike deploy -u --push $(version) $(alias)
+	@$(RUN_PREFIX) mike deploy -u --push $(version) $(alias)
 .PHONY: docs
 
 VERSION_CMD ?= poetry version -s
@@ -91,13 +91,13 @@ version ?= $(shell $(VERSION_CMD) | $(SED_CMD) $(DOCS_FILTER))
 alias ?= latest
 
 changelog:  ## Compile the latest changelog for the current branch.
-	@git-changelog
+	@$(RUN_PREFIX) git-changelog
 	@git add CHANGELOG.md
 	@git commit -m "[skip ci] Update changelog."
 .PHONY: changelog
 
 release-notes:  ## Compile release notes for VCS
-	@git changelog --release-notes
+	@$(RUN_PREFIX) git-changelog --release-notes
 .PHONY: release-notes
 
 # endregion
