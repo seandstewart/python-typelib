@@ -35,6 +35,8 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         runner: ${{ matrix.os }}
+        release-app-id: ${{ env.RELEASE_BOT_APP_ID }}
+        release-private-key: ${{ secrets.RELEASE_BOT_APP_PKEY }}
     - name: Build sdist
       run: poetry build -f sdist
     - name: Store dist artifacts
@@ -79,6 +81,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/bootstrap-environ
+      with:
+        python-version: 3.x
+        runner: ubuntu-latest
+        release-app-id: ${{ env.RELEASE_BOT_APP_ID }}
+        release-private-key: ${{ secrets.RELEASE_BOT_APP_PKEY }}
     - name: Download all the dists
       uses: actions/download-artifact@v4
       with:

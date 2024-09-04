@@ -25,6 +25,8 @@ jobs:
       with:
         python-version: ${{ inputs.python-version }}
         runner: ${{ inputs.runner }}
+        release-app-id: ${{ env.RELEASE_BOT_APP_ID }}
+        release-private-key: ${{ secrets.RELEASE_BOT_APP_PKEY }}
     - name: Build ${{ inputs.runner }} binaries
       run: poetry build
     - name: Store dist artifacts
