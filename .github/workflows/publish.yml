@@ -9,6 +9,9 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: write
+
 jobs:
   build-wheels:
     uses: ./.github/workflows/.build-matrix.yml
@@ -111,6 +114,6 @@ jobs:
       with:
         body_path: release-notes.md
         tag_name: ${{ github.env.RELEASE_VERSION }}
-        target_commitish: ${{ github.ref }}
+        target_commitish: ${{ github.ref || github.env.RELEASE_VERSION }}
         make_latest: true
         files: dist/*
