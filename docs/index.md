@@ -31,11 +31,7 @@ we'll support it.
 
 ### The How and the Where
 
-/// tip
-Looking for more? Check out our [API Reference][typelib] for the high-level API.
-///
-
-#### The High-Level API
+#### How: The High-Level API
 
 We have a simple high-level API which should handle most production use-cases:
 
@@ -66,7 +62,12 @@ print(encoded)
 #> b'{"op":"add","value":"1.0","id":null,"created_at":null}'
 ```
 
-#### At the Edges of Your Code
+/// tip
+Looking for more? Check out our [API Reference][typelib] for the high-level API.
+///
+
+
+#### Where: At the Edges of Your Code
 
 You can integrate this library at the "edges" of your code - e.g., at the integration
 points between your application and your client or you application and your data-store:
@@ -118,7 +119,7 @@ class BusinessModel:
 
 ```
 
-#### Between Layers in Your Code
+#### Where: Between Layers in Your Code
 
 You can integrate this library to ease the translation of one type to another:
 
