@@ -206,7 +206,7 @@ Read a detailed discussion [here](./graph.md).
 
 [pypi]: https://pypi.org/project/typelib/
 [version]: https://img.shields.io/pypi/v/typelib.svg
-[license]: https://img.shields.io/pypi/v/typelib.svg
+[license]: https://img.shields.io/pypi/l/typelib.svg
 [python]: https://img.shields.io/pypi/pyversions/typelib.svg
 [repo]: https://github.com/seandstewart/python-typelib
 [code-size]: https://img.shields.io/github/languages/code-size/seandstewart/python-typelib.svg?style=flat
