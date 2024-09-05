@@ -93,7 +93,7 @@ alias ?= latest
 changelog:  ## Compile the latest changelog for the current branch.
 	@$(RUN_PREFIX) git-changelog
 	@git add docs/changelog.md
-	@git commit -m --allow-empty "[skip ci] Update changelog."
+	@git commit -m "[skip ci] Update changelog." --allow-empty
 .PHONY: changelog
 
 release-notes:  ## Compile release notes for VCS
