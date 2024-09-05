@@ -8,6 +8,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!-- insertion marker -->
 ## Unreleased
 
-<small>[Compare with latest](https://github.com/seandstewart/python-typelib/compare/a25965b10a812a9f004f5ed8a55bfcbb84f61d6a...HEAD)</small>
+<small>[Compare with latest](https://github.com/seandstewart/python-typelib/compare/3222d10e55f84055fef89b1251bb24a97ebfeb59...HEAD)</small>
 
 <!-- insertion marker -->
