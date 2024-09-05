@@ -35,8 +35,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         runner: ${{ matrix.os }}
-        release-app-id: ${{ env.RELEASE_BOT_APP_ID }}
-        release-private-key: ${{ secrets.RELEASE_BOT_APP_PKEY }}
     - name: Build sdist
       run: poetry build -f sdist
     - name: Store dist artifacts
