@@ -10,6 +10,10 @@ inputs:
 runs:
   using: composite
   steps:
+  - run: |
+      git config user.name github-actions
+      git config user.email github-actions@github.com
+    shell: bash
   - uses: actions/setup-python@v5
     with:
       python-version: ${{ inputs.python-version }}
