@@ -3,6 +3,7 @@ name: Publish Release
 on:
   push:
     tags: ['*']
+  workflow_dispatch:
 
 defaults:
   run:
@@ -40,7 +41,7 @@ jobs:
     - name: Store dist artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: python-package-distributions
+        name: dist-${{ matrix.os }}-${{ matrix.python-version }}
         path: dist
 
   publish-to-pypi:
@@ -60,8 +61,9 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v4
       with:
-        name: python-package-distributions
-        path: dist/
+        pattern: dist-*
+        merge-multiple: true
+        path: dist
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
 
