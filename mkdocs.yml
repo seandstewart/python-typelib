@@ -4,8 +4,10 @@ site_url: https://pages.github.io/python-typelib/
 repo_name: seandstewart/python-typelib
 repo_url: https://github.com/seandstewart/python-typelib
 watch: [mkdocs.yml, src/typelib, docs]
+
 theme:
   name: material
+  custom_dir: docs/overrides
   features:
     - search.highlight
     - search.share
@@ -19,12 +21,6 @@ theme:
     - content.code.select
     - content.code.copy
     - content.code.annotate
-
-  extra:
-    version:
-      provider: mike
-      default: latest
-      alias: true
 
   palette:
   # Palette toggle for automatic mode
@@ -124,3 +120,9 @@ markdown_extensions:
   - toc:
       permalink: true
       permalink_title: Anchor link to this section for reference
+
+extra:
+  version:
+    provider: mike
+    default: latest
+    alias: true
