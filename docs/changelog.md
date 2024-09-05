@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 
+
 ## [v0.1.0](https://github.com/seandstewart/python-typelib/releases/tag/v0.1.0) - 2024-09-05
 
 <small>[Compare with v0.0.1](https://github.com/seandstewart/python-typelib/compare/v0.0.1...v0.1.0)</small>
