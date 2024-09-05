@@ -66,7 +66,7 @@ class TransformAnnotation(ast.NodeTransformer):
         # Write the old-style `Union`.
         union = ast.Subscript(
             value=ast.Name(id=self.union, ctx=ast.Load()),
-            slice=ast.Index(value=ast.Tuple(elts=elts, ctx=ast.Load())),
+            slice=ast.Index(value=ast.Tuple(elts=elts, ctx=ast.Load())),  # type: ignore[call-arg,arg-type]
             ctx=ast.Load(),
         )
         ast.copy_location(union, node)

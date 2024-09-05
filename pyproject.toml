@@ -127,6 +127,7 @@ extend-select = [
 "__init__.py" = ["E402", "F403"]
 
 [tool.ruff.lint.isort]
+known-local-folder = ["tests"]
 extra-standard-library = ["typing_extensions", "graphlib"]
 
 [tool.mypy]

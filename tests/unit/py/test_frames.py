@@ -2,6 +2,7 @@ import types
 from unittest import mock
 
 import pytest
+
 from typelib.py import frames
 
 GLOBAL: str = "FOO"

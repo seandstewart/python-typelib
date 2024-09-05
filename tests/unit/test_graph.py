@@ -5,6 +5,7 @@ import sys
 import typing
 
 import pytest
+
 from typelib import graph
 from typelib.py import refs
 

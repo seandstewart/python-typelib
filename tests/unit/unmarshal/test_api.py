@@ -9,6 +9,7 @@ import typing
 import uuid
 
 import pytest
+
 from typelib.py import compat, refs
 from typelib.unmarshals import api
 

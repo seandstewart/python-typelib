@@ -5,6 +5,7 @@ import inspect
 from unittest import mock
 
 import pytest
+
 from typelib import binding
 
 

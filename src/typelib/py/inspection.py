@@ -1101,9 +1101,7 @@ def isdescriptor(obj) -> compat.TypeIs[DescriptorT]:
         True
     """
     intersection = {*dir(obj)} & _DESCRIPTOR_METHODS
-    if not intersection:
-        return False
-    return True
+    return bool(intersection)
 
 
 _DESCRIPTOR_METHODS = frozenset(("__get__", "__set__", "__delete__", "__set_name__"))
