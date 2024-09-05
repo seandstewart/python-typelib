@@ -6,9 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
-## Unreleased
+## [v0.0.1](https://github.com/seandstewart/python-typelib/releases/tag/v0.0.1) - 2024-09-05
 
-<small>[Compare with latest](https://github.com/seandstewart/python-typelib/compare/ac01975a1a2d50a197716e9d5cfb03be13d26fa9...HEAD)</small>
+<small>[Compare with first commit](https://github.com/seandstewart/python-typelib/compare/ac01975a1a2d50a197716e9d5cfb03be13d26fa9...v0.0.1)</small>
 
 ### Features
 
@@ -42,5 +42,3 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The factory function can handle strings/forwardrefs. ([34dd7dd](https://github.com/seandstewart/python-typelib/commit/34dd7dd807e72e5a48b2652898c95c85ccec7110) by Sean Stewart).
 - Tweaking root node assignment. ([6b1f141](https://github.com/seandstewart/python-typelib/commit/6b1f14136e356179c63fb5bd4c38849de493f025) by Sean Stewart).
 - Fix passing var names to unmarshaller ([38c2002](https://github.com/seandstewart/python-typelib/commit/38c2002c6bd0a509a24ca73250bad5403994c620) by Sean Stewart).
-
-<!-- insertion marker -->
