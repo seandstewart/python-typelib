@@ -38,5 +38,7 @@ jobs:
       run: |
         make changelog
         git push origin ${{ github.ref_name }}
+    - name: Refresh Remotes
+      run: git pull origin main && git pull origin gh-pages
     - name: Build the Docs
       run: make docs
