@@ -3,7 +3,7 @@ site_name: typelib
 site_url: https://pages.github.io/python-typelib/
 repo_name: seandstewart/python-typelib
 repo_url: https://github.com/seandstewart/python-typelib
-watch: [mkdocs.yml, CHANGELOG.md, src/typelib, docs]
+watch: [mkdocs.yml, src/typelib, docs]
 theme:
   name: material
   features:

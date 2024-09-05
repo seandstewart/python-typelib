@@ -50,15 +50,15 @@ pytest-parametrize-suite = "^23.1.1"
 pre-commit = "^3.7"
 
 [tool.poetry.group.docs.dependencies]
-mkdocs-material = {extras = ["imaging"], version = "^9.5.29"}
-mkdocstrings = {extras = ["python"], version = "^0.25"}
+mkdocs-material = {extras = ["imaging"], version = "^9"}
+mkdocstrings = {extras = ["python"], version = "^0.26"}
 mkdocs-awesome-pages-plugin = "^2.9"
 mkdocs-gen-files = "^0.5"
 pymdown-extensions = "^10"
 mike = "^2"
-mkdocs-section-index = "^0.3.9"
-mkdocs-literate-nav = "^0.6.1"
-mkdocs-open-in-new-tab = "^1.0.3"
+mkdocs-section-index = "^0.3"
+mkdocs-literate-nav = "^0.6"
+mkdocs-open-in-new-tab = "^1"
 
 
 [tool.poetry.group.dev.dependencies]
