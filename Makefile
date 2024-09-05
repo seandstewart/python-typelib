@@ -63,12 +63,12 @@ rule ?= patch
 
 
 release-version:  ## Bump the version for this package.
-	@poetry version $(rule)
-	@$(eval version := $(shell poetry version -s))
-	@$(eval message := [skip ci] Release $(version))
-	@git add pyproject.toml
-	@git commit -m "$(message)"
-	@git tag -a v$(version) -m $(message)
+	$(eval current_version := $(shell poetry version -s))
+	$(eval new_version := $(shell poetry version -s $(rule)))
+	$(eval message := "Release $(current_version) -> $(new_version)")
+	git add pyproject.toml
+	git commit -m $(message)
+	git tag -a v$(new_version) -m $(message)
 .PHONY: release-version
 
 
