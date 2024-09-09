@@ -11,21 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <small>[Compare with latest](https://github.com/seandstewart/python-typelib/compare/v0.1.0...HEAD)</small>
 
 <!-- insertion marker -->
-
-
-
-
-
-
-
-
 ## [v0.1.0](https://github.com/seandstewart/python-typelib/releases/tag/v0.1.0) - 2024-09-05
 
-<small>[Compare with v0.0.1](https://github.com/seandstewart/python-typelib/compare/v0.0.1...v0.1.0)</small>
-
-## [v0.0.1](https://github.com/seandstewart/python-typelib/releases/tag/v0.0.1) - 2024-09-05
-
-<small>[Compare with first commit](https://github.com/seandstewart/python-typelib/compare/ac01975a1a2d50a197716e9d5cfb03be13d26fa9...v0.0.1)</small>
+<small>[Compare with first commit](https://github.com/seandstewart/python-typelib/compare/ac01975a1a2d50a197716e9d5cfb03be13d26fa9...v0.1.0)</small>
 
 ### Features
 
