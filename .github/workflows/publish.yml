@@ -19,8 +19,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, ubuntu-latest, windows-latest ]
-        python-version: [ "3.9", "3.10", "3.11", "3.12" ]
+        os: [ ubuntu-latest ]
+        python-version: [ "3.12" ]
     with:
       runner: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
@@ -116,6 +116,5 @@ jobs:
       with:
         body_path: release-notes.md
         tag_name: ${{ github.env.RELEASE_VERSION }}
-        target_commitish: ${{ github.ref || github.env.RELEASE_VERSION }}
         make_latest: true
         files: dist/*
