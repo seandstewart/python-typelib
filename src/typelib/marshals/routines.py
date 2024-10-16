@@ -262,7 +262,7 @@ class UnionMarshaller(AbstractMarshaller[UnionT], tp.Generic[UnionT]):
         - [`UnionUnmarshaller`][typelib.unmarshals.routines.UnionUnmarshaller]
     """
 
-    __slots__ = ("stack", "ordered_routines")
+    __slots__ = ("stack", "ordered_routines", "nullable")
 
     def __init__(self, t: type[UnionT], context: ContextT, *, var: str | None = None):
         """Constructor.
@@ -274,10 +274,11 @@ class UnionMarshaller(AbstractMarshaller[UnionT], tp.Generic[UnionT]):
         """
         super().__init__(t, context, var=var)
         self.stack = inspection.args(t)
+        self.nullable = inspection.isoptionaltype(t)
         self.ordered_routines = [self.context[typ] for typ in self.stack]
 
     def __call__(self, val: UnionT) -> serdes.MarshalledValueT:
-        """Unmarshal a value into the bound `UnionT`.
+        """Marshal a value into the bound `UnionT`.
 
         Args:
             val: The input value to unmarshal.
@@ -285,8 +286,13 @@ class UnionMarshaller(AbstractMarshaller[UnionT], tp.Generic[UnionT]):
         Raises:
             ValueError: If `val` cannot be marshalled via any member type.
         """
+        if self.nullable and val is None:
+            return val
+
         for routine in self.ordered_routines:
-            with contextlib.suppress(ValueError, TypeError, SyntaxError):
+            with contextlib.suppress(
+                ValueError, TypeError, SyntaxError, AttributeError
+            ):
                 unmarshalled = routine(val)
                 return unmarshalled
 

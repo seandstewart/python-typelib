@@ -42,6 +42,11 @@ from tests import models
         given_input=2,
         expected_output=2,
     ),
+    optional_none=dict(
+        given_type=typing.Optional[typing.Union[int, str]],
+        given_input=None,
+        expected_output=None,
+    ),
     datetime=dict(
         given_type=datetime.datetime,
         given_input=datetime.datetime.fromtimestamp(0, datetime.timezone.utc),

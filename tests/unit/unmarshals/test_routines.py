@@ -500,6 +500,24 @@ def test_literal_unmarshaller(
         },
         expected_output=1,
     ),
+    optional_date_none=dict(
+        given_input=None,
+        given_union=typing.Optional[datetime.date],
+        given_context={
+            datetime.date: routines.DateUnmarshaller(datetime.date, {}),
+            type(None): routines.NoOpUnmarshaller(type(None), {}),
+        },
+        expected_output=None,
+    ),
+    optional_date_date=dict(
+        given_input=datetime.date.today().isoformat(),
+        given_union=typing.Optional[datetime.date],
+        given_context={
+            datetime.date: routines.DateUnmarshaller(datetime.date, {}),
+            type(None): routines.NoneTypeUnmarshaller(type(None), {}),
+        },
+        expected_output=datetime.date.today(),
+    ),
 )
 def test_union_unmarshaller(given_input, given_union, given_context, expected_output):
     # Given
