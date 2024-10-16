@@ -10,7 +10,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <small>[Compare with latest](https://github.com/seandstewart/python-typelib/compare/v0.1.0...HEAD)</small>
 
+### Features
+
+- support `enum.Enum` subtypes ([d2a699a](https://github.com/seandstewart/python-typelib/commit/d2a699a4859b2d3323d29957189710a0f1fbead4) by Sean Stewart).
+
+### Bug Fixes
+
+- allow optional and union types to be marks as "stdlib" ([bf4ad13](https://github.com/seandstewart/python-typelib/commit/bf4ad137ee1db53ca3a0446e16bb049454bf4aca) by Sean Stewart).
+
 <!-- insertion marker -->
+
 
 ## [v0.1.0](https://github.com/seandstewart/python-typelib/releases/tag/v0.1.0) - 2024-09-05
 
