@@ -678,6 +678,9 @@ class UnionUnmarshaller(AbstractUnmarshaller[UnionT], tp.Generic[UnionT]):
         """
         super().__init__(t, context, var=var)
         self.stack = inspection.args(t)
+        if inspection.isoptionaltype(t):
+            self.stack = (self.stack[-1], *self.stack[:-1])
+
         self.ordered_routines = [self.context[typ] for typ in self.stack]
 
     def __call__(self, val: tp.Any) -> UnionT:
@@ -690,7 +693,9 @@ class UnionUnmarshaller(AbstractUnmarshaller[UnionT], tp.Generic[UnionT]):
             ValueError: If `val` cannot be unmarshalled into any member type.
         """
         for routine in self.ordered_routines:
-            with contextlib.suppress(ValueError, TypeError, SyntaxError):
+            with contextlib.suppress(
+                ValueError, TypeError, SyntaxError, AttributeError
+            ):
                 unmarshalled = routine(val)
                 return unmarshalled
 

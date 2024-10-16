@@ -149,6 +149,11 @@ from tests import models
             timestamp=datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
         ),
     ),
+    optional_none=dict(
+        given_type=typing.Optional[typing.Union[int, str]],
+        given_input=None,
+        expected_output=None,
+    ),
     attrib_conflict=dict(
         given_type=models.Parent,
         given_input={"intersection": {"a": 0}, "child": {"intersection": {"b": 0}}},

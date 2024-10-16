@@ -126,7 +126,7 @@ def test_date_marshaller(given_input, expected_output):
         expected_output=datetime.datetime(1969, 12, 31).isoformat(),
     ),
 )
-def test_datetime_unmarshaller(given_input, expected_output):
+def test_datetime_marshaller(given_input, expected_output):
     # Given
     given_marshaller = routines.DateTimeMarshaller(datetime.datetime, {})
     # When
@@ -141,7 +141,7 @@ def test_datetime_unmarshaller(given_input, expected_output):
         expected_output="00:00:00+00:00",
     ),
 )
-def test_time_unmarshaller(given_input, expected_output):
+def test_time_marshaller(given_input, expected_output):
     # Given
     given_marshaller = routines.TimeMarshaller(datetime.time, {})
     # When
@@ -153,7 +153,7 @@ def test_time_unmarshaller(given_input, expected_output):
 @pytest.mark.suite(
     timedelta=dict(given_input=datetime.timedelta(seconds=1), expected_output="PT1S"),
 )
-def test_timedelta_unmarshaller(given_input, expected_output):
+def test_timedelta_marshaller(given_input, expected_output):
     # Given
     given_marshaller = routines.TimeDeltaMarshaller(datetime.timedelta, {})
     # When
@@ -187,7 +187,7 @@ def test_mapping_marshaller(given_input, expected_output):
         expected_output=["field", "value"],
     ),
 )
-def test_iterable_unmarshaller(given_input, expected_output):
+def test_iterable_marshaller(given_input, expected_output):
     # Given
     given_marshaller = routines.IterableMarshaller(typing.Iterable, {})
     # When
@@ -259,8 +259,26 @@ def test_literal_marshaller(given_input, given_literal, given_context, expected_
         },
         expected_output=1,
     ),
+    optional_date_none=dict(
+        given_input=None,
+        given_union=typing.Optional[datetime.date],
+        given_context={
+            datetime.date: routines.DateMarshaller(datetime.date, {}),
+            type(None): routines.NoOpMarshaller(type(None), {}),
+        },
+        expected_output=None,
+    ),
+    optional_date_date=dict(
+        given_input=datetime.date.today(),
+        given_union=typing.Optional[datetime.date],
+        given_context={
+            datetime.date: routines.DateMarshaller(datetime.date, {}),
+            type(None): routines.NoOpMarshaller(type(None), {}),
+        },
+        expected_output=datetime.date.today().isoformat(),
+    ),
 )
-def test_union_unmarshaller(given_input, given_union, given_context, expected_output):
+def test_union_marshaller(given_input, given_union, given_context, expected_output):
     # Given
     given_marshaller = routines.UnionMarshaller(given_union, given_context)
     # When
@@ -280,7 +298,7 @@ def test_union_unmarshaller(given_input, given_union, given_context, expected_ou
         expected_output={"field": 1},
     ),
 )
-def test_subscripted_mapping_unmarshaller(
+def test_subscripted_mapping_marshaller(
     given_input, given_mapping, given_context, expected_output
 ):
     # Given
@@ -373,7 +391,7 @@ def test_subscripted_iterable_marshaller(
         expected_output=["field", 1],
     ),
 )
-def test_fixed_tuple_unmarshaller(
+def test_fixed_tuple_marshaller(
     given_input, given_tuple, given_context, expected_output
 ):
     # Given
@@ -419,7 +437,7 @@ def test_fixed_tuple_unmarshaller(
         given_input=models.TDict(field="data", value=1),
     ),
 )
-def test_structured_type_unmarshaller(
+def test_structured_type_marshaller(
     given_input, given_cls, given_context, expected_output
 ):
     # Given
@@ -456,12 +474,12 @@ def test_invalid_union():
         given_marshaller(given_value)
 
 
-def test_enum_unmarshaller():
+def test_enum_marshaller():
     # Given
-    given_unmarshaller = routines.EnumMarshaller(models.GivenEnum, {})
+    given_marshaller = routines.EnumMarshaller(models.GivenEnum, {})
     given_value = models.GivenEnum.one
     expected_value = models.GivenEnum.one.value
     # When
-    unmarshalled = given_unmarshaller(given_value)
+    unmarshalled = given_marshaller(given_value)
     # Then
     assert unmarshalled == expected_value
