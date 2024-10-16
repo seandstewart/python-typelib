@@ -14,6 +14,7 @@ import re
 import types
 import typing as tp
 import uuid
+import warnings
 
 from typelib import constants, graph, serdes
 from typelib.py import compat, inspection, refs
@@ -975,7 +976,21 @@ class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
         hints = inspection.cached_type_hints(self.t)
         for name, hint in hints.items():
             resolved = refs.evaluate(hint)
-            fields_by_var[name] = tp_var_map[(resolved, name)]
+            fkey = (hint, name)
+            rkey = (resolved, name)
+            if fkey in tp_var_map:
+                fields_by_var[name] = tp_var_map[fkey]
+                continue
+            if rkey in tp_var_map:
+                fields_by_var[name] = tp_var_map[rkey]
+                continue
+
+            warnings.warn(
+                "Failed to identify an unmarshaller for the associated type-variable pair: "
+                f"Original ref: {fkey}, Resolved ref: {resolved}. Will default to no-op.",
+                stacklevel=3,
+            )
+            fields_by_var[name] = NoOpUnmarshaller(hint, self.context, var=name)
         return fields_by_var
 
     def __call__(self, val: tp.Any) -> _ST:
