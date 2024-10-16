@@ -142,7 +142,7 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
                 qualname = inspection.qualname(child)
                 *rest, refname = qualname.split(".", maxsplit=1)
                 is_argument = var is not None
-                module = getattr(child, "__module__", None)
+                module = ".".join(rest) or getattr(child, "__module__", None)
                 if module in (None, "__main__") and rest:
                     module = rest[0]
                 is_class = inspect.isclass(child)
