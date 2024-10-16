@@ -91,6 +91,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         token: ${{ steps.app-token.outputs.token }}
+        fetch-depth: 0
     - uses: ./.github/actions/bootstrap-environ
       with:
         python-version: 3.x
@@ -110,11 +111,16 @@ jobs:
     - name: Compile Release Notes
       run: make release-notes > release-notes.md
     - name: Report Version
-      run: echo "RELEASE_VERSION=v$(make report-version)" >> $GITHUB_ENV
+      run: |
+        export "RELEASE_VERSION=v$(make report-version)";
+        export "TARGET_COMMITISH=$(git rev-list -n 1 "${RELEASE_VERSION}")";
+        echo "RELEASE_VERSION=${RELEASE_VERSION}" >> $GITHUB_ENV
+        echo "TARGET_COMMITISH=${TARGET_COMMITISH}" >> $GITHUB_ENV
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         body_path: release-notes.md
         tag_name: ${{ github.env.RELEASE_VERSION }}
+        target_commitish: ${{ github.env.TARGET_COMMITISH }}
         make_latest: true
         files: dist/*
