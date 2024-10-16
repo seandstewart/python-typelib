@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import dataclasses
+import datetime
+import enum
 import typing
 
 
@@ -49,3 +51,14 @@ class NTuple(typing.NamedTuple):
 class TDict(typing.TypedDict):
     field: str
     value: int
+
+
+class GivenEnum(enum.Enum):
+    one = "one"
+
+
+@dataclasses.dataclass
+class UnionSTDLib:
+    timestamp: datetime.datetime | None = None
+    date_time: datetime.datetime | None = None
+    intstr: int | str = 0

@@ -820,3 +820,14 @@ def test_invalid_union():
     # When/Then
     with pytest.raises(expected_exception):
         given_unmarshaller(given_value)
+
+
+def test_enum_unmarshaller():
+    # Given
+    given_unmarshaller = routines.EnumUnmarshaller(models.GivenEnum, {})
+    given_value = models.GivenEnum.one.value
+    expected_value = models.GivenEnum.one
+    # When
+    unmarshalled = given_unmarshaller(given_value)
+    # Then
+    assert unmarshalled == expected_value

@@ -137,6 +137,11 @@ from tests import models
         ),
         expected_output={"indirect": {"cycle": {"indirect": {"cycle": None}}}},
     ),
+    enum_type=dict(
+        given_type=models.GivenEnum,
+        given_input=models.GivenEnum.one,
+        expected_output=models.GivenEnum.one.value,
+    ),
 )
 def test_marshal(given_type, given_input, expected_output):
     # When

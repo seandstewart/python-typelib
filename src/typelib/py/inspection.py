@@ -480,6 +480,13 @@ def isbuiltintype(
 
 @compat.cache
 def isstdlibtype(obj: type) -> compat.TypeIs[type[STDLibtypeT]]:
+    if isoptionaltype(obj):
+        nargs = tp.get_args(obj)[:-1]
+        return all(isstdlibtype(a) for a in nargs)
+    if isuniontype(obj):
+        args = tp.get_args(obj)
+        return all(isstdlibtype(a) for a in args)
+
     return (
         resolve_supertype(obj) in STDLIB_TYPES
         or resolve_supertype(type(obj)) in STDLIB_TYPES
@@ -903,7 +910,7 @@ def isenumtype(obj: type) -> compat.TypeIs[type[enum.Enum]]:
         >>> isenumtype(FooNum)
         True
     """
-    return issubclass(obj, enum.Enum)
+    return _safe_issubclass(obj, enum.Enum)
 
 
 @compat.cache
