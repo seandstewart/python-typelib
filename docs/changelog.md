@@ -10,7 +10,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <small>[Compare with latest](https://github.com/seandstewart/python-typelib/compare/v0.1.1...HEAD)</small>
 
+### Bug Fixes
+
+- handle case where a resolved type reference can't match up to the original hint ([a5ddf68](https://github.com/seandstewart/python-typelib/commit/a5ddf687c798d5d2a2a55e6a6561c22d14e40c29) by Sean Stewart).
+- inspect types when resolving field marshallers for structured types ([78d4896](https://github.com/seandstewart/python-typelib/commit/78d4896ff1b792156ff5431b4d47b981c7af188c) by Sean Stewart).
+
 <!-- insertion marker -->
+
 
 ## [v0.1.1](https://github.com/seandstewart/python-typelib/releases/tag/v0.1.1) - 2024-10-16
 
