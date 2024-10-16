@@ -3,7 +3,6 @@ name: Make Documentation
 on:
   push:
     branches: ["main"]
-    tags: ["*"]
 
 defaults:
   run:

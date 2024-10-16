@@ -10,6 +10,7 @@ import uuid
 
 import pytest
 
+from typelib import graph
 from typelib.unmarshals import routines
 
 from tests import models
@@ -718,44 +719,36 @@ def test_fixed_tuple_unmarshaller(
 
 
 @pytest.mark.suite(
+    context=dict(
+        given_context={
+            graph.TypeNode(int, var="value"): routines.NumberUnmarshaller(
+                int, {}, var="value"
+            ),
+            graph.TypeNode(str, var="field"): routines.StringUnmarshaller(
+                str, {}, var="field"
+            ),
+        },
+    ),
+)
+@pytest.mark.suite(
     dataclass=dict(
         given_cls=models.Data,
-        given_context={
-            int: routines.NumberUnmarshaller(int, {}, var="value"),
-            str: routines.StringUnmarshaller(str, {}, var="field"),
-        },
         expected_output=models.Data(field="data", value=1),
     ),
     vanilla=dict(
         given_cls=models.Vanilla,
-        given_context={
-            int: routines.NumberUnmarshaller(int, {}, var="value"),
-            str: routines.StringUnmarshaller(str, {}, var="field"),
-        },
         expected_output=models.Vanilla(field="data", value=1),
     ),
     vanilla_with_hints=dict(
         given_cls=models.VanillaWithHints,
-        given_context={
-            int: routines.NumberUnmarshaller(int, {}, var="value"),
-            str: routines.StringUnmarshaller(str, {}, var="field"),
-        },
         expected_output=models.VanillaWithHints(field="data", value=1),
     ),
     named_tuple=dict(
         given_cls=models.NTuple,
-        given_context={
-            int: routines.NumberUnmarshaller(int, {}, var="value"),
-            str: routines.StringUnmarshaller(str, {}, var="field"),
-        },
         expected_output=models.NTuple(field="data", value=1),
     ),
     typed_dict=dict(
         given_cls=models.TDict,
-        given_context={
-            int: routines.NumberUnmarshaller(int, {}, var="value"),
-            str: routines.StringUnmarshaller(str, {}, var="field"),
-        },
         expected_output=models.TDict(field="data", value=1),
     ),
 )
