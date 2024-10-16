@@ -6,9 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
-## Unreleased
+## [v0.1.1](https://github.com/seandstewart/python-typelib/releases/tag/v0.1.1) - 2024-10-16
 
-<small>[Compare with latest](https://github.com/seandstewart/python-typelib/compare/v0.1.0...HEAD)</small>
+<small>[Compare with v0.1.0](https://github.com/seandstewart/python-typelib/compare/v0.1.0...v0.1.1)</small>
 
 ### Features
 
@@ -18,7 +18,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - allow optional and union types to be marks as "stdlib" ([bf4ad13](https://github.com/seandstewart/python-typelib/commit/bf4ad137ee1db53ca3a0446e16bb049454bf4aca) by Sean Stewart).
 
-<!-- insertion marker -->
 
 
 ## [v0.1.0](https://github.com/seandstewart/python-typelib/releases/tag/v0.1.0) - 2024-09-05
