@@ -6,6 +6,7 @@ import abc
 import contextlib
 import datetime
 import decimal
+import enum
 import fractions
 import numbers
 import pathlib
@@ -46,6 +47,7 @@ __all__ = (
     "SubscriptedMappingUnmarshaller",
     "FixedTupleUnmarshaller",
     "StructuredTypeUnmarshaller",
+    "EnumUnmarshaller",
 )
 
 
@@ -537,7 +539,7 @@ PatternT = tp.TypeVar("PatternT", bound=re.Pattern)
 
 
 class PatternUnmarshaller(AbstractUnmarshaller[PatternT], tp.Generic[PatternT]):
-    """Unmarshaller that converts an input to a[`re.Pattern`][].
+    """Unmarshaller that converts an input to a [`re.Pattern`][].
 
     Note:
         You can't instantiate a [`re.Pattern`][] directly, so we don't have a good
@@ -595,6 +597,9 @@ class CastUnmarshaller(AbstractUnmarshaller[T]):
 PathUnmarshaller = CastUnmarshaller[pathlib.Path]
 MappingUnmarshaller = CastUnmarshaller[tp.Mapping]
 IterableUnmarshaller = CastUnmarshaller[tp.Iterable]
+
+EnumT = tp.TypeVar("EnumT", bound=enum.Enum)
+EnumUnmarshaller = CastUnmarshaller[EnumT]
 
 
 LiteralT = tp.TypeVar("LiteralT")

@@ -137,6 +137,11 @@ from tests import models
         given_input='["1", "2"]',
         expected_output=[1, 2],
     ),
+    enum_type=dict(
+        given_type=models.GivenEnum,
+        given_input="one",
+        expected_output=models.GivenEnum.one,
+    ),
 )
 def test_unmarshal(given_type, given_input, expected_output):
     # When

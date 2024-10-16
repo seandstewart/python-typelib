@@ -6,6 +6,7 @@ import abc
 import contextlib
 import datetime
 import decimal
+import enum
 import fractions
 import pathlib
 import re
@@ -41,6 +42,7 @@ __all__ = (
     "SubscriptedMappingMarshaller",
     "FixedTupleMarshaller",
     "StructuredTypeMarshaller",
+    "EnumMarshaller",
 )
 
 
@@ -150,6 +152,20 @@ UUIDMarshaller = ToStringMarshaller[UUIDT]
 
 PathT = tp.TypeVar("PathT", bound=pathlib.Path)
 PathMarshaller = ToStringMarshaller[PathT]
+
+EnumT = tp.TypeVar("EnumT", bound=enum.Enum)
+
+
+class EnumMarshaller(AbstractMarshaller[EnumT], tp.Generic[EnumT]):
+    """A marshaller that converts an [`enum.Enum`][] instance to its assigned value."""
+
+    def __call__(self, val: EnumT) -> serdes.MarshalledValueT:
+        """Marshal an [`enum.Enum`][] instance into a [`serdes.MarshalledValueT`][].
+
+        Args:
+            val: The enum instance to marshal.
+        """
+        return val.value
 
 
 PatternT = tp.TypeVar("PatternT", bound=re.Pattern)

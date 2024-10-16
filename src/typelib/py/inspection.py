@@ -903,7 +903,7 @@ def isenumtype(obj: type) -> compat.TypeIs[type[enum.Enum]]:
         >>> isenumtype(FooNum)
         True
     """
-    return issubclass(obj, enum.Enum)
+    return _safe_issubclass(obj, enum.Enum)
 
 
 @compat.cache

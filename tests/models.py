@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import enum
 import typing
 
 
@@ -49,3 +50,7 @@ class NTuple(typing.NamedTuple):
 class TDict(typing.TypedDict):
     field: str
     value: int
+
+
+class GivenEnum(enum.Enum):
+    one = "one"

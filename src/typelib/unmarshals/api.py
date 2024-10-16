@@ -108,6 +108,8 @@ _HANDLERS: tp.Mapping[
     inspection.isliteral: routines.LiteralUnmarshaller,
     # Special handler for Unions...
     inspection.isuniontype: routines.UnionUnmarshaller,
+    # Special handling for Enums
+    inspection.isenumtype: routines.EnumUnmarshaller,
     # Non-intersecting types (order doesn't matter here.
     inspection.isdatetimetype: routines.DateTimeUnmarshaller,
     inspection.isdatetype: routines.DateUnmarshaller,
