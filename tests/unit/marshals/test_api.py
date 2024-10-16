@@ -142,6 +142,14 @@ from tests import models
         given_input=models.GivenEnum.one,
         expected_output=models.GivenEnum.one.value,
     ),
+    attrib_conflict=dict(
+        given_type=models.Parent,
+        given_input=models.Parent(
+            intersection=models.ParentIntersect(a=0),
+            child=models.Child(intersection=models.ChildIntersect(b=0)),
+        ),
+        expected_output={"intersection": {"a": 0}, "child": {"intersection": {"b": 0}}},
+    ),
 )
 def test_marshal(given_type, given_input, expected_output):
     # When

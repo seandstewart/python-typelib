@@ -62,3 +62,24 @@ class UnionSTDLib:
     timestamp: datetime.datetime | None = None
     date_time: datetime.datetime | None = None
     intstr: int | str = 0
+
+
+@dataclasses.dataclass
+class Parent:
+    intersection: ParentIntersect
+    child: Child
+
+
+@dataclasses.dataclass
+class Child:
+    intersection: ChildIntersect
+
+
+@dataclasses.dataclass
+class ParentIntersect:
+    a: int
+
+
+@dataclasses.dataclass
+class ChildIntersect:
+    b: int

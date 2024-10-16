@@ -149,6 +149,14 @@ from tests import models
             timestamp=datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
         ),
     ),
+    attrib_conflict=dict(
+        given_type=models.Parent,
+        given_input={"intersection": {"a": 0}, "child": {"intersection": {"b": 0}}},
+        expected_output=models.Parent(
+            intersection=models.ParentIntersect(a=0),
+            child=models.Child(intersection=models.ChildIntersect(b=0)),
+        ),
+    ),
 )
 def test_unmarshal(given_type, given_input, expected_output):
     # When

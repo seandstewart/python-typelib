@@ -14,7 +14,7 @@ import typing as tp
 import uuid
 
 from typelib import graph, serdes
-from typelib.py import compat, inspection
+from typelib.py import compat, inspection, refs
 
 T = tp.TypeVar("T")
 
@@ -452,7 +452,16 @@ class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
             var: A variable name for the indicated type annotation (unused, optional).
         """
         super().__init__(t, context, var=var)
-        self.fields_by_var = {m.var: m for m in self.context.values() if m.var}
+        self.fields_by_var = self._fields_by_var()
+
+    def _fields_by_var(self):
+        fields_by_var = {}
+        tp_var_map = {(t.type, t.var): m for t, m in self.context.items()}
+        hints = inspection.cached_type_hints(self.t)
+        for name, hint in hints.items():
+            resolved = refs.evaluate(hint)
+            fields_by_var[name] = tp_var_map[(resolved, name)]
+        return fields_by_var
 
     def __call__(self, val: _ST) -> MarshalledMappingT:
         """Marshal a structured type into a simple [`dict`][].
