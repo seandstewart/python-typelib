@@ -16,7 +16,7 @@ import typing as tp
 import uuid
 import warnings
 
-from typelib import constants, graph, serdes
+from typelib import constants, ctx, serdes
 from typelib.py import compat, inspection, refs
 
 T = tp.TypeVar("T")
@@ -134,7 +134,7 @@ class NoneTypeUnmarshaller(AbstractUnmarshaller[None]):
         return None
 
 
-ContextT: tp.TypeAlias = "tp.Mapping[type | graph.TypeNode, AbstractUnmarshaller]"
+ContextT: tp.TypeAlias = "ctx.TypeContext[AbstractUnmarshaller]"
 BytesT = tp.TypeVar("BytesT", bound=bytes)
 
 
@@ -977,25 +977,21 @@ class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
 
     def _fields_by_var(self):
         fields_by_var = {}
-        tp_var_map = {(t.type, t.var): m for t, m in self.context.items()}
         hints = inspection.cached_type_hints(self.t)
         for name, hint in hints.items():
             resolved = refs.evaluate(hint)
-            fkey = (hint, name)
-            rkey = (resolved, name)
-            if fkey in tp_var_map:
-                fields_by_var[name] = tp_var_map[fkey]
-                continue
-            if rkey in tp_var_map:
-                fields_by_var[name] = tp_var_map[rkey]
+            m = self.context.get(hint) or self.context.get(resolved)
+            if m is None:
+                warnings.warn(
+                    "Failed to identify an unmarshaller for the associated type-variable pair: "
+                    f"Original ref: {hint}, Resolved ref: {resolved}. Will default to no-op.",
+                    stacklevel=4,
+                )
+                fields_by_var[name] = NoOpUnmarshaller(hint, self.context, var=name)
                 continue
 
-            warnings.warn(
-                "Failed to identify an unmarshaller for the associated type-variable pair: "
-                f"Original ref: {fkey}, Resolved ref: {resolved}. Will default to no-op.",
-                stacklevel=3,
-            )
-            fields_by_var[name] = NoOpUnmarshaller(hint, self.context, var=name)
+            fields_by_var[name] = m
+
         return fields_by_var
 
     def __call__(self, val: tp.Any) -> _ST:

@@ -18,7 +18,7 @@ import inspect
 import sys
 import typing
 
-from typelib.py import frames, future
+from typelib.py import frames, future, inspection
 
 __all__ = ("ForwardRef", "evaluate", "forwardref")
 
@@ -26,7 +26,7 @@ ForwardRef: typing.TypeAlias = typing.ForwardRef
 
 
 def forwardref(
-    ref: str,
+    ref: str | type,
     *,
     is_argument: bool = False,
     module: typing.Any | None = None,
@@ -43,11 +43,18 @@ def forwardref(
         module: The python module in which the reference string is defined (optional)
         is_class: Whether the reference string is a class (default True).
     """
+    if not isinstance(ref, str):
+        name = inspection.qualname(ref)
+        module = module or getattr(ref, "__module__", None)
+    else:
+        name = typing.cast(str, ref)
+
     module = _resolve_module_name(ref, module)
     if module is not None:
-        ref = ref.replace(f"{module}.", "")
+        name = name.replace(f"{module}.", "")
+
     return ForwardRef(
-        ref,
+        name,
         is_argument=is_argument,
         module=module,
         is_class=is_class,
