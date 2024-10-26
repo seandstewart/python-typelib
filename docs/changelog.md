@@ -6,16 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
-## Unreleased
+## [v0.1.4](https://github.com/seandstewart/python-typelib/releases/tag/v0.1.4) - 2024-10-26
 
-<small>[Compare with latest](https://github.com/seandstewart/python-typelib/compare/v0.1.2...HEAD)</small>
+<small>[Compare with v0.1.2](https://github.com/seandstewart/python-typelib/compare/v0.1.2...v0.1.4)</small>
 
 ### Bug Fixes
 
 - remove use of `graphlib.TypeNode` in type context ([e4742c0](https://github.com/seandstewart/python-typelib/commit/e4742c0e169a1fa71f74d399b32fc43bfb6cff00) by Sean Stewart).
 - correct handling optional types ([79e431a](https://github.com/seandstewart/python-typelib/commit/79e431a4dac984f1b9a096d44a389c08e569ad73) by Sean Stewart).
 
-<!-- insertion marker -->
 
 
 
