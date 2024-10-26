@@ -10,7 +10,6 @@ import uuid
 
 import pytest
 
-from typelib import graph
 from typelib.unmarshals import routines
 
 from tests import models
@@ -739,12 +738,8 @@ def test_fixed_tuple_unmarshaller(
 @pytest.mark.suite(
     context=dict(
         given_context={
-            graph.TypeNode(int, var="value"): routines.NumberUnmarshaller(
-                int, {}, var="value"
-            ),
-            graph.TypeNode(str, var="field"): routines.StringUnmarshaller(
-                str, {}, var="field"
-            ),
+            int: routines.NumberUnmarshaller(int, {}, var="value"),
+            str: routines.StringUnmarshaller(str, {}, var="field"),
         },
     ),
 )

@@ -40,26 +40,24 @@ def unmarshaller(
              May be a type, type alias, [`typing.ForwardRef`][], or string reference.
     """
     nodes = graph.static_order(t)
-    context: dict[type | graph.TypeNode, routines.AbstractUnmarshaller] = (
-        ctx.TypeContext()
-    )
+    context: ctx.TypeContext[routines.AbstractUnmarshaller] = ctx.TypeContext()
     if not nodes:
         return routines.NoOpUnmarshaller(t=t, context=context, var=None)  # type: ignore[arg-type]
 
     # "root" type will always be the final node in the sequence.
     root = nodes[-1]
     for node in nodes:
-        context[node] = _get_unmarshaller(node, context=context)
+        context[node.type] = _get_unmarshaller(node, context=context)
 
-    return context[root]
+    return context[root.type]
 
 
 def _get_unmarshaller(  # type: ignore[return]
     node: graph.TypeNode,
     context: routines.ContextT,
 ) -> routines.AbstractUnmarshaller[T]:
-    if node in context:
-        return context[node]
+    if node.type in context:
+        return context[node.type]
 
     for check, unmarshaller_cls in _HANDLERS.items():
         if check(node.type):

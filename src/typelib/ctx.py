@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
-import dataclasses
+import typing as tp
+import typing_extensions as te
 
-from typelib import graph
-from typelib.py import inspection, refs
+from typelib.py import refs
+
+ValueT = tp.TypeVar("ValueT")
+KeyT = te.TypeAliasType("KeyT", "type | refs.ForwardRef")
 
 
-class TypeContext(dict):
+class TypeContext(dict[KeyT, ValueT], tp.Generic[ValueT]):
     """A key-value mapping which can map between forward references and real types."""
 
-    def __missing__(self, key: graph.TypeNode | type | refs.ForwardRef):
+    def __missing__(self, key: type | refs.ForwardRef):
         """Hook to handle missing type references.
 
         Allows for sharing lookup results between forward references and real types.
@@ -19,18 +22,9 @@ class TypeContext(dict):
         Args:
             key: The type or reference.
         """
-        # Eager wrap in a TypeNode
-        if not isinstance(key, graph.TypeNode):
-            key = graph.TypeNode(type=key)
-            return self[key]
-
         # If we missed a ForwardRef, we've already tried this, bail out.
-        type = key.type
-        if isinstance(type, refs.ForwardRef):
+        if isinstance(key, refs.ForwardRef):
             raise KeyError(key)
 
-        ref = refs.forwardref(
-            inspection.qualname(type), module=getattr(type, "__module__", None)
-        )
-        node = dataclasses.replace(key, type=ref)
-        return self[node]
+        ref = refs.forwardref(key)
+        return self[ref]
