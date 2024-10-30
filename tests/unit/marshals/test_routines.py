@@ -10,7 +10,6 @@ import uuid
 
 import pytest
 
-from typelib import graph
 from typelib.marshals import routines
 
 from tests import models
@@ -405,12 +404,8 @@ def test_fixed_tuple_marshaller(
 @pytest.mark.suite(
     context=dict(
         given_context={
-            graph.TypeNode(int, var="value"): routines.IntegerMarshaller(
-                int, {}, var="value"
-            ),
-            graph.TypeNode(str, var="field"): routines.StringMarshaller(
-                str, {}, var="field"
-            ),
+            int: routines.IntegerMarshaller(int, {}, var="value"),
+            str: routines.StringMarshaller(str, {}, var="field"),
         },
         expected_output=dict(field="data", value=1),
     ),

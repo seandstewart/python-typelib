@@ -50,9 +50,6 @@ def static_order(
     """
     # We want to leverage the cache if possible, hence the recursive call.
     #   Shouldn't actually recurse more than once or twice.
-    if inspection.istypealiastype(t):
-        value = inspection.unwrap(t)
-        return static_order(value)
     if isinstance(t, (str, refs.ForwardRef)):
         ref = refs.forwardref(t) if isinstance(t, str) else t
         t = refs.evaluate(ref)
@@ -80,8 +77,6 @@ def itertypes(
         [`static_order`][typelib.graph.static_order] instead of
         [`itertypes`][typelib.graph.itertypes].
     """
-    if inspection.istypealiastype(t):
-        t = inspection.unwrap(t)
     if isinstance(t, (str, refs.ForwardRef)):  # pragma: no cover
         ref = refs.forwardref(t) if isinstance(t, str) else t
         t = refs.evaluate(ref)
@@ -113,33 +108,31 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
         resolve one level deep on each attempt, otherwise we will find ourselves stuck
         in a closed loop which never terminates (infinite recursion).
     """
-    if inspection.istypealiastype(t):
-        t = inspection.unwrap(t)
-
     graph: graphlib.TopologicalSorter = graphlib.TopologicalSorter()
-    root = TypeNode(t)
+    u = inspection.unwrap(t)
+    root = TypeNode(t, u)
     stack = collections.deque([root])
     visited = {root.type}
     while stack:
         parent = stack.popleft()
-        if inspection.isliteral(parent.type):
+        parent_unwrapped = inspection.unwrap(parent.type)
+        if inspection.isliteral(parent_unwrapped):
             graph.add(parent)
             continue
 
         predecessors = []
-        for var, child in _level(parent.type):
+        for var, child in _level(parent_unwrapped):
             # If no type was provided, there's no reason to do further processing.
             if child in (constants.empty, typing.Any):
                 continue
-            if inspection.istypealiastype(child):
-                child = inspection.unwrap(child)
 
+            unwrapped = inspection.unwrap(child)
             # Only subscripted generics or non-stdlib types can be cyclic.
             #   i.e., we may get `str` or `datetime` any number of times,
             #   that's not cyclic, so we can just add it to the graph.
-            is_visited = child in visited
-            is_subscripted = inspection.issubscriptedgeneric(child)
-            is_stdlib = inspection.isstdlibtype(child)
+            is_visited = child in visited or unwrapped in visited
+            is_subscripted = inspection.issubscriptedgeneric(unwrapped)
+            is_stdlib = inspection.isstdlibtype(unwrapped)
             can_be_cyclic = is_subscripted or is_stdlib is False
             # We detected a cyclic type,
             #   wrap in a ForwardRef and don't add it to the stack
@@ -155,10 +148,13 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
                 ref = refs.forwardref(
                     refname, is_argument=is_argument, module=module, is_class=is_class
                 )
-                node = TypeNode(ref, var=var, cyclic=True)
+                uref = refs.forwardref(
+                    unwrapped, is_argument=is_argument, module=module, is_class=is_class
+                )
+                node = TypeNode(ref, uref, var=var, cyclic=True)
             # Otherwise, add the type to the stack and track that it's been seen.
             else:
-                node = TypeNode(type=child, var=var)
+                node = TypeNode(type=child, unwrapped=unwrapped, var=var)
                 visited.add(node.type)
                 stack.append(node)
             # Flag the type as a "predecessor" of the parent type.
@@ -177,10 +173,16 @@ class TypeNode:
 
     type: typing.Any
     """The type annotation for this node."""
+    unwrapped: typing.Any | None = None
+    """The unwrapped type annotation for this node."""
     var: str | None = None
     """The variable or parameter name associated to the type annotation for this node."""
     cyclic: bool = dataclasses.field(default=False, hash=False, compare=False)
     """Whether this type annotation is cyclic."""
+
+    def __post_init__(self):
+        if self.unwrapped is None:
+            self.unwrapped = self.type
 
 
 def _level(t: typing.Any) -> typing.Iterable[tuple[str | None, type]]:

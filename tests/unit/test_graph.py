@@ -94,7 +94,7 @@ class NoTypes:
         given_type=models.NestedTypeAliasType,
         expected_nodes=[
             graph.TypeNode(type=int),
-            graph.TypeNode(type=list[int], var="alias"),
+            graph.TypeNode(type=models.ListAlias, unwrapped=list[int], var="alias"),
             graph.TypeNode(type=NestedTypeAliasType),
         ],
     ),
