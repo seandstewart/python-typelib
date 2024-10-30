@@ -1098,6 +1098,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unreleased
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unreleased">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bug Fixes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v017-2024-10-30" class="md-nav__link">
     <span class="md-ellipsis">
       v0.1.7 - 2024-10-30
@@ -1108,7 +1132,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#bug-fixes" class="md-nav__link">
+  <a href="#bug-fixes_1" class="md-nav__link">
     <span class="md-ellipsis">
       Bug Fixes
     </span>
@@ -1132,7 +1156,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#bug-fixes_1" class="md-nav__link">
+  <a href="#bug-fixes_2" class="md-nav__link">
     <span class="md-ellipsis">
       Bug Fixes
     </span>
@@ -1156,7 +1180,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#bug-fixes_2" class="md-nav__link">
+  <a href="#bug-fixes_3" class="md-nav__link">
     <span class="md-ellipsis">
       Bug Fixes
     </span>
@@ -1180,7 +1204,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#bug-fixes_3" class="md-nav__link">
+  <a href="#bug-fixes_4" class="md-nav__link">
     <span class="md-ellipsis">
       Bug Fixes
     </span>
@@ -1204,7 +1228,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#bug-fixes_4" class="md-nav__link">
+  <a href="#bug-fixes_5" class="md-nav__link">
     <span class="md-ellipsis">
       Bug Fixes
     </span>
@@ -1237,7 +1261,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#bug-fixes_5" class="md-nav__link">
+  <a href="#bug-fixes_6" class="md-nav__link">
     <span class="md-ellipsis">
       Bug Fixes
     </span>
@@ -1270,7 +1294,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#bug-fixes_6" class="md-nav__link">
+  <a href="#bug-fixes_7" class="md-nav__link">
     <span class="md-ellipsis">
       Bug Fixes
     </span>
@@ -1334,34 +1358,42 @@
 <p>The format is based on <a href="http://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>
 and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <!-- insertion marker -->
+<h2 id="unreleased">Unreleased<a class="headerlink" href="#unreleased" title="Anchor link to this section for reference">&para;</a></h2>
+<p><small><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.7...HEAD">Compare with latest</a></small></p>
+<h3 id="bug-fixes">Bug Fixes<a class="headerlink" href="#bug-fixes" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Handle recursive and cyclic <code>TypeAliasType</code> (<a href="https://github.com/seandstewart/python-typelib/commit/94c8fa38fd44b73e8e72a41668bfe2b781c8f78b">94c8fa3</a> by Sean Stewart).</li>
+</ul>
+<!-- insertion marker -->
+
 <h2 id="v017-2024-10-30"><a href="https://github.com/seandstewart/python-typelib/releases/tag/v0.1.7">v0.1.7</a> - 2024-10-30<a class="headerlink" href="#v017-2024-10-30" title="Anchor link to this section for reference">&para;</a></h2>
 <p><small><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.6...v0.1.7">Compare with v0.1.6</a></small></p>
-<h3 id="bug-fixes">Bug Fixes<a class="headerlink" href="#bug-fixes" title="Anchor link to this section for reference">&para;</a></h3>
+<h3 id="bug-fixes_1">Bug Fixes<a class="headerlink" href="#bug-fixes_1" title="Anchor link to this section for reference">&para;</a></h3>
 <ul>
 <li>Handle <code>TypeAliasType</code> within <code>TypeContext</code> lookups (<a href="https://github.com/seandstewart/python-typelib/commit/1295bedbc5093346ba9fc643d9a199968f728c33">1295bed</a> by Sean Stewart).</li>
 </ul>
 <h2 id="v016-2024-10-30"><a href="https://github.com/seandstewart/python-typelib/releases/tag/v0.1.6">v0.1.6</a> - 2024-10-30<a class="headerlink" href="#v016-2024-10-30" title="Anchor link to this section for reference">&para;</a></h2>
 <p><small><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.5...v0.1.6">Compare with v0.1.5</a></small></p>
-<h3 id="bug-fixes_1">Bug Fixes<a class="headerlink" href="#bug-fixes_1" title="Anchor link to this section for reference">&para;</a></h3>
+<h3 id="bug-fixes_2">Bug Fixes<a class="headerlink" href="#bug-fixes_2" title="Anchor link to this section for reference">&para;</a></h3>
 <ul>
 <li>Unwrap <code>TypeAliasType</code> for all nested types in a type graph (<a href="https://github.com/seandstewart/python-typelib/commit/c837838a8e78c830f262af783794788bd7e8b103">c837838</a> by Sean Stewart).</li>
 </ul>
 <h2 id="v015-2024-10-30"><a href="https://github.com/seandstewart/python-typelib/releases/tag/v0.1.5">v0.1.5</a> - 2024-10-30<a class="headerlink" href="#v015-2024-10-30" title="Anchor link to this section for reference">&para;</a></h2>
 <p><small><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.4...v0.1.5">Compare with v0.1.4</a></small></p>
-<h3 id="bug-fixes_2">Bug Fixes<a class="headerlink" href="#bug-fixes_2" title="Anchor link to this section for reference">&para;</a></h3>
+<h3 id="bug-fixes_3">Bug Fixes<a class="headerlink" href="#bug-fixes_3" title="Anchor link to this section for reference">&para;</a></h3>
 <ul>
 <li>extract the real <code>__value__</code> from a <code>TypeAliasType</code> when calling <code>origin(...)</code> (<a href="https://github.com/seandstewart/python-typelib/commit/94218a49271dadb04ab41527c51994aecbb38fab">94218a4</a> by Sean Stewart).</li>
 </ul>
 <h2 id="v014-2024-10-26"><a href="https://github.com/seandstewart/python-typelib/releases/tag/v0.1.4">v0.1.4</a> - 2024-10-26<a class="headerlink" href="#v014-2024-10-26" title="Anchor link to this section for reference">&para;</a></h2>
 <p><small><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.2...v0.1.4">Compare with v0.1.2</a></small></p>
-<h3 id="bug-fixes_3">Bug Fixes<a class="headerlink" href="#bug-fixes_3" title="Anchor link to this section for reference">&para;</a></h3>
+<h3 id="bug-fixes_4">Bug Fixes<a class="headerlink" href="#bug-fixes_4" title="Anchor link to this section for reference">&para;</a></h3>
 <ul>
 <li>remove use of <code>graphlib.TypeNode</code> in type context (<a href="https://github.com/seandstewart/python-typelib/commit/e4742c0e169a1fa71f74d399b32fc43bfb6cff00">e4742c0</a> by Sean Stewart).</li>
 <li>correct handling optional types (<a href="https://github.com/seandstewart/python-typelib/commit/79e431a4dac984f1b9a096d44a389c08e569ad73">79e431a</a> by Sean Stewart).</li>
 </ul>
 <h2 id="v012-2024-10-16"><a href="https://github.com/seandstewart/python-typelib/releases/tag/v0.1.2">v0.1.2</a> - 2024-10-16<a class="headerlink" href="#v012-2024-10-16" title="Anchor link to this section for reference">&para;</a></h2>
 <p><small><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.1...v0.1.2">Compare with v0.1.1</a></small></p>
-<h3 id="bug-fixes_4">Bug Fixes<a class="headerlink" href="#bug-fixes_4" title="Anchor link to this section for reference">&para;</a></h3>
+<h3 id="bug-fixes_5">Bug Fixes<a class="headerlink" href="#bug-fixes_5" title="Anchor link to this section for reference">&para;</a></h3>
 <ul>
 <li>handle case where a resolved type reference can't match up to the original hint (<a href="https://github.com/seandstewart/python-typelib/commit/a5ddf687c798d5d2a2a55e6a6561c22d14e40c29">a5ddf68</a> by Sean Stewart).</li>
 <li>inspect types when resolving field marshallers for structured types (<a href="https://github.com/seandstewart/python-typelib/commit/78d4896ff1b792156ff5431b4d47b981c7af188c">78d4896</a> by Sean Stewart).</li>
@@ -1372,7 +1404,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <ul>
 <li>support <code>enum.Enum</code> subtypes (<a href="https://github.com/seandstewart/python-typelib/commit/d2a699a4859b2d3323d29957189710a0f1fbead4">d2a699a</a> by Sean Stewart).</li>
 </ul>
-<h3 id="bug-fixes_5">Bug Fixes<a class="headerlink" href="#bug-fixes_5" title="Anchor link to this section for reference">&para;</a></h3>
+<h3 id="bug-fixes_6">Bug Fixes<a class="headerlink" href="#bug-fixes_6" title="Anchor link to this section for reference">&para;</a></h3>
 <ul>
 <li>allow optional and union types to be marks as "stdlib" (<a href="https://github.com/seandstewart/python-typelib/commit/bf4ad137ee1db53ca3a0446e16bb049454bf4aca">bf4ad13</a> by Sean Stewart).</li>
 </ul>
@@ -1395,7 +1427,7 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <li>Unmarshallers for initial primitive types. (<a href="https://github.com/seandstewart/python-typelib/commit/1c6aa1cead5b73a9da15dc26940e4909703ee4db">1c6aa1c</a> by Sean Stewart).</li>
 <li>Core utilities and graph resolver, with test coverage. (<a href="https://github.com/seandstewart/python-typelib/commit/108faa1a845775dbbc43bcf75289f8fc3a6921f1">108faa1</a> by Sean Stewart).</li>
 </ul>
-<h3 id="bug-fixes_6">Bug Fixes<a class="headerlink" href="#bug-fixes_6" title="Anchor link to this section for reference">&para;</a></h3>
+<h3 id="bug-fixes_7">Bug Fixes<a class="headerlink" href="#bug-fixes_7" title="Anchor link to this section for reference">&para;</a></h3>
 <ul>
 <li>treat sequences as unique from iterables in iteritems (<a href="https://github.com/seandstewart/python-typelib/commit/1f1b0fdf85f2c13eec2682c35e1ea027c38f9f6c">1f1b0fd</a> by Sean Stewart).</li>
 <li>update param name for type input in dateparse (<a href="https://github.com/seandstewart/python-typelib/commit/1779b4e52c0c51673160cc81d66e4daf980b9434">1779b4e</a> by Sean Stewart).</li>
