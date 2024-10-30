@@ -573,7 +573,7 @@ def isoptionaltype(obj: type[_OT]) -> compat.TypeIs[type[tp.Optional[_OT]]]:
     tname = name(origin(obj))
     nullarg = next((a for a in args if a in (type(None), None)), ...)
     isoptional = tname == "Optional" or (
-        nullarg is not ... and tname in ("Union", "Uniontype", "Literal")
+        nullarg is not ... and tname in ("Union", "UnionType", "Literal")
     )
     return isoptional
 

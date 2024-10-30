@@ -99,3 +99,8 @@ ValueAlias = compat.TypeAliasType("ValueAlias", int)
 RecursiveAlias = compat.TypeAliasType(
     "RecursiveAlias", "dict[str, RecursiveAlias | ValueAlias]"
 )
+
+ScalarValue = compat.TypeAliasType("ScalarValue", "int | float | str | bool | None")
+Record = compat.TypeAliasType(
+    "Record", "dict[str, list[Record] | list[ScalarValue] | Record | ScalarValue]"
+)
