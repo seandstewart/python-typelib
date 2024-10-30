@@ -592,7 +592,6 @@ def test_isclassvartype(given_type, expected_is_classvar_type):
 
 @pytest.mark.suite(
     classvar=dict(given_type=t.ClassVar[int], expected_should_unwrap=True),
-    optional=dict(given_type=t.Optional[str], expected_should_unwrap=True),
     final=dict(given_type=t.Final[str], expected_should_unwrap=True),
     literal=dict(given_type=t.Literal[1], expected_should_unwrap=False),
 )

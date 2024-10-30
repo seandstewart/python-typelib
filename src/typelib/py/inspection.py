@@ -933,7 +933,6 @@ def isclassvartype(obj: type) -> bool:
 
 _UNWRAPPABLE = (
     isclassvartype,
-    isoptionaltype,
     isfinal,
 )
 
@@ -1482,6 +1481,22 @@ def istypealiastype(t: tp.Any) -> compat.TypeIs[compat.TypeAliasType]:
 
     """
     return isinstance(t, compat.TypeAliasType)
+
+
+@compat.cache
+def unwrap(t: tp.Any) -> tp.Any:
+    while True:
+        if should_unwrap(t):
+            t = t.__args__[0]
+            continue
+        if istypealiastype(t):
+            t = t.__value__
+            continue
+
+        if hasattr(t, "__supertype__"):
+            t = t.__supertype__
+            continue
+        return t
 
 
 def _safe_issubclass(__cls: type, __class_or_tuple: type | tuple[type, ...]) -> bool:

@@ -155,6 +155,11 @@ from tests import models
         ),
         expected_output={"intersection": {"a": 0}, "child": {"intersection": {"b": 0}}},
     ),
+    nested_type_alias=dict(
+        given_type=models.NestedTypeAliasType,
+        given_input=models.NestedTypeAliasType(alias=[1]),
+        expected_output={"alias": [1]},
+    ),
 )
 def test_marshal(given_type, given_input, expected_output):
     # When
