@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "typelib"
-version = "0.1.8"
+version = "0.1.9"
 description = "A toolkit for marshalling, unmarshalling, and runtime validation leveraging type annotations."
 authors = ["Sean Stewart <sean.stewart@hey.com>"]
 readme = "README.md"
