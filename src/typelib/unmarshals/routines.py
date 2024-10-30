@@ -985,7 +985,7 @@ class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
                 warnings.warn(
                     "Failed to identify an unmarshaller for the associated type-variable pair: "
                     f"Original ref: {hint}, Resolved ref: {resolved}. Will default to no-op.",
-                    stacklevel=4,
+                    stacklevel=6,
                 )
                 fields_by_var[name] = NoOpUnmarshaller(hint, self.context, var=name)
                 continue

@@ -162,6 +162,11 @@ from tests import models
             child=models.Child(intersection=models.ChildIntersect(b=0)),
         ),
     ),
+    nested_type_alias=dict(
+        given_type=models.NestedTypeAliasType,
+        given_input={"alias": ["1"]},
+        expected_output=models.NestedTypeAliasType(alias=[1]),
+    ),
 )
 def test_unmarshal(given_type, given_input, expected_output):
     # When

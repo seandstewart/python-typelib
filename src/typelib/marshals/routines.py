@@ -469,9 +469,9 @@ class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
             m = self.context.get(hint) or self.context.get(resolved)
             if m is None:
                 warnings.warn(
-                    "Failed to identify an unmarshaller for the associated type-variable pair: "
+                    "Failed to identify a marshaller for the associated type-variable pair: "
                     f"Original ref: {hint}, Resolved ref: {resolved}. Will default to no-op.",
-                    stacklevel=4,
+                    stacklevel=5,
                 )
                 fields_by_var[name] = NoOpMarshaller(hint, self.context, var=name)
                 continue
