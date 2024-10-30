@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## Unreleased
+
+<small>[Compare with latest](https://github.com/seandstewart/python-typelib/compare/v0.1.7...HEAD)</small>
+
+### Bug Fixes
+
+- Handle recursive and cyclic `TypeAliasType` ([94c8fa3](https://github.com/seandstewart/python-typelib/commit/94c8fa38fd44b73e8e72a41668bfe2b781c8f78b) by Sean Stewart).
+
+<!-- insertion marker -->
+
 ## [v0.1.7](https://github.com/seandstewart/python-typelib/releases/tag/v0.1.7) - 2024-10-30
 
 <small>[Compare with v0.1.6](https://github.com/seandstewart/python-typelib/compare/v0.1.6...v0.1.7)</small>
