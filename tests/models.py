@@ -5,6 +5,8 @@ import datetime
 import enum
 import typing
 
+from typelib.py import compat
+
 
 @dataclasses.dataclass
 class RecursiveType:
@@ -83,3 +85,11 @@ class ParentIntersect:
 @dataclasses.dataclass
 class ChildIntersect:
     b: int
+
+
+ListAlias = compat.TypeAliasType("ListAlias", list[int])
+
+
+@dataclasses.dataclass
+class NestedTypeAliasType:
+    alias: ListAlias
