@@ -17,6 +17,7 @@ import sys
 import types
 import typing
 import typing as t
+import typing_extensions as te
 import uuid
 from unittest import mock
 
@@ -45,6 +46,7 @@ class MyClass: ...
     user_type=dict(annotation=MyClass, expected=MyClass),
     class_var_subscripted=dict(annotation=t.ClassVar[str], expected=str),
     class_var_unsubsripted=dict(annotation=t.ClassVar, expected=t.ClassVar),
+    type_alias_type=dict(annotation=te.TypeAliasType("T", dict), expected=dict),
 )
 def test_origin(annotation, expected):
     # When

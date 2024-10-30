@@ -115,6 +115,9 @@ def origin(annotation: tp.Any) -> tp.Any:
         a = args(actual)
         actual = a[0] if a else actual
 
+    if istypealiastype(actual):
+        actual = actual.__value__
+
     actual = tp.get_origin(actual) or actual
 
     # provide defaults for generics
