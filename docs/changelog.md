@@ -6,15 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
-## Unreleased
+## [v0.1.9](https://github.com/seandstewart/python-typelib/releases/tag/v0.1.9) - 2024-10-30
 
-<small>[Compare with latest](https://github.com/seandstewart/python-typelib/compare/v0.1.8...HEAD)</small>
+<small>[Compare with v0.1.8](https://github.com/seandstewart/python-typelib/compare/v0.1.8...v0.1.9)</small>
 
 ### Bug Fixes
 
 - Track "unwrapped" types during routine resolution ([a05be1e](https://github.com/seandstewart/python-typelib/commit/a05be1e199079fa895c6560faba69065d8a3298e) by Sean Stewart).
 
-<!-- insertion marker -->
 
 ## [v0.1.8](https://github.com/seandstewart/python-typelib/releases/tag/v0.1.8) - 2024-10-30
 
