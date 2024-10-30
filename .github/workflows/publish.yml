@@ -96,6 +96,14 @@ jobs:
       with:
         python-version: 3.x
         runner: ubuntu-latest
+    - name: Compile Release Notes
+      run: make release-notes > release-notes.md
+    - name: Report Version
+      run: |
+        export "RELEASE_VERSION=v$(make report-version)";
+        export "TARGET_COMMITISH=$(git rev-list -n 1 "${RELEASE_VERSION}")";
+        echo "RELEASE_VERSION=${RELEASE_VERSION}" >> $GITHUB_ENV
+        echo "TARGET_COMMITISH=${TARGET_COMMITISH}" >> $GITHUB_ENV
     - name: Download all the dists
       uses: actions/download-artifact@v4
       with:
@@ -108,14 +116,6 @@ jobs:
         inputs: >-
           ./dist/*.tar.gz
           ./dist/*.whl
-    - name: Compile Release Notes
-      run: make release-notes > release-notes.md
-    - name: Report Version
-      run: |
-        export "RELEASE_VERSION=v$(make report-version)";
-        export "TARGET_COMMITISH=$(git rev-list -n 1 "${RELEASE_VERSION}")";
-        echo "RELEASE_VERSION=${RELEASE_VERSION}" >> $GITHUB_ENV
-        echo "TARGET_COMMITISH=${TARGET_COMMITISH}" >> $GITHUB_ENV
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
