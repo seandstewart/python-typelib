@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## Unreleased
+
+<small>[Compare with latest](https://github.com/seandstewart/python-typelib/compare/v0.1.4...HEAD)</small>
+
+### Bug Fixes
+
+- extract the real `__value__` from a `TypeAliasType` when calling `origin(...)` ([94218a4](https://github.com/seandstewart/python-typelib/commit/94218a49271dadb04ab41527c51994aecbb38fab) by Sean Stewart).
+
+<!-- insertion marker -->
+
 ## [v0.1.4](https://github.com/seandstewart/python-typelib/releases/tag/v0.1.4) - 2024-10-26
 
 <small>[Compare with v0.1.2](https://github.com/seandstewart/python-typelib/compare/v0.1.2...v0.1.4)</small>
