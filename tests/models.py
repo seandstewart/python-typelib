@@ -93,3 +93,9 @@ ListAlias = compat.TypeAliasType("ListAlias", list[int])
 @dataclasses.dataclass
 class NestedTypeAliasType:
     alias: ListAlias
+
+
+ValueAlias = compat.TypeAliasType("ValueAlias", int)
+RecursiveAlias = compat.TypeAliasType(
+    "RecursiveAlias", "dict[str, RecursiveAlias | ValueAlias]"
+)

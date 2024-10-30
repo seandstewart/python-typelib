@@ -628,7 +628,7 @@ class LiteralUnmarshaller(AbstractUnmarshaller[LiteralT], tp.Generic[LiteralT]):
             var: A variable name for the indicated type annotation (unused, optional).
         """
         super().__init__(t, context, var=var)
-        self.values = inspection.args(t)
+        self.values = inspection.args(t, evaluate=True)
 
     def __call__(self, val: tp.Any) -> LiteralT:
         if val in self.values:
@@ -677,7 +677,7 @@ class UnionUnmarshaller(AbstractUnmarshaller[UnionT], tp.Generic[UnionT]):
             var: A variable name for the indicated type annotation (unused, optional).
         """
         super().__init__(t, context, var=var)
-        self.stack = inspection.args(t)
+        self.stack = inspection.args(t, evaluate=True)
         if inspection.isoptionaltype(t):
             self.stack = (self.stack[-1], *self.stack[:-1])
 
@@ -746,7 +746,7 @@ class SubscriptedMappingUnmarshaller(
             var: A variable name for the indicated type annotation (unused, optional).
         """
         super().__init__(t, context, var=var)
-        key_t, value_t = inspection.args(t)
+        key_t, value_t = inspection.args(t, evaluate=True)
         self.keys = context[key_t]
         self.values = context[value_t]
 
@@ -804,7 +804,7 @@ class SubscriptedIterableUnmarshaller(
         """
         super().__init__(t=t, context=context, var=var)
         # supporting tuple[str, ...]
-        (value_t, *_) = inspection.args(t)
+        (value_t, *_) = inspection.args(t, evaluate=True)
         self.values = context[value_t]
 
     def __call__(self, val: tp.Any) -> IterableT:
@@ -857,7 +857,7 @@ class SubscriptedIteratorUnmarshaller(
             var: A variable name for the indicated type annotation (unused, optional).
         """
         super().__init__(t, context, var=var)
-        (value_t,) = inspection.args(t)
+        (value_t,) = inspection.args(t, evaluate=True)
         self.values = context[value_t]
 
     def __call__(self, val: tp.Any) -> IteratorT:
@@ -916,7 +916,7 @@ class FixedTupleUnmarshaller(AbstractUnmarshaller[compat.TupleT]):
             var: A variable name for the indicated type annotation (unused, optional).
         """
         super().__init__(t, context, var=var)
-        self.stack = inspection.args(t)
+        self.stack = inspection.args(t, evaluate=True)
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
     def __call__(self, val: tp.Any) -> compat.TupleT:

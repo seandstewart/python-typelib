@@ -51,7 +51,8 @@ def static_order(
     # We want to leverage the cache if possible, hence the recursive call.
     #   Shouldn't actually recurse more than once or twice.
     if inspection.istypealiastype(t):
-        return static_order(t.__value__)
+        value = inspection.unwrap(t)
+        return static_order(value)
     if isinstance(t, (str, refs.ForwardRef)):
         ref = refs.forwardref(t) if isinstance(t, str) else t
         t = refs.evaluate(ref)
@@ -80,7 +81,7 @@ def itertypes(
         [`itertypes`][typelib.graph.itertypes].
     """
     if inspection.istypealiastype(t):
-        t = t.__value__
+        t = inspection.unwrap(t)
     if isinstance(t, (str, refs.ForwardRef)):  # pragma: no cover
         ref = refs.forwardref(t) if isinstance(t, str) else t
         t = refs.evaluate(ref)
@@ -113,7 +114,7 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
         in a closed loop which never terminates (infinite recursion).
     """
     if inspection.istypealiastype(t):
-        t = t.__value__
+        t = inspection.unwrap(t)
 
     graph: graphlib.TopologicalSorter = graphlib.TopologicalSorter()
     root = TypeNode(t)
@@ -131,7 +132,7 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
             if child in (constants.empty, typing.Any):
                 continue
             if inspection.istypealiastype(child):
-                child = child.__value__
+                child = inspection.unwrap(child)
 
             # Only subscripted generics or non-stdlib types can be cyclic.
             #   i.e., we may get `str` or `datetime` any number of times,
