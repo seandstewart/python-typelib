@@ -156,7 +156,7 @@ GENERIC_TYPE_MAP: dict[type, type] = {
 }
 
 
-def args(annotation: tp.Any) -> tp.Tuple[tp.Any, ...]:
+def args(annotation: tp.Any, *, evaluate: bool = False) -> tp.Tuple[tp.Any, ...]:
     """Get the args supplied to an annotation, normalizing [`typing.TypeVar`][].
 
     Note:
@@ -183,6 +183,9 @@ def args(annotation: tp.Any) -> tp.Tuple[tp.Any, ...]:
     a = tp.get_args(annotation)
     if not a:
         a = getattr(annotation, "__args__", a)
+
+    if evaluate:
+        a = (*(refs.evaluate(r) for r in a),)
 
     return (*_normalize_typevars(*a),)
 
@@ -1485,18 +1488,27 @@ def istypealiastype(t: tp.Any) -> compat.TypeIs[compat.TypeAliasType]:
 
 @compat.cache
 def unwrap(t: tp.Any) -> tp.Any:
-    while True:
+    lt = None
+    while lt is not t:
         if should_unwrap(t):
+            lt = t
             t = t.__args__[0]
             continue
         if istypealiastype(t):
-            t = t.__value__
+            tv = t.__value__
+            if issubclass(type(tv), str):
+                return refs.forwardref(tv, module=t.__module__)
+            lt = t
+            t = tv
             continue
 
         if hasattr(t, "__supertype__"):
+            lt = t
             t = t.__supertype__
             continue
+
         return t
+    return t
 
 
 def _safe_issubclass(__cls: type, __class_or_tuple: type | tuple[type, ...]) -> bool:

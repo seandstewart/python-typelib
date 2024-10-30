@@ -167,6 +167,11 @@ from tests import models
         given_input={"alias": ["1"]},
         expected_output=models.NestedTypeAliasType(alias=[1]),
     ),
+    recursive_alias=dict(
+        given_type=models.RecursiveAlias,
+        given_input={"cycle": {"cycle": {"cycle": "1"}}},
+        expected_output={"cycle": {"cycle": {"cycle": 1}}},
+    ),
 )
 def test_unmarshal(given_type, given_input, expected_output):
     # When
