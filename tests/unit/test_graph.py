@@ -9,6 +9,9 @@ import pytest
 from typelib import graph
 from typelib.py import refs
 
+from tests import models
+from tests.models import NestedTypeAliasType
+
 
 @dataclasses.dataclass
 class Simple:
@@ -87,6 +90,14 @@ class NoTypes:
         ],
     ),
     any_type=dict(given_type=NoTypes, expected_nodes=[graph.TypeNode(type=NoTypes)]),
+    nested_type_alias=dict(
+        given_type=models.NestedTypeAliasType,
+        expected_nodes=[
+            graph.TypeNode(type=int),
+            graph.TypeNode(type=list[int], var="alias"),
+            graph.TypeNode(type=NestedTypeAliasType),
+        ],
+    ),
 )
 @pytest.mark.skipif(sys.version_info < (3, 10), reason="py3.10+")
 def test_static_order(given_type, expected_nodes):

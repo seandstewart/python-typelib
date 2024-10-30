@@ -112,6 +112,9 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
         resolve one level deep on each attempt, otherwise we will find ourselves stuck
         in a closed loop which never terminates (infinite recursion).
     """
+    if inspection.istypealiastype(t):
+        t = t.__value__
+
     graph: graphlib.TopologicalSorter = graphlib.TopologicalSorter()
     root = TypeNode(t)
     stack = collections.deque([root])
@@ -127,6 +130,8 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
             # If no type was provided, there's no reason to do further processing.
             if child in (constants.empty, typing.Any):
                 continue
+            if inspection.istypealiastype(child):
+                child = child.__value__
 
             # Only subscripted generics or non-stdlib types can be cyclic.
             #   i.e., we may get `str` or `datetime` any number of times,
