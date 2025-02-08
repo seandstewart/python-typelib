@@ -39,13 +39,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         runner: ${{ matrix.os }}
-    - name: Build sdist
-      run: poetry build -f sdist
-    - name: Store dist artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: dist-${{ matrix.os }}-${{ matrix.python-version }}-sdist
-        path: dist
 
   publish-to-pypi:
     name: >-
