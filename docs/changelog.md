@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### <!-- 7 -->⚙️ Miscellaneous Tasks
 - Update CI/CD toolchain for uv and git-cliff by @seandstewart
 - Re-work env checkout for uv in CI by @seandstewart
+- Skip CI on changelog update by @seandstewart
 
 
 ## [0.1.9][0.1.9] - 2024-10-30
