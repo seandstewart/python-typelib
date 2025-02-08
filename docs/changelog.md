@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.10][0.1.10] - 2025-02-08
 
+### <!-- 10 -->💼 Other
+- Turn on auto-tagging by @seandstewart
+
 ### <!-- 7 -->⚙️ Miscellaneous Tasks
 - Update CI/CD toolchain for uv and git-cliff by @seandstewart
 - Re-work env checkout for uv in CI by @seandstewart
