@@ -50,11 +50,13 @@ test: ## Run this app's tests with a test db. Target a specific path `target=pat
 TEST_ARGS ?= --cov --cov-config=.coveragerc --cov-report=xml --cov-report=term --junit-xml=junit.xml
 
 rule ?= patch
+ref ?= main
 
 
 release-version:  ## Bump the version for this package.
 	$(eval message := "Release $(next_version)")
-	#git tag -a $(next_version) -m $(message)
+	@git tag -a $(next_version) -m $(message)
+	@git push --follow-tags origin $(ref)
 .PHONY: release-version
 
 
