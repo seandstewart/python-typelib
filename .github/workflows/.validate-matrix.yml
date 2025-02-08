@@ -24,7 +24,6 @@ jobs:
       with:
         python-version: ${{ inputs.python-version }}
         runner: ${{ inputs.runner }}
-        release-private-key: ${{ secrets.RELEASE_BOT_APP_PKEY }}
     - run: make lint
   test:
     runs-on: ${{ inputs.runner }}
