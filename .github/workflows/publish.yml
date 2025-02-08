@@ -97,7 +97,7 @@ jobs:
         python-version: 3.x
         runner: ubuntu-latest
     - name: Compile Release Notes
-      run: make release-notes > release-notes.md
+      run: make release-notes
     - name: Report Version
       run: |
         export "RELEASE_VERSION=v$(make report-version)";
@@ -116,11 +116,3 @@ jobs:
         inputs: >-
           ./dist/*.tar.gz
           ./dist/*.whl
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2
-      with:
-        body_path: release-notes.md
-        tag_name: ${{ github.env.RELEASE_VERSION }}
-        target_commitish: ${{ github.env.TARGET_COMMITISH }}
-        make_latest: true
-        files: dist/*

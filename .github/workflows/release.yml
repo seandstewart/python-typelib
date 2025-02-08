@@ -1,19 +1,11 @@
-name: Trigger Release
+name: Create Tag
 
 on:
-  workflow_dispatch:
-    inputs:
-      level:
-        description: "The level to bump the current version"
-        required: true
-        default: "patch"
-        options:
-          - "patch"
-          - "minor"
-          - "major"
-          - "prepatch"
-          - "preminor"
-          - "prerelease"
+  push:
+    branches:
+    - 'main'
+    tags-ignore:
+    - '**'
 
 defaults:
   run:
@@ -26,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest ]
-        python-version: [ "3.9" ]
+        python-version: [ "3.12" ]
     steps:
     - uses: actions/create-github-app-token@v1
       id: app-token
@@ -42,6 +34,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
         runner: ${{ matrix.os }}
     - name: Tag New Version
-      run: make release-version rule=${{ inputs.level }}
+      run: make release-version
     - name: Push New Version
       run: git push --follow-tags origin ${{ github.ref_name }}

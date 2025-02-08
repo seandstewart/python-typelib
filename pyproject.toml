@@ -1,13 +1,14 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
 name = "typelib"
-version = "0.1.9"
+dynamic = ["version"]
 description = "A toolkit for marshalling, unmarshalling, and runtime validation leveraging type annotations."
-authors = ["Sean Stewart <sean.stewart@hey.com>"]
+authors = [{ name = "Sean Stewart", email = "sean.stewart@hey.com" }]
 readme = "README.md"
-packages = [
-    {include = "typelib", from = "src"},
-]
-repository = "https://github.com/seandstewart/typelib"
+requires-python = "~=3.9"
 keywords = ["typing", "data", "annotations", "validation", "serdes"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -25,46 +26,57 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
+dependencies = [
+    "inflection ~= 0.5",
+    "more-itertools ~= 10.4",
+    "pendulum ~= 3.0",
+    "typing-extensions ~= 4.12",
+    "importlib_metadata >=7.1.0,<8; python_version < '3.10'",
+]
+[project.optional-dependencies]
+json = [
+    "orjson ~= 3.4",
+]
+[project.urls]
+Repository = "https://github.com/seandstewart/typelib"
+Homepage = "https://seandstewart.github.io/python-typelib/latest/"
 
+[dependency-groups]
+benchmarks = []
+dev = [
+    { include-group = "docs" },
+    { include-group = "lint" },
+    { include-group = "test" },
+    "orjson ~= 3.4",
+    "tox",
+    "hatch-vcs",
+    "git-cliff>=2.8.0",
+]
+docs = [
+    "mkdocs-material[imaging]",
+    "mkdocstrings[python]",
+    "mkdocs-awesome-pages-plugin",
+    "mkdocs-gen-files",
+    "pymdown-extensions",
+    "mike",
+    "mkdocs-section-index",
+    "mkdocs-literate-nav",
+    "mkdocs-open-in-new-tab",
+]
+lint = [
+    "pre-commit",
+]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-parametrize-suite",
+]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-inflection = "^0.5"
-pendulum = "^3"
-orjson = {version = "^3", optional = true}
-typing-extensions = {version = "^4.10"}
-more-itertools = "^10"
+[tool.hatch.version]
+source = "vcs"
 
-[tool.poetry.extras]
-json = ["orjson"]
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8"
-pytest-cov = "^5"
-pytest-parametrize-suite = "^23.1.1"
-
-[tool.poetry.group.benchmarks.dependencies]
-
-
-[tool.poetry.group.lint.dependencies]
-pre-commit = "^3.7"
-
-[tool.poetry.group.docs.dependencies]
-mkdocs-material = {extras = ["imaging"], version = "^9"}
-mkdocstrings = {extras = ["python"], version = "^0.26"}
-mkdocs-awesome-pages-plugin = "^2.9"
-mkdocs-gen-files = "^0.5"
-pymdown-extensions = "^10"
-mike = "^2"
-mkdocs-section-index = "^0.3"
-mkdocs-literate-nav = "^0.6"
-mkdocs-open-in-new-tab = "^1"
-
-
-[tool.poetry.group.dev.dependencies]
-orjson = "^3"
-tox = "^4"
-git-changelog = "^2"
+[tool.hatch.version.raw-options]
+version_scheme = "no-guess-dev"
 
 [tool.coverage.run]
 branch = true
@@ -138,14 +150,3 @@ ignore_missing_imports = true
 no_strict_optional = true
 follow_imports = "silent"
 exclude = ".*tests/.*|.*docs/.*"
-
-[tool.git-changelog]
-convention = "conventional"
-in-place = true
-output = "docs/changelog.md"
-parse-refs = true
-parse-trailers = true
-
-[build-system]
-requires = ["poetry-core>=1.8.0"]
-build-backend = "poetry.core.masonry.api"

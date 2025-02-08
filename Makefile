@@ -5,29 +5,25 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
-ifeq ($(VIRTUAL_ENV), )
-	RUN_PREFIX := poetry run
-else
-	RUN_PREFIX :=
-endif
-
+RUN_PREFIX := uv run --
 
 # region: environment
 
-bootstrap: setup-poetry update install  ## Bootstrap your local environment for development.
+quickstart: setup-uv install  ## Bootstrap your local environment for development.
 .PHONY: bootstrap
 
-setup-poetry:  ## Set up your poetry installation and ensure it's up-to-date.
-	@poetry self update -q
-.PHONY: setup-poetry
+setup-uv:  ## Set up your poetry installation and ensure it's up-to-date.
+	@curl -LsSf https://astral.sh/uv/install.sh | sh
+	@uv self update
+.PHONY: setup-uv
 
 install:  ## Install or re-install your app's dependencies.
-	@poetry install
+	@uv sync --all-extras --dev --locked
 	@$(RUN_PREFIX) pre-commit install && $(RUN_PREFIX) pre-commit install-hooks
 .PHONY: install
 
 update:  ## Update app dependencies
-	@poetry update
+	@uv sync --all-extras --dev
 	@$(RUN_PREFIX) pre-commit autoupdate
 .PHONY: update
 
@@ -40,17 +36,11 @@ ifneq ($(target), .)
 	files := --files=$(target)
 endif
 
-format:  ## Manually run code-formatters for the app.
-	@$(RUN_PREFIX) pre-commit run ruff-format $(files)
-	@$(RUN_PREFIX) pre-commit run ruff $(files)
-.PHONY: format
-
 # endregion
 # region: ci
 
 lint:  ## Run this app's linters. Target a specific file or directory with `target=path/...`.
-	@$(RUN_PREFIX) pre-commit run ruff $(files)
-	@$(RUN_PREFIX) pre-commit run mypy $(files)
+	@$(RUN_PREFIX) pre-commit run --hook-stage=manual $(files)
 .PHONY: lint
 
 test: ## Run this app's tests with a test db. Target a specific path `target=path/...`.
@@ -63,41 +53,42 @@ rule ?= patch
 
 
 release-version:  ## Bump the version for this package.
-	$(eval current_version := $(shell poetry version -s))
-	$(eval new_version := $(shell poetry version -s $(rule)))
-	$(eval message := "Release $(current_version) -> $(new_version)")
-	git add pyproject.toml
-	git commit -m $(message)
-	git tag -a v$(new_version) -m $(message)
+	$(eval message := "Release $(next_version)")
+	#git tag -a $(next_version) -m $(message)
 .PHONY: release-version
 
 
+BUMP_CMD := git-cliff --bumped-version -o -
+
 report-version:  ## Show the current version of this library.
-	@$(VERSION_CMD)
+	@echo $(version)
 .PHONY: report-version
 
 docs-version:  ## Show the current version of this library as applicable for documentation.
-	@$(VERSION_CMD) | $(SED_CMD) $(DOCS_FILTER)
+	@echo $(docs_version)
 .PHONY: docs-version
 
 docs: ## Build the versioned documentation
 	@$(RUN_PREFIX) mike deploy -u --push $(version) $(alias)
 .PHONY: docs
 
-VERSION_CMD ?= poetry version -s
+VERSION_CMD ?= hatchling version
 SED_CMD ?= sed -En
+CI_FILTER ?= 's/^([[:digit:]]+.[[:digit:]]+.[[:digit:]]+).*$$/v\1/p'
 DOCS_FILTER ?= 's/^([[:digit:]]+.[[:digit:]]+).*$$/v\1/p'
-version ?= $(shell $(VERSION_CMD) | $(SED_CMD) $(DOCS_FILTER))
+version ?= $(shell $(RUN_PREFIX) $(VERSION_CMD) | $(SED_CMD) $(CI_FILTER))
+docs_version ?= $(shell $(RUN_PREFIX) $(VERSION_CMD) | $(SED_CMD) $(DOCS_FILTER))
+next_version ?= $(shell $(RUN_PREFIX) $(BUMP_CMD))
 alias ?= latest
 
 changelog:  ## Compile the latest changelog for the current branch.
-	@$(RUN_PREFIX) git-changelog
+	@$(RUN_PREFIX) git-cliff --bump
 	@git add docs/changelog.md
-	@git commit -m "[skip ci] Update changelog." --allow-empty
+	@git commit -m "[git-cliff] Update changelog." --allow-empty
 .PHONY: changelog
 
 release-notes:  ## Compile release notes for VCS
-	@$(RUN_PREFIX) git-changelog --release-notes
+	@$(RUN_PREFIX) git-cliff --bump --unreleased -o release-notes.md
 .PHONY: release-notes
 
 # endregion

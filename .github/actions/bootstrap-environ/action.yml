@@ -7,6 +7,10 @@ inputs:
   runner:
     description: The Runner to build your environment on.
 
+env:
+  # Configure a relative location for the uv cache
+  UV_CACHE_DIR: ~/.cache/uv
+
 runs:
   using: composite
   steps:
@@ -15,17 +19,12 @@ runs:
       git config user.email github-actions@github.com
       git config pull.ff true
     shell: bash
-  - uses: actions/setup-python@v5
+  - uses: astral-sh/setup-uv@v5
     with:
       python-version: ${{ inputs.python-version }}
-  - uses: Gr1N/setup-poetry@v8
   - uses: actions/cache@v4
     with:
       path: ~/.cache/
-      key: ${{ inputs.runner }}|${{ inputs.python-version }}|${{ hashFiles('poetry.lock') }}|${{ hashFiles('.pre-commit-config.yaml') }}
-  - run: poetry --version
-    shell: bash
+      key: ${{ inputs.runner }}|${{ inputs.python-version }}|${{ hashFiles('uv.lock') }}|${{ hashFiles('.pre-commit-config.yaml') }}
   - run: make install
-    shell: bash
-  - run: poetry env info
     shell: bash

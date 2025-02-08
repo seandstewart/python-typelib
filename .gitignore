@@ -113,3 +113,4 @@ venv.bak/
 /benchmark/.cases.json
 *.DS_Store
 coverage.db
+release-notes.md

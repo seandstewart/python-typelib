@@ -84,7 +84,7 @@ def slotted(  # noqa: C901
                 f"You are using Python {sys.version}. "
                 "Python 3.10 introduced native support for slotted dataclasses. "
                 "This is the preferred method for adding slots.",
-                stacklevel=2,
+                stacklevel=3,
             )
 
         cls_dict = {**cls.__dict__}
