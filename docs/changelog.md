@@ -5,16 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.1][0.1.1] - 2025-02-08
-
-### <!-- 10 -->💼 Other
-- Fix tag fetching by @seandstewart
-
-
-## [0.1.0][0.1.0] - 2025-02-08
+## [0.1.10][0.1.10] - 2025-02-08
 
 ### <!-- 10 -->💼 Other
 - Turn on auto-tagging by @seandstewart
+- Fix tag fetching by @seandstewart
+- Cleanup bad tags by @seandstewart
 
 ### <!-- 7 -->⚙️ Miscellaneous Tasks
 - Update CI/CD toolchain for uv and git-cliff by @seandstewart
@@ -210,8 +206,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * @invalid-email-address made their first contribution
 * @seandstewart made their first contribution
 
-[0.1.1]: https://github.com/seandstewart/python-typelib/compare/0.1.0..0.1.1
-[0.1.0]: https://github.com/seandstewart/python-typelib/compare/v0.1.9..0.1.0
+[0.1.10]: https://github.com/seandstewart/python-typelib/compare/v0.1.9..v0.1.10
 [0.1.9]: https://github.com/seandstewart/python-typelib/compare/v0.1.8..v0.1.9
 [0.1.8]: https://github.com/seandstewart/python-typelib/compare/v0.1.7..v0.1.8
 [0.1.7]: https://github.com/seandstewart/python-typelib/compare/v0.1.6..v0.1.7
