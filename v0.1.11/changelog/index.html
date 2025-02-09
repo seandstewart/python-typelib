@@ -1,0 +1,1881 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Simple, non-invasive toolkit for (un)marshalling and (de)serialization with Python type annotations.">
+      
+      
+      
+        <link rel="canonical" href="https://pages.github.io/python-typelib/v0.1.11/changelog/">
+      
+      
+        <link rel="prev" href="../reference/typelib/unmarshals/">
+      
+      
+        <link rel="next" href="../conduct/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.3">
+    
+    
+      
+        <title>Changelog - typelib</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.d7758b05.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono:300,300i,400,400i,700,700i%7CFira+Code:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"IBM Plex Mono";--md-code-font:"Fira Code"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../css/typelib.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+      
+        <meta  property="og:type"  content="website" >
+      
+        <meta  property="og:title"  content="Changelog - typelib" >
+      
+        <meta  property="og:description"  content="Simple, non-invasive toolkit for (un)marshalling and (de)serialization with Python type annotations." >
+      
+        <meta  property="og:image"  content="https://pages.github.io/python-typelib/v0.1.11/assets/images/social/changelog.png" >
+      
+        <meta  property="og:image:type"  content="image/png" >
+      
+        <meta  property="og:image:width"  content="1200" >
+      
+        <meta  property="og:image:height"  content="630" >
+      
+        <meta  property="og:url"  content="https://pages.github.io/python-typelib/v0.1.11/changelog/" >
+      
+        <meta  name="twitter:card"  content="summary_large_image" >
+      
+        <meta  name="twitter:title"  content="Changelog - typelib" >
+      
+        <meta  name="twitter:description"  content="Simple, non-invasive toolkit for (un)marshalling and (de)serialization with Python type annotations." >
+      
+        <meta  name="twitter:image"  content="https://pages.github.io/python-typelib/v0.1.11/assets/images/social/changelog.png" >
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../..">
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL(".."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="typelib" class="md-header__button md-logo" aria-label="typelib" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            typelib
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="black"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="white"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/seandstewart/python-typelib" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    seandstewart/python-typelib
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+    
+  
+  Welcome to typelib
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../graph/" class="md-tabs__link">
+        
+  
+    
+  
+  Your Annotation is a Graph
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../reference/typelib/" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../conduct/" class="md-tabs__link">
+        
+  
+    
+  
+  Contributor Covenant Code of Conduct
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="typelib" class="md-nav__button md-logo" aria-label="typelib" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    typelib
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/seandstewart/python-typelib" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    seandstewart/python-typelib
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Welcome to typelib
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../graph/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Your Annotation is a Graph
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Typelib
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Typelib
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Index
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/binding/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Binding
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/codecs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Codecs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/constants/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Constants
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/ctx/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ctx
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/graph/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Graph
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/serdes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Serdes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1_8" id="__nav_3_1_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Marshals
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_8">
+            <span class="md-nav__icon md-icon"></span>
+            Marshals
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/marshals/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Index
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1_9" id="__nav_3_1_9_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Py
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_9">
+            <span class="md-nav__icon md-icon"></span>
+            Py
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/py/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Index
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/py/classes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Classes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/py/compat/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Compat
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/py/contrib/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contrib
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/py/frames/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Frames
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/py/future/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Future
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/py/inspection/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Inspection
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/py/refs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Refs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1_10" id="__nav_3_1_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Unmarshals
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_10">
+            <span class="md-nav__icon md-icon"></span>
+            Unmarshals
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/typelib/unmarshals/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Index
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0112-2025-02-09" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.1.12 - 2025-02-09
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1.12 - 2025-02-09">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other" class="md-nav__link">
+    <span class="md-ellipsis">
+      💼 Other
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0111-2025-02-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.1.11 - 2025-02-08
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1.11 - 2025-02-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      💼 Other
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#0110-2025-02-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.1.10 - 2025-02-08
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1.10 - 2025-02-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      💼 Other
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#miscellaneous-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚙️ Miscellaneous Tasks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#019-2024-10-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.1.9 - 2024-10-30
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1.9 - 2024-10-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Bug Fixes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#018-2024-10-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.1.8 - 2024-10-30
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1.8 - 2024-10-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Bug Fixes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#017-2024-10-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.1.7 - 2024-10-30
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1.7 - 2024-10-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Bug Fixes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#016-2024-10-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.1.6 - 2024-10-30
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1.6 - 2024-10-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Bug Fixes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#miscellaneous-tasks_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚙️ Miscellaneous Tasks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#015-2024-10-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.1.5 - 2024-10-30
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1.5 - 2024-10-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Bug Fixes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#014-2024-10-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.1.4 - 2024-10-26
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1.4 - 2024-10-26">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Bug Fixes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#012-2024-10-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.1.2 - 2024-10-16
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1.2 - 2024-10-16">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Bug Fixes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#miscellaneous-tasks_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚙️ Miscellaneous Tasks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#011-2024-10-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.1.1 - 2024-10-16
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1.1 - 2024-10-16">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Features
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Bug Fixes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      💼 Other
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Documentation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#010-2024-09-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.1.0 - 2024-09-05
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1.0 - 2024-09-05">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Features
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Bug Fixes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      💼 Other
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Documentation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#miscellaneous-tasks_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚙️ Miscellaneous Tasks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../conduct/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributor Covenant Code of Conduct
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Anchor link to this section for reference">&para;</a></h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,
+and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<h2 id="0112-2025-02-09"><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.11..v0.1.12">0.1.12</a> - 2025-02-09<a class="headerlink" href="#0112-2025-02-09" title="Anchor link to this section for reference">&para;</a></h2>
+<h3 id="other"><!-- 10 -->💼 Other<a class="headerlink" href="#other" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Fix signing and release creation</li>
+</ul>
+<h2 id="0111-2025-02-08"><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.10..v0.1.11">0.1.11</a> - 2025-02-08<a class="headerlink" href="#0111-2025-02-08" title="Anchor link to this section for reference">&para;</a></h2>
+<h3 id="other_1"><!-- 10 -->💼 Other<a class="headerlink" href="#other_1" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Fix publication</li>
+</ul>
+<h2 id="0110-2025-02-08"><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.9..v0.1.10">0.1.10</a> - 2025-02-08<a class="headerlink" href="#0110-2025-02-08" title="Anchor link to this section for reference">&para;</a></h2>
+<h3 id="other_2"><!-- 10 -->💼 Other<a class="headerlink" href="#other_2" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Turn on auto-tagging</li>
+<li>Fix tag fetching</li>
+<li>Cleanup bad tags</li>
+</ul>
+<h3 id="miscellaneous-tasks"><!-- 7 -->⚙️ Miscellaneous Tasks<a class="headerlink" href="#miscellaneous-tasks" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Update CI/CD toolchain for uv and git-cliff</li>
+<li>Re-work env checkout for uv in CI</li>
+<li>Skip CI on changelog update</li>
+</ul>
+<h2 id="019-2024-10-30"><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.8..v0.1.9">0.1.9</a> - 2024-10-30<a class="headerlink" href="#019-2024-10-30" title="Anchor link to this section for reference">&para;</a></h2>
+<h3 id="bug-fixes"><!-- 1 -->🐛 Bug Fixes<a class="headerlink" href="#bug-fixes" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Track "unwrapped" types during routine resolution</li>
+</ul>
+<h2 id="018-2024-10-30"><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.7..v0.1.8">0.1.8</a> - 2024-10-30<a class="headerlink" href="#018-2024-10-30" title="Anchor link to this section for reference">&para;</a></h2>
+<h3 id="bug-fixes_1"><!-- 1 -->🐛 Bug Fixes<a class="headerlink" href="#bug-fixes_1" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Handle recursive and cyclic <code>TypeAliasType</code></li>
+</ul>
+<h2 id="017-2024-10-30"><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.6..v0.1.7">0.1.7</a> - 2024-10-30<a class="headerlink" href="#017-2024-10-30" title="Anchor link to this section for reference">&para;</a></h2>
+<h3 id="bug-fixes_2"><!-- 1 -->🐛 Bug Fixes<a class="headerlink" href="#bug-fixes_2" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Handle <code>TypeAliasType</code> within <code>TypeContext</code> lookups</li>
+</ul>
+<h2 id="016-2024-10-30"><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.5..v0.1.6">0.1.6</a> - 2024-10-30<a class="headerlink" href="#016-2024-10-30" title="Anchor link to this section for reference">&para;</a></h2>
+<h3 id="bug-fixes_3"><!-- 1 -->🐛 Bug Fixes<a class="headerlink" href="#bug-fixes_3" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Unwrap <code>TypeAliasType</code> for all nested types in a type graph</li>
+</ul>
+<h3 id="miscellaneous-tasks_1"><!-- 7 -->⚙️ Miscellaneous Tasks<a class="headerlink" href="#miscellaneous-tasks_1" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Tweaks to CI</li>
+</ul>
+<h2 id="015-2024-10-30"><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.4..v0.1.5">0.1.5</a> - 2024-10-30<a class="headerlink" href="#015-2024-10-30" title="Anchor link to this section for reference">&para;</a></h2>
+<h3 id="bug-fixes_4"><!-- 1 -->🐛 Bug Fixes<a class="headerlink" href="#bug-fixes_4" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Extract the real <code>__value__</code> from a <code>TypeAliasType</code> when calling <code>origin(...)</code></li>
+</ul>
+<h2 id="014-2024-10-26"><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.2..v0.1.4">0.1.4</a> - 2024-10-26<a class="headerlink" href="#014-2024-10-26" title="Anchor link to this section for reference">&para;</a></h2>
+<h3 id="bug-fixes_5"><!-- 1 -->🐛 Bug Fixes<a class="headerlink" href="#bug-fixes_5" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Correct handling optional types</li>
+<li>Remove use of <code>graphlib.TypeNode</code> in type context</li>
+</ul>
+<h2 id="012-2024-10-16"><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.1..v0.1.2">0.1.2</a> - 2024-10-16<a class="headerlink" href="#012-2024-10-16" title="Anchor link to this section for reference">&para;</a></h2>
+<h3 id="bug-fixes_6"><!-- 1 -->🐛 Bug Fixes<a class="headerlink" href="#bug-fixes_6" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Inspect types when resolving field marshallers for structured types</li>
+<li>Handle case where a resolved type reference can't match up to the original hint</li>
+</ul>
+<h3 id="miscellaneous-tasks_2"><!-- 7 -->⚙️ Miscellaneous Tasks<a class="headerlink" href="#miscellaneous-tasks_2" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Reduce build matrix and fix GH release</li>
+<li>Handle case where current commit is not the exact tag for a given release</li>
+<li>Fix pipeline duplication</li>
+</ul>
+<h2 id="011-2024-10-16"><a href="https://github.com/seandstewart/python-typelib/compare/v0.1.0..v0.1.1">0.1.1</a> - 2024-10-16<a class="headerlink" href="#011-2024-10-16" title="Anchor link to this section for reference">&para;</a></h2>
+<h3 id="features"><!-- 0 -->🚀 Features<a class="headerlink" href="#features" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Support <code>enum.Enum</code> subtypes</li>
+</ul>
+<h3 id="bug-fixes_7"><!-- 1 -->🐛 Bug Fixes<a class="headerlink" href="#bug-fixes_7" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Allow optional and union types to be marks as "stdlib"</li>
+</ul>
+<h3 id="other_3"><!-- 10 -->💼 Other<a class="headerlink" href="#other_3" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Fix dist build and allow manual trigger for publishing the latest version</li>
+<li>Fix wheel build</li>
+<li>Fix wheel build - inputs, not matrix</li>
+<li>Fix wheel build - inputs, not matrix</li>
+<li>Update publish permissions and default to tag name if github.ref is missing</li>
+<li>Fix artifact download for github release, allow failure for pypi publish</li>
+</ul>
+<h3 id="documentation"><!-- 3 -->📚 Documentation<a class="headerlink" href="#documentation" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Fix license shield</li>
+<li>Add site description</li>
+</ul>
+<h2 id="010-2024-09-05">[0.1.0][] - 2024-09-05<a class="headerlink" href="#010-2024-09-05" title="Anchor link to this section for reference">&para;</a></h2>
+<h3 id="features_1"><!-- 0 -->🚀 Features<a class="headerlink" href="#features_1" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Core utilities and graph resolver, with test coverage.</li>
+<li>Unmarshallers for initial primitive types.</li>
+<li>Initial pass of complex types for unmarshalling.</li>
+<li>Better generics interface.</li>
+<li>Defining the unmarshal API.</li>
+<li>Support for cyclic types.</li>
+<li>Support TypeAliasType</li>
+<li>Implement marshallers.</li>
+<li>Add high-level API for creating marshal/unmarshal protocols</li>
+<li>Type-enforce signature binding</li>
+<li>Codec interface</li>
+<li>Re-organize utility modules</li>
+<li>Rename some inspections and rework imports</li>
+<li>Implement the top-level API</li>
+</ul>
+<h3 id="bug-fixes_8"><!-- 1 -->🐛 Bug Fixes<a class="headerlink" href="#bug-fixes_8" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Fix passing var names to unmarshaller</li>
+<li>Tweaking root node assignment.</li>
+<li>The factory function can handle strings/forwardrefs.</li>
+<li>Enforce utc for tz-naive datetime.date during number conversion</li>
+<li>Fix type hints for marshalled values</li>
+<li>Fix type-hints for lower versions of python</li>
+<li>Use compat for future types.</li>
+<li>Reliable UTC timestamps for date objects.</li>
+<li>Use <code>datetime.timestamp</code> when converting date/time to numeric values</li>
+<li>Mypy type hinting for non py312 in compat.py</li>
+<li>Mypy type hinting for non py312 in compat.py</li>
+<li>Weakref bug with slotted Codec</li>
+<li>Update param name for type input in dateparse</li>
+<li>Treat sequences as unique from iterables in iteritems</li>
+</ul>
+<h3 id="other_4"><!-- 10 -->💼 Other<a class="headerlink" href="#other_4" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Pycharm run configurations</li>
+<li>Use run prefix when building docs and changelog</li>
+<li>GIT_COMMITTER_* env vars are ignored by git</li>
+<li>Fix git add when generating changelog</li>
+<li>Use private app instead of public bot in CI</li>
+<li>Fix env var reference</li>
+<li>Pass release app variables as inputs</li>
+<li>Only pass the secret for the release bot</li>
+<li>Hard-code the app id</li>
+<li>Extract token setup from bootstrap composite action</li>
+<li>Set the git user info in bootstrap</li>
+<li>Update dependencies</li>
+<li>Pull latest from main and gh-pages before building docs</li>
+<li>Enable fast-forward on pull</li>
+<li>Toggle fetch depth on checkout to restore changelog</li>
+<li>Don't refresh remotes</li>
+<li>Update linters and fix commit command for changelog</li>
+<li>Update linters and fix commit command for changelog</li>
+<li>Drop unnecessary inputs</li>
+<li>Fix version tagging</li>
+</ul>
+<h3 id="documentation_1"><!-- 3 -->📚 Documentation<a class="headerlink" href="#documentation_1" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Docstrings for everything!</li>
+<li>Extended docstrings for unmarshalling.</li>
+<li>Extended docstrings for the marshal API.</li>
+<li>Cleanup some bad refs</li>
+<li>Docstring coverage for ABCs</li>
+<li>Update README.md and docstrings</li>
+<li>Fix a few refs in docstrings</li>
+<li>Scaffold support for api docs.</li>
+<li>Grammar</li>
+<li>Add examples to serdes docstrings</li>
+<li>Adjust file generation script</li>
+<li>Fix some code refs</li>
+<li>Drop nav generation from docs page gen</li>
+<li>Complete first pass at documentation</li>
+<li>Prepping docs and actions for initial release</li>
+<li>Bug fixes for building docs</li>
+<li>Allow empty changes when building changelog</li>
+<li>Fix version provider configuration</li>
+<li>Re-order tip and re-work some titles</li>
+<li>Include nav footer</li>
+</ul>
+<h3 id="testing"><!-- 6 -->🧪 Testing<a class="headerlink" href="#testing" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Test coverage for unmarshallers.</li>
+<li>Tests for unmarshal API</li>
+<li>Try xfail for 3.12-only test</li>
+<li>Fix refs test helper</li>
+<li>Introduce tox for local testing of all envs and shore up multi-version support</li>
+<li>Shore up support for windows in tests</li>
+<li>Shore up support for windows in tests</li>
+<li>Add coverage for kwargs-only and args-only bindings</li>
+</ul>
+<h3 id="miscellaneous-tasks_3"><!-- 7 -->⚙️ Miscellaneous Tasks<a class="headerlink" href="#miscellaneous-tasks_3" title="Anchor link to this section for reference">&para;</a></h3>
+<ul>
+<li>Separate commands for lint.</li>
+<li>Update development status</li>
+<li>Switch to pre-commit for lint and format</li>
+<li>Set up initial pass at CI/CD</li>
+<li>Fix test matrix reference</li>
+<li>Fix matrix os ref</li>
+<li>Fix mypy args and CI job names.</li>
+<li>Fix cache key</li>
+<li>Update dependencies</li>
+<li>Lint commit messages</li>
+<li>Make lint runnable from tox</li>
+<li>Troubleshoot codecov</li>
+<li>Fix secrets inheritance</li>
+<li>Type-checker support when used as a library</li>
+<li>README.md and package name</li>
+<li>Revert project name</li>
+<li>Rename <code>format.py</code> to <code>interchange.py</code></li>
+<li>Drop displaying installed dependencies</li>
+<li>Split tag creation and release publication workflows</li>
+<li>Split changelog creation into separate workflow</li>
+<li>Set default shell for all workflows</li>
+</ul>
+<!-- generated by git-cliff -->
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../reference/typelib/unmarshals/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Index">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Index
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../conduct/" class="md-footer__link md-footer__link--next" aria-label="Next: Contributor Covenant Code of Conduct">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Contributor Covenant Code of Conduct
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["search.highlight", "search.share", "search.suggest", "navigation.instant", "navigation.instant.progress", "navigation.tabs", "navigation.top", "navigation.footer", "toc.integrate", "toc.follow", "content.code.select", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f1b6f286.min.js"></script>
+      
+        <script src="../js/open_in_new_tab.js"></script>
+      
+    
+  </body>
+</html>
