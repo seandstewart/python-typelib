@@ -25,27 +25,11 @@ jobs:
       runner: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
 
-  build-sdist:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest ]
-        python-version: [ "3.9" ]
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ./.github/actions/bootstrap-environ
-      id: bootstrap-environ
-      with:
-        python-version: ${{ matrix.python-version }}
-        runner: ${{ matrix.os }}
-
   publish-to-pypi:
     name: >-
       Publish Python 🐍 distribution 📦 to PyPI
     needs:
     - build-wheels
-    - build-sdist
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -104,8 +88,16 @@ jobs:
         merge-multiple: true
         path: dist
     - name: Sign the dists with Sigstore
-      uses: sigstore/gh-action-sigstore-python@v2.1.1
+      uses: sigstore/gh-action-sigstore-python@v3.0.0
       with:
         inputs: >-
           ./dist/*.tar.gz
           ./dist/*.whl
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        body_path: release-notes.md
+        tag_name: ${{ github.env.RELEASE_VERSION }}
+        target_commitish: ${{ github.env.TARGET_COMMITISH }}
+        make_latest: true
+        files: dist/*
