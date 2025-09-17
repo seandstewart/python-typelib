@@ -171,9 +171,9 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
 class TypeNode:
     """A "node" in a type graph."""
 
-    type: typing.Any
+    type: typing.Type | typing.ForwardRef
     """The type annotation for this node."""
-    unwrapped: typing.Any | None = None
+    unwrapped: typing.Type | typing.ForwardRef = None  # type: ignore[assignment]
     """The unwrapped type annotation for this node."""
     var: str | None = None
     """The variable or parameter name associated to the type annotation for this node."""
@@ -185,7 +185,9 @@ class TypeNode:
             self.unwrapped = self.type
 
 
-def _level(t: typing.Any) -> typing.Iterable[tuple[str | None, type]]:
+def _level(
+    t: typing.Any,
+) -> typing.Iterable[tuple[str | None, type | typing.ForwardRef]]:
     args = inspection.args(t)
     # Only pull annotations from the signature if this is a user-defined type.
     is_structured = inspection.isstructuredtype(t)

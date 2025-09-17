@@ -1,45 +1,45 @@
 repos:
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  # Ruff version.
-  rev: v0.9.4
-  hooks:
-  # Run the linter.
-  - id: ruff
-    types_or: [ python, pyi ]
-    args: [ --fix, --config=pyproject.toml ]
-    stages: [ pre-commit, manual ]
-  # Run the formatter.
-  - id: ruff-format
-    types_or: [ python, pyi ]
-    args: [ --config=pyproject.toml ]
-    stages: [ pre-commit, manual ]
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.14.1
-  hooks:
-  - id: mypy
-    args: [ --config-file=pyproject.toml ]
-    additional_dependencies:
-    - types-python-dateutil
-    - types-setuptools
-    - types-toml
-    - types-typed-ast
-    - types-orjson
-    files: "src/.*"
-    stages: [ pre-commit, manual ]
-- repo: https://github.com/compilerla/conventional-pre-commit
-  rev: v4.0.0
-  hooks:
-    - id: conventional-pre-commit
-      stages: [commit-msg]
-      args: []
-- repo: https://github.com/astral-sh/uv-pre-commit
-  # uv version.
-  rev: 0.5.26
-  hooks:
-    - id: uv-sync
-      args: ["--locked", "--all-packages"]
-      stages:
-      - pre-commit
-      - post-checkout
-      - post-merge
-      - post-rewrite
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.13.0
+    hooks:
+      # Run the linter.
+      - id: ruff-check
+        types_or: [python, pyi]
+        args: [--fix, --config=pyproject.toml]
+        stages: [pre-commit, manual]
+      # Run the formatter.
+      - id: ruff-format
+        types_or: [python, pyi]
+        args: [--config=pyproject.toml]
+        stages: [pre-commit, manual]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.1
+    hooks:
+      - id: mypy
+        args: [--config-file=pyproject.toml]
+        additional_dependencies:
+          - types-python-dateutil
+          - types-setuptools
+          - types-toml
+          - types-typed-ast
+          - types-orjson
+        files: "src/.*"
+        stages: [pre-commit, manual]
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.2.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: []
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    # uv version.
+    rev: 0.8.17
+    hooks:
+      - id: uv-sync
+        args: ["--locked", "--all-packages"]
+        stages:
+          - pre-commit
+          - post-checkout
+          - post-merge
+          - post-rewrite

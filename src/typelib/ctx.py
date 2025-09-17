@@ -16,7 +16,7 @@ KeyT = te.TypeAliasType("KeyT", "type | refs.ForwardRef")
 class TypeContext(dict[KeyT, ValueT], tp.Generic[ValueT]):
     """A key-value mapping which can map between forward references and real types."""
 
-    def get(self, key: KeyT, default: ValueT | DefaultT = None) -> ValueT | DefaultT:
+    def get(self, key: KeyT, default: ValueT | DefaultT = None) -> ValueT | DefaultT:  # type: ignore[assignment]
         with contextlib.suppress(KeyError):
             return self[key]
 

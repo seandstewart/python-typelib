@@ -24,7 +24,7 @@ __all__ = (
 )
 
 
-def extract(name: str, *, frame: types.FrameType = None) -> Any | None:
+def extract(name: str, *, frame: types.FrameType | None = None) -> Any | None:
     """Extract `name` from the stacktrace of `frame`.
 
     If `frame` is not provided, this function will use the current frame.
@@ -47,7 +47,7 @@ def extract(name: str, *, frame: types.FrameType = None) -> Any | None:
     return None
 
 
-def getcaller(frame: types.FrameType = None) -> types.FrameType:
+def getcaller(frame: types.FrameType | None = None) -> types.FrameType | None:
     """Get the caller of the current scope, excluding this library.
 
     If `frame` is not provided, this function will use the current frame.
@@ -57,8 +57,11 @@ def getcaller(frame: types.FrameType = None) -> types.FrameType:
     """
 
     frame = frame or inspect.currentframe()
-    while frame.f_back:
-        frame = frame.f_back
+    if not frame:
+        return None
+
+    while (f_back := frame.f_back) is not None:
+        frame = f_back  # type: ignore[union-attr]
         module = inspect.getmodule(frame)
         if module and module.__name__.startswith(PKG_NAME):
             continue

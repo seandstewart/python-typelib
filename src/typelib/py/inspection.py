@@ -14,6 +14,7 @@ from __future__ import annotations
 import abc
 import builtins
 import collections
+import contextlib
 import dataclasses
 import datetime
 import decimal
@@ -306,7 +307,7 @@ cached_signature = compat.cache(signature)
 
 def get_type_hints(
     obj: tp.Union[type, tp.Callable], exhaustive: bool = True
-) -> dict[str, type[tp.Any]]:
+) -> dict[str, type[tp.Any] | tp.ForwardRef]:
     """Wrapper for [`typing.get_type_hints`][].
 
     If [`typing.get_type_hints`][] raises `([NameError][], [TypeError][])`, we will
@@ -330,12 +331,14 @@ def get_type_hints(
     return hints
 
 
-def _hints_from_signature(obj: tp.Union[type, tp.Callable]) -> dict[str, type[tp.Any]]:
+def _hints_from_signature(
+    obj: tp.Union[type, tp.Callable],
+) -> dict[str, type[tp.Any] | tp.ForwardRef]:
     try:
         params: dict[str, inspect.Parameter] = {**signature(obj).parameters}
     except (TypeError, ValueError):  # pragma: no cover
         return {}
-    hints = {}
+    hints: dict[str, type[tp.Any] | tp.ForwardRef] = {}
     for name, param in params.items():
         annotation = param.annotation
         if annotation is param.empty:
@@ -552,7 +555,7 @@ def isstdlibinstance(o: tp.Any) -> compat.TypeIs[STDLibtypeT]:
 
 
 @compat.cache
-def isoptionaltype(obj: type[_OT]) -> compat.TypeIs[type[tp.Optional[_OT]]]:
+def isoptionaltype(obj: type[_OT]) -> compat.TypeGuard[tp.Optional[type[_OT]]]:
     """Test whether an annotation is [`typing.Optional`][], or can be treated as.
 
     [`typing.Optional`][] is an alias for `typing.Union[<T>, None]`, so both are
@@ -1511,11 +1514,12 @@ def unwrap(t: tp.Any) -> tp.Any:
     return t
 
 
-def _safe_issubclass(__cls: type, __class_or_tuple: type | tuple[type, ...]) -> bool:
-    try:
-        return issubclass(__cls, __class_or_tuple)
-    except TypeError:
-        return False
+def _safe_issubclass(
+    __cls: type | None, __class_or_tuple: type | tuple[type, ...]
+) -> bool:
+    with contextlib.suppress(TypeError):
+        return issubclass(__cls, __class_or_tuple)  # type: ignore[arg-type]
+    return False
 
 
 # Here we are with a manually-defined set of builtin-types.

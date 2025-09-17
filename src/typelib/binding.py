@@ -209,8 +209,8 @@ class AbstractBinding(abc.ABC, tp.Generic[P]):
         """
         self.signature = signature
         self.binding = binding
-        self.varkwd = varkwd
-        self.varpos = varpos
+        self.varkwd = varkwd or unmarshals.noop()
+        self.varpos = varpos or unmarshals.noop()
         self.startpos = startpos
 
     def __repr__(self):
@@ -219,7 +219,7 @@ class AbstractBinding(abc.ABC, tp.Generic[P]):
     @abc.abstractmethod
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         """Inspect the given `args` and `kwargs` and unmarshal them.
 
         Args:
@@ -231,7 +231,7 @@ class AbstractBinding(abc.ABC, tp.Generic[P]):
 class AnyParamKindBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize key attributes
         binding = self.binding
         varpos: unmarshals.AbstractUnmarshaller = self.varpos
@@ -254,7 +254,7 @@ class AnyParamKindBinding(AbstractBinding[P], tp.Generic[P]):
 class PosArgsKwargsBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize key attributes
         binding = self.binding
         varpos: unmarshals.AbstractUnmarshaller = self.varpos
@@ -275,7 +275,7 @@ class PosArgsKwargsBinding(AbstractBinding[P], tp.Generic[P]):
 class PosKwdKwargsBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize key attributes
         binding = self.binding
         varkwd: unmarshals.AbstractUnmarshaller = self.varkwd
@@ -289,7 +289,7 @@ class PosKwdKwargsBinding(AbstractBinding[P], tp.Generic[P]):
 class PosKwdArgsBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize key attributes
         binding = self.binding
         varpos: unmarshals.AbstractUnmarshaller = self.varpos
@@ -311,7 +311,7 @@ class PosKwdArgsBinding(AbstractBinding[P], tp.Generic[P]):
 class PosKwargsBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize key attributes
         binding = self.binding
         varkwd: unmarshals.AbstractUnmarshaller = self.varkwd
@@ -325,7 +325,7 @@ class PosKwargsBinding(AbstractBinding[P], tp.Generic[P]):
 class PosKwdBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize key attributes
         binding = self.binding
         # Unmarshal the args
@@ -338,7 +338,7 @@ class PosKwdBinding(AbstractBinding[P], tp.Generic[P]):
 class PosArgsBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize key attributes
         binding = self.binding
         varpos: unmarshals.AbstractUnmarshaller = self.varpos
@@ -357,7 +357,7 @@ class PosArgsBinding(AbstractBinding[P], tp.Generic[P]):
 class PosBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize key attributes
         binding = self.binding
         # Unmarshal the args
@@ -368,7 +368,7 @@ class PosBinding(AbstractBinding[P], tp.Generic[P]):
 class KwdArgsKwargsBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize the key attributes
         binding = self.binding
         varpos: unmarshals.AbstractUnmarshaller = self.varpos
@@ -383,7 +383,7 @@ class KwdArgsKwargsBinding(AbstractBinding[P], tp.Generic[P]):
 class KwdArgsBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize the key attributes
         binding = self.binding
         varpos: unmarshals.AbstractUnmarshaller = self.varpos
@@ -397,7 +397,7 @@ class KwdArgsBinding(AbstractBinding[P], tp.Generic[P]):
 class KwdKwargsBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         binding = self.binding
         varkwd: unmarshals.AbstractUnmarshaller = self.varkwd
         # Unmarshal the keyword arguments.
@@ -408,7 +408,7 @@ class KwdKwargsBinding(AbstractBinding[P], tp.Generic[P]):
 class KwdBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         binding = self.binding
         # Unmarshal the keyword arguments.
         umkwargs = {k: binding[k](v) if k in binding else k for k, v in kwargs.items()}
@@ -418,7 +418,7 @@ class KwdBinding(AbstractBinding[P], tp.Generic[P]):
 class ArgsKwargsBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize the key attributes
         varpos: unmarshals.AbstractUnmarshaller = self.varpos
         varkwd: unmarshals.AbstractUnmarshaller = self.varkwd
@@ -432,7 +432,7 @@ class ArgsKwargsBinding(AbstractBinding[P], tp.Generic[P]):
 class KwargsBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize the key attributes
         varkwd: unmarshals.AbstractUnmarshaller = self.varkwd
         # Unmarshal the keyword arguments.
@@ -443,7 +443,7 @@ class KwargsBinding(AbstractBinding[P], tp.Generic[P]):
 class ArgsBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize the key attributes
         varpos: unmarshals.AbstractUnmarshaller = self.varpos
         # Unmarshal the positional arguments.
@@ -454,7 +454,7 @@ class ArgsBinding(AbstractBinding[P], tp.Generic[P]):
 class PosOrKwdBinding(AbstractBinding[P], tp.Generic[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
-    ) -> tuple[P.args, P.kwargs]:
+    ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
         # Localize the key attributes
         binding = self.binding
         # Unmarshal the positional args.

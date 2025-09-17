@@ -10,7 +10,7 @@ RUN_PREFIX := uv run --
 # region: environment
 
 quickstart: setup-uv install  ## Bootstrap your local environment for development.
-.PHONY: bootstrap
+.PHONY: quickstart
 
 setup-uv:  ## Set up your poetry installation and ensure it's up-to-date.
 	@curl -LsSf https://astral.sh/uv/install.sh | sh

@@ -49,6 +49,7 @@ __all__ = (
     "FixedTupleUnmarshaller",
     "StructuredTypeUnmarshaller",
     "EnumUnmarshaller",
+    "noop",
 )
 
 
@@ -107,6 +108,10 @@ class NoOpUnmarshaller(AbstractUnmarshaller[T]):
 
     def __call__(self, val: tp.Any) -> T:
         return tp.cast(T, val)
+
+
+def noop() -> NoOpUnmarshaller:
+    return NoOpUnmarshaller(type, ctx.TypeContext())
 
 
 class NoneTypeUnmarshaller(AbstractUnmarshaller[None]):

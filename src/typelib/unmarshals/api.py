@@ -61,12 +61,12 @@ def _get_unmarshaller(  # type: ignore[return]
         return context[node.type]
 
     for check, unmarshaller_cls in _HANDLERS.items():
-        if check(node.unwrapped):
-            return unmarshaller_cls(node.unwrapped, context=context, var=node.var)
+        if check(node.unwrapped):  # type: ignore[arg-type]
+            typ = tp.cast("type[T]", node.unwrapped)
+            return unmarshaller_cls(typ, context=context, var=node.var)
 
-    return routines.StructuredTypeUnmarshaller(
-        node.unwrapped, context=context, var=node.var
-    )
+    typ = tp.cast("type[T]", node.unwrapped)
+    return routines.StructuredTypeUnmarshaller(typ, context=context, var=node.var)
 
 
 class DelayedUnmarshaller(routines.AbstractUnmarshaller[T]):

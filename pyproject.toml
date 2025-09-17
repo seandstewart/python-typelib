@@ -34,9 +34,8 @@ dependencies = [
     "importlib_metadata >=7.1.0,<8; python_version < '3.10'",
 ]
 [project.optional-dependencies]
-json = [
-    "orjson ~= 3.4",
-]
+json = ["orjson ~= 3.4"]
+
 [project.urls]
 Repository = "https://github.com/seandstewart/typelib"
 Homepage = "https://seandstewart.github.io/python-typelib/latest/"
@@ -48,9 +47,9 @@ dev = [
     { include-group = "lint" },
     { include-group = "test" },
     "orjson ~= 3.4",
-    "tox",
     "hatch-vcs",
     "git-cliff>=2.8.0",
+    "ipykernel>=6.29.5",
 ]
 docs = [
     "mkdocs-material[imaging]",
@@ -63,14 +62,8 @@ docs = [
     "mkdocs-literate-nav",
     "mkdocs-open-in-new-tab",
 ]
-lint = [
-    "pre-commit",
-]
-test = [
-    "pytest",
-    "pytest-cov",
-    "pytest-parametrize-suite",
-]
+lint = ["pre-commit", "pre-commit-uv"]
+test = ["pytest", "pytest-cov", "pytest-parametrize-suite"]
 
 [tool.hatch.version]
 source = "vcs"
@@ -81,14 +74,10 @@ version_scheme = "no-guess-dev"
 [tool.coverage.run]
 branch = true
 data_file = "coverage.db"
-include = [
-    "src/**/*",
-]
+include = ["src/**/*"]
 
 [tool.coverage.paths]
-source = [
-    "src/*",
-]
+source = ["src/*"]
 
 [tool.coverage.report]
 skip_empty = true
@@ -109,15 +98,9 @@ exclude_also = [
     "class\\s\\w+\\((typing\\.)?Protocol(\\[.*\\])?\\):",
     "@(abc\\.)?abstractmethod",
     "@(typing\\.)?overload",
-    ".*\\.\\.\\."
+    ".*\\.\\.\\.",
 ]
-omit = [
-    "dist/*",
-    "tests/*",
-    "docs/*",
-    ".venv/*",
-    "benchmark/*",
-]
+omit = ["dist/*", "tests/*", "docs/*", ".venv/*", "benchmark/*"]
 
 
 [tool.ruff.lint]
@@ -131,7 +114,7 @@ extend-select = [
     # flake8-simplify
     "SIM",
     # Future annotation
-    "FA"
+    "FA",
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -144,9 +127,7 @@ extra-standard-library = ["typing_extensions", "graphlib"]
 
 [tool.mypy]
 mypy_path = "$MYPY_CONFIG_FILE_DIR/src/"
-no_namespace_packages = true
 python_version = "3.12"
 ignore_missing_imports = true
-no_strict_optional = true
 follow_imports = "silent"
 exclude = ".*tests/.*|.*docs/.*"
