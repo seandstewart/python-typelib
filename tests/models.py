@@ -55,6 +55,16 @@ class TDict(typing.TypedDict):
     value: int
 
 
+IntVar = typing.TypeVar("IntVar", bound=int)
+StrVar = typing.TypeVar("StrVar", bound=str)
+
+
+@dataclasses.dataclass
+class DataGeneric(typing.Generic[StrVar, IntVar]):
+    field: StrVar
+    value: IntVar
+
+
 class GivenEnum(enum.Enum):
     one = "one"
 
@@ -104,3 +114,16 @@ ScalarValue = compat.TypeAliasType("ScalarValue", "int | float | str | bool | No
 Record = compat.TypeAliasType(
     "Record", "dict[str, list[Record] | list[ScalarValue] | Record | ScalarValue]"
 )
+
+
+TVar = typing.TypeVar("TVar", bound=int)
+
+
+@dataclasses.dataclass
+class SimpleGeneric(typing.Generic[TVar]):
+    field: TVar
+
+
+@dataclasses.dataclass
+class NestedGeneric(typing.Generic[TVar]):
+    gen: SimpleGeneric[TVar]

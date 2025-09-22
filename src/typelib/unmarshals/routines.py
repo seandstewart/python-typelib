@@ -933,7 +933,9 @@ class FixedTupleUnmarshaller(AbstractUnmarshaller[compat.TupleT]):
         decoded = serdes.load(val)
         return self.origin(
             routine(v)
-            for routine, v in zip(self.ordered_routines, serdes.itervalues(decoded))
+            for routine, v in zip(
+                self.ordered_routines, serdes.itervalues(decoded), strict=False
+            )
         )
 
 

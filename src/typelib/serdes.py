@@ -378,7 +378,7 @@ def get_items_iter(tp: type) -> t.Callable[[t.Any], t.Iterable[tuple[t.Any, t.An
 
 
 def _namedtupleitems(val: t.NamedTuple) -> t.Iterable[tuple[str, t.Any]]:
-    return zip(val._fields, val)
+    return zip(val._fields, val, strict=False)
 
 
 def _make_fields_iterator(

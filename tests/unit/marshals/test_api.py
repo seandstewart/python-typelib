@@ -165,6 +165,21 @@ from tests import models
         given_input={"cycle": {"cycle": {"cycle": 1}}},
         expected_output={"cycle": {"cycle": {"cycle": 1}}},
     ),
+    subscripted_generic=dict(
+        given_type=models.DataGeneric[str, int],
+        given_input=models.DataGeneric(field="data", value=1),
+        expected_output={"field": "data", "value": 1},
+    ),
+    unsubscripted_generic=dict(
+        given_type=models.DataGeneric,
+        given_input=models.DataGeneric(field="data", value=1),
+        expected_output={"field": "data", "value": 1},
+    ),
+    nested_generic=dict(
+        given_type=models.NestedGeneric[int],
+        given_input=models.NestedGeneric(gen=models.SimpleGeneric(field=1)),
+        expected_output={"gen": {"field": 1}},
+    ),
 )
 def test_marshal(given_type, given_input, expected_output):
     # When

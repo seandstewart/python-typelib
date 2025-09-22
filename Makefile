@@ -47,7 +47,7 @@ test: ## Run this app's tests with a test db. Target a specific path `target=pat
 	$(RUN_PREFIX) pytest $(target) $(TEST_ARGS)
 .PHONY: test
 
-TEST_ARGS ?= --cov --cov-config=.coveragerc --cov-report=xml --cov-report=term --junit-xml=junit.xml
+TEST_ARGS ?=
 
 rule ?= patch
 ref ?= main

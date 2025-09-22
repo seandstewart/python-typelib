@@ -434,7 +434,9 @@ class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
         """
         return [
             routine(v)
-            for routine, v in zip(self.ordered_routines, serdes.itervalues(val))
+            for routine, v in zip(
+                self.ordered_routines, serdes.itervalues(val), strict=False
+            )
         ]
 
 

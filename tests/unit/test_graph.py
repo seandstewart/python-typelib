@@ -3,6 +3,7 @@ from __future__ import annotations
 import dataclasses
 import sys
 import typing
+from unittest import mock
 
 import pytest
 
@@ -10,7 +11,6 @@ from typelib import graph
 from typelib.py import refs
 
 from tests import models
-from tests.models import NestedTypeAliasType
 
 
 @dataclasses.dataclass
@@ -95,7 +95,23 @@ class NoTypes:
         expected_nodes=[
             graph.TypeNode(type=int),
             graph.TypeNode(type=models.ListAlias, unwrapped=list[int], var="alias"),
-            graph.TypeNode(type=NestedTypeAliasType),
+            graph.TypeNode(type=models.NestedTypeAliasType),
+        ],
+    ),
+    nested_generic=dict(
+        given_type=models.NestedGeneric[int],
+        expected_nodes=[
+            graph.TypeNode(type=int),
+            graph.TypeNode(
+                type=mock.ANY,  # The bound typevar, which is hard to replicate
+                unwrapped=int,
+                var="field",
+            ),
+            graph.TypeNode(
+                type=models.SimpleGeneric[mock.ANY],
+                var="gen",
+            ),
+            graph.TypeNode(type=models.NestedGeneric[int]),
         ],
     ),
 )

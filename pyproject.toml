@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "A toolkit for marshalling, unmarshalling, and runtime validation leveraging type annotations."
 authors = [{ name = "Sean Stewart", email = "sean.stewart@hey.com" }]
 readme = "README.md"
-requires-python = "~=3.9"
+requires-python = ">=3.10,<4.0"
 keywords = ["typing", "data", "annotations", "validation", "serdes"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -17,10 +17,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Utilities",

@@ -114,3 +114,4 @@ venv.bak/
 *.DS_Store
 coverage.db
 release-notes.md
+.zed/

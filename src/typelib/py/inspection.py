@@ -319,8 +319,13 @@ def get_type_hints(
             Whether to pull type hints from the signature of the object if
             none can be found via [`typing.get_type_hints`][]. (defaults True)
     """
+    tvar_to_type = {}
     try:
-        hints = tp.get_type_hints(obj)
+        t = obj
+        if issubscriptedgeneric(t) and not isforwardref(t):
+            t = obj.__origin__  # type: ignore[attr-defined,union-attr]
+            tvar_to_type = dict(zip(obj.__parameters__, obj.__args__, strict=False))  # type: ignore[attr-defined,union-attr]
+        hints = tp.get_type_hints(t)
     except (NameError, TypeError):
         hints = {}
     # KW_ONLY is a special sentinel to denote kw-only params in a dataclass.
@@ -328,6 +333,9 @@ def get_type_hints(
     hints = {f: t for f, t in hints.items() if t is not compat.KW_ONLY}
     if not hints and exhaustive:
         hints = _hints_from_signature(obj)
+
+    for name, annotation in hints.items():
+        hints[name] = tvar_to_type.get(annotation, annotation)
     return hints
 
 
@@ -1490,6 +1498,22 @@ def istypealiastype(t: tp.Any) -> compat.TypeIs[compat.TypeAliasType]:
 
 
 @compat.cache
+def istypevartype(t: tp.Any) -> compat.TypeIs[compat.TypeVar]:
+    """Detect if the given object is a [`typing.TypeAliasType`][].
+
+    Examples:
+        >>> type IntList = list[int]
+        >>> istypealiastype(IntList)
+        True
+        >>> IntList = compat.TypeAliasType("IntList", list[int])
+        >>> istypealiastype(IntList)
+        True
+
+    """
+    return isinstance(t, tp.TypeVar)
+
+
+@compat.cache
 def unwrap(t: tp.Any) -> tp.Any:
     lt = None
     while lt is not t:
@@ -1503,6 +1527,16 @@ def unwrap(t: tp.Any) -> tp.Any:
                 return refs.forwardref(tv, module=t.__module__)
             lt = t
             t = tv
+            continue
+
+        if istypevartype(t):
+            lt = t
+            if t.__bound__:
+                t = t.__bound__
+            elif t.__constraints__:
+                t = tp.Union[t.__constraints__]
+            else:
+                t = tp.Any
             continue
 
         if hasattr(t, "__supertype__"):

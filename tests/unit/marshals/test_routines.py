@@ -431,6 +431,10 @@ def test_fixed_tuple_marshaller(
         given_cls=models.TDict,
         given_input=models.TDict(field="data", value=1),
     ),
+    generic=dict(
+        given_cls=models.DataGeneric,
+        given_input=models.DataGeneric(field="data", value=1),
+    ),
 )
 def test_structured_type_marshaller(
     given_input, given_cls, given_context, expected_output
