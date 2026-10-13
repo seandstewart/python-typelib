@@ -241,7 +241,7 @@ def _nomalize_dt(
         if issubclass(td, datetime.date):
             return parsed.date()
     if not isinstance(parsed, td):
-        raise ValueError(f"Cannot parse {val!r} as {td.__qualname__!r}")
+        raise ValueError(f"Cannot parse {val!r} as {td.__qualname__!r}")  # noqa: TRY004
     return parsed
 
 

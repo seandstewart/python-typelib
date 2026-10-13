@@ -16,7 +16,6 @@ from __future__ import annotations
 import ast
 import collections
 import functools
-import sys
 import typing
 
 __all__ = ("transform_annotation",)
@@ -119,10 +118,7 @@ if typing.TYPE_CHECKING:  # pragma: no cover
 
     def transform_annotation(annotation: str, *, union: str = "Union") -> str: ...
 
-elif sys.version_info >= (3, 10):  # pragma: no cover
+else:  # pragma: no cover
 
     def transform_annotation(annotation: str, *, union: str = "Union") -> str:
         return annotation
-
-else:  # pragma: no cover
-    transform_annotation = transform

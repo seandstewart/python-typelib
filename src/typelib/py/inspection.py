@@ -29,11 +29,10 @@ import re
 import sqlite3
 import types
 import typing as tp
+import typing_extensions as te
 import uuid
 from collections.abc import Callable as abc_Callable
 from operator import attrgetter
-
-import typing_extensions as te
 
 from typelib import constants
 from typelib.py import compat, contrib, refs
@@ -214,7 +213,7 @@ def normalize_typevar(tvar: tp.TypeVar) -> type[tp.Any]:
     if tvar.__bound__:
         return tvar.__bound__
     elif tvar.__constraints__:
-        return tp.Union[tvar.__constraints__]  # type: ignore[return-value]
+        return tp.Union[tvar.__constraints__]  # noqa: UP007  # type: ignore[return-value]
     return tp.Any  # type: ignore[return-value]
 
 
@@ -1159,7 +1158,7 @@ class SetNameDescriptor(tp.Protocol):
     def __set_name__(self, owner: tp.Any, name: str): ...
 
 
-DescriptorT = tp.Union[
+DescriptorT = tp.Union[  # noqa: UP007
     GetDescriptor, SetDescriptor, DeleteDescriptor, SetNameDescriptor
 ]
 
@@ -1360,8 +1359,7 @@ def isgeneric(t: tp.Any) -> bool:
     """
     strobj = str(t)
     is_generic = (
-        strobj.startswith("typing.")
-        or strobj.startswith("typing_extensions.")
+        strobj.startswith(("typing.", "typing_extensions."))
         or "[" in strobj
         or _safe_issubclass(t, tp.Generic)  # type: ignore[arg-type]
     )
@@ -1540,7 +1538,7 @@ def unwrap(t: tp.Any) -> tp.Any:
             if t.__bound__:
                 t = t.__bound__
             elif t.__constraints__:
-                t = tp.Union[t.__constraints__]
+                t = tp.Union[t.__constraints__]  # noqa: UP007
             else:
                 t = tp.Any
             continue
@@ -1555,23 +1553,23 @@ def unwrap(t: tp.Any) -> tp.Any:
 
 
 def _safe_issubclass(
-    __cls: type | None, __class_or_tuple: type | tuple[type, ...]
+    cls: type | None, class_or_tuple: type | tuple[type, ...], /
 ) -> bool:
     with contextlib.suppress(TypeError):
-        return issubclass(__cls, __class_or_tuple)  # type: ignore[arg-type]
+        return issubclass(cls, class_or_tuple)  # type: ignore[arg-type]
     return False
 
 
 # Here we are with a manually-defined set of builtin-types.
 # This probably won't break anytime soon, but we shall see...
-BuiltIntypeT = tp.Union[
+BuiltIntypeT = tp.Union[  # noqa: UP007
     int, bool, float, str, bytes, bytearray, list, set, frozenset, tuple, dict, None
 ]
 BUILTIN_TYPES = frozenset(
     (type(None), *(t for t in BuiltIntypeT.__args__ if t is not None))  # type: ignore
 )
 BUILTIN_TYPES_TUPLE = tuple(BUILTIN_TYPES)
-STDLibtypeT = tp.Union[
+STDLibtypeT = tp.Union[  # noqa: UP007
     BuiltIntypeT,
     datetime.datetime,
     datetime.date,

@@ -6,7 +6,7 @@ repos:
       # Run the linter.
       - id: ruff-check
         types_or: [python, pyi]
-        args: [--fix, --unsafe-fixes --config=pyproject.toml]
+        args: [--fix, --unsafe-fixes, --config=pyproject.toml]
         stages: [pre-commit, manual]
       # Run the formatter.
       - id: ruff-format

@@ -15,10 +15,9 @@ from __future__ import annotations
 
 import functools
 import inspect
-import sys
 import typing
 
-from typelib.py import frames, future, inspection
+from typelib.py import frames, inspection
 
 __all__ = ("ForwardRef", "evaluate", "forwardref")
 
@@ -73,68 +72,37 @@ if typing.TYPE_CHECKING:
 
 
 else:
-    if sys.version_info >= (3, 10):
 
-        def evaluate(
-            ref: ForwardRef,
-            *,
-            globalns: typing.Mapping[str, typing.Any] | None = None,
-            localns: typing.Mapping[str, typing.Any] | None = None,
-            recursive_guard: set | None = None,
-        ) -> typing.Any:
-            """Evaluate the [`typing.ForwardRef`][] instance into a proper type.
+    def evaluate(
+        ref: ForwardRef,
+        *,
+        globalns: typing.Mapping[str, typing.Any] | None = None,
+        localns: typing.Mapping[str, typing.Any] | None = None,
+        recursive_guard: set | None = None,
+    ) -> typing.Any:
+        """Evaluate the [`typing.ForwardRef`][] instance into a proper type.
 
-            Note:
-                Most of the time you will not need to provide anything but `ref`.
+        Note:
+            Most of the time you will not need to provide anything but `ref`.
 
-                In Python 3.9, we will automatically transform "new-style" type hints into
-                runtime-compatible type hints:
-                  - Union-operator (`str | int` -> `typing.Union[str, int]`)
-                  - builtin generics (`dict[str, str]` -> `typing.Dict[str, str]`)
+            In Python 3.9, we will automatically transform "new-style" type hints into
+            runtime-compatible type hints:
+              - Union-operator (`str | int` -> `typing.Union[str, int]`)
+              - builtin generics (`dict[str, str]` -> `typing.Dict[str, str]`)
 
-            Args:
-                ref: The [`typing.ForwardRef`][] instance to evaluate.
-                globalns: A mapping of global variable names to values (optional).
-                localns: A mapping of local variable names to values (optional).
-                recursive_guard: A set instance to prevent recursion during evaluation (optional).
-            """
-            if type(ref) is not ForwardRef:
-                return ref
-            if ref.__forward_evaluated__:
-                return ref.__forward_value__
+        Args:
+            ref: The [`typing.ForwardRef`][] instance to evaluate.
+            globalns: A mapping of global variable names to values (optional).
+            localns: A mapping of local variable names to values (optional).
+            recursive_guard: A set instance to prevent recursion during evaluation (optional).
+        """
+        if type(ref) is not ForwardRef:
+            return ref
+        if ref.__forward_evaluated__:
+            return ref.__forward_value__
 
-            recursive_guard = recursive_guard or set()
-            return ref._evaluate(globalns, localns, recursive_guard=recursive_guard)
-
-    else:
-
-        def evaluate(
-            ref: ForwardRef,
-            *,
-            globalns: typing.Mapping[str, typing.Any] | None = None,
-            localns: typing.Mapping[str, typing.Any] | None = None,
-            recursive_guard: set | None = None,
-        ) -> typing.Any:
-            if type(ref) is not ForwardRef:
-                return ref
-            if ref.__forward_evaluated__:
-                return ref.__forward_value__
-
-            arg = future.transform_annotation(ref.__forward_arg__)
-            globalns = {
-                **globals(),
-                **(globalns or {}),
-                **vars(typing),
-                "typing": typing,
-            }
-            nref = forwardref(
-                arg,
-                is_argument=ref.__forward_is_argument__,
-                module=ref.__forward_module__,
-                is_class=ref.__forward_is_class__,
-            )
-            recursive_guard = recursive_guard or set()
-            return nref._evaluate(globalns, localns, recursive_guard)
+        recursive_guard = recursive_guard or set()
+        return ref._evaluate(globalns, localns, recursive_guard=recursive_guard)
 
 
 @functools.cache

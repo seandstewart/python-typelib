@@ -126,7 +126,7 @@ class NoHints:
 
 
 class BadHints:
-    hint: "impossible"  # noqa: F821
+    hint: impossible  # noqa: F821
 
 
 @pytest.mark.suite(
