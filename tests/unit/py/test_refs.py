@@ -30,27 +30,27 @@ class RefClass: ...
     no_module_provided=dict(
         given_ref_name="str",
         given_module_name=None,
-        expected_ref=refs.ForwardRef("str", module=mock.ANY),
+        expected_ref=refs.ForwardRef("str", module=mock.ANY, is_class=True),
     ),
     module_provided=dict(
         given_ref_name="str",
         given_module_name="builtins",
-        expected_ref=refs.ForwardRef("str", module="builtins"),
+        expected_ref=refs.ForwardRef("str", module="builtins", is_class=True),
     ),
     module_in_name=dict(
         given_ref_name="builtins.str",
         given_module_name=None,
-        expected_ref=refs.ForwardRef("str", module="builtins"),
+        expected_ref=refs.ForwardRef("str", module="builtins", is_class=True),
     ),
     module_from_frame=dict(
         given_ref_name="RefClass",
         given_module_name=None,
-        expected_ref=refs.ForwardRef("RefClass", module=__name__),
+        expected_ref=refs.ForwardRef("RefClass", module=__name__, is_class=True),
     ),
     module_from_caller=dict(
         given_ref_name="UnknownClass",
         given_module_name=None,
-        expected_ref=refs.ForwardRef("UnknownClass", module=mock.ANY),
+        expected_ref=refs.ForwardRef("UnknownClass", module=mock.ANY, is_class=True),
     ),
 )
 def test_forwardref(given_ref_name, given_module_name, expected_ref):

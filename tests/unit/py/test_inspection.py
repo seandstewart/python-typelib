@@ -136,7 +136,7 @@ class BadHints:
         given_obj=NoHints,
         given_exhaustive=True,
         expected_type_hints={
-            "foo": t.ForwardRef("str", module=__name__),
+            "foo": t.ForwardRef("str", module=__name__, is_class=True),
             "bar": t.Any,
         },
     ),

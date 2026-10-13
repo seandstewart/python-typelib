@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import functools
 import inspect
+import sys
 import typing
 
 from typelib.py import frames, inspection
@@ -60,49 +61,39 @@ def forwardref(
     )
 
 
-if typing.TYPE_CHECKING:
+def evaluate(
+    ref: ForwardRef,
+    *,
+    globalns: typing.Mapping[str, typing.Any] | None = None,
+    localns: typing.Mapping[str, typing.Any] | None = None,
+    recursive_guard: set | None = None,
+) -> typing.Any:
+    """Evaluate the [`typing.ForwardRef`][] instance into a proper type.
 
-    def evaluate(
-        ref: ForwardRef,
-        *,
-        globalns: typing.Mapping[str, typing.Any] | None = None,
-        localns: typing.Mapping[str, typing.Any] | None = None,
-        recursive_guard: set | None = None,
-    ) -> typing.Any: ...
+    Note:
+        Most of the time you will not need to provide anything but `ref`.
 
+    Args:
+        ref: The [`typing.ForwardRef`][] instance to evaluate.
+        globalns: A mapping of global variable names to values (optional).
+        localns: A mapping of local variable names to values (optional).
+        recursive_guard:
+            A set instance to prevent recursion during evaluation (optional).
+            Ignored on Python 3.14+.
+    """
+    if type(ref) is not ForwardRef:
+        return ref
+    if sys.version_info >= (3, 14):
+        return typing.evaluate_forward_ref(
+            ref,
+            globals=globalns,
+            locals=localns,
+        )
+    if ref.__forward_evaluated__:
+        return ref.__forward_value__
 
-else:
-
-    def evaluate(
-        ref: ForwardRef,
-        *,
-        globalns: typing.Mapping[str, typing.Any] | None = None,
-        localns: typing.Mapping[str, typing.Any] | None = None,
-        recursive_guard: set | None = None,
-    ) -> typing.Any:
-        """Evaluate the [`typing.ForwardRef`][] instance into a proper type.
-
-        Note:
-            Most of the time you will not need to provide anything but `ref`.
-
-            In Python 3.9, we will automatically transform "new-style" type hints into
-            runtime-compatible type hints:
-              - Union-operator (`str | int` -> `typing.Union[str, int]`)
-              - builtin generics (`dict[str, str]` -> `typing.Dict[str, str]`)
-
-        Args:
-            ref: The [`typing.ForwardRef`][] instance to evaluate.
-            globalns: A mapping of global variable names to values (optional).
-            localns: A mapping of local variable names to values (optional).
-            recursive_guard: A set instance to prevent recursion during evaluation (optional).
-        """
-        if type(ref) is not ForwardRef:
-            return ref
-        if ref.__forward_evaluated__:
-            return ref.__forward_value__
-
-        recursive_guard = recursive_guard or set()
-        return ref._evaluate(globalns, localns, recursive_guard=recursive_guard)
+    recursive_guard = recursive_guard or set()
+    return ref._evaluate(globalns, localns, recursive_guard=recursive_guard)  # ty: ignore[invalid-argument-type]
 
 
 @functools.cache
