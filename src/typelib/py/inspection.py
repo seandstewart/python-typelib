@@ -33,6 +33,8 @@ import uuid
 from collections.abc import Callable as abc_Callable
 from operator import attrgetter
 
+import typing_extensions as te
+
 from typelib import constants
 from typelib.py import compat, contrib, refs
 
@@ -1494,7 +1496,11 @@ def istypealiastype(t: tp.Any) -> compat.TypeIs[compat.TypeAliasType]:
         True
 
     """
-    return isinstance(t, compat.TypeAliasType)
+    return isinstance(t, _TYPE_ALIAS_TYPES)
+
+
+# typing_extensions ships its own TypeAliasType before Python 3.14.
+_TYPE_ALIAS_TYPES = (tp.TypeAliasType, te.TypeAliasType)
 
 
 @compat.cache
