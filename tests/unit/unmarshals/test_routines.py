@@ -120,33 +120,27 @@ def test_date_unmarshaller(given_input, expected_output):
 @pytest.mark.suite(
     bytes_number=dict(
         given_input=b"1",
-        expected_output=datetime.datetime(
-            1970, 1, 1, second=1, tzinfo=datetime.timezone.utc
-        ),
+        expected_output=datetime.datetime(1970, 1, 1, second=1, tzinfo=datetime.UTC),
     ),
     string_number=dict(
         given_input="1",
-        expected_output=datetime.datetime(
-            1970, 1, 1, second=1, tzinfo=datetime.timezone.utc
-        ),
+        expected_output=datetime.datetime(1970, 1, 1, second=1, tzinfo=datetime.UTC),
     ),
     number=dict(
         given_input=1,
-        expected_output=datetime.datetime(
-            1970, 1, 1, second=1, tzinfo=datetime.timezone.utc
-        ),
+        expected_output=datetime.datetime(1970, 1, 1, second=1, tzinfo=datetime.UTC),
     ),
     date_bytes=dict(
         given_input=b"1969-12-31",
-        expected_output=datetime.datetime(1969, 12, 31, tzinfo=datetime.timezone.utc),
+        expected_output=datetime.datetime(1969, 12, 31, tzinfo=datetime.UTC),
     ),
     date_string=dict(
         given_input="1969-12-31",
-        expected_output=datetime.datetime(1969, 12, 31, tzinfo=datetime.timezone.utc),
+        expected_output=datetime.datetime(1969, 12, 31, tzinfo=datetime.UTC),
     ),
     date_string_partial=dict(
         given_input="1969-12",
-        expected_output=datetime.datetime(1969, 12, 1, tzinfo=datetime.timezone.utc),
+        expected_output=datetime.datetime(1969, 12, 1, tzinfo=datetime.UTC),
     ),
     datetime=dict(
         given_input=datetime.datetime(1969, 12, 31),
@@ -154,15 +148,13 @@ def test_date_unmarshaller(given_input, expected_output):
     ),
     date=dict(
         given_input=datetime.date(1969, 12, 31),
-        expected_output=datetime.datetime(1969, 12, 31, tzinfo=datetime.timezone.utc),
+        expected_output=datetime.datetime(1969, 12, 31, tzinfo=datetime.UTC),
     ),
     time=dict(
-        given_input=datetime.time(tzinfo=datetime.timezone.utc),
+        given_input=datetime.time(tzinfo=datetime.UTC),
         expected_output=datetime.datetime.today()
-        .astimezone(tz=datetime.timezone.utc)
-        .replace(
-            hour=0, minute=0, second=0, microsecond=0, tzinfo=datetime.timezone.utc
-        ),
+        .astimezone(tz=datetime.UTC)
+        .replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=datetime.UTC),
     ),
 )
 def test_datetime_unmarshaller(given_input, expected_output):
@@ -177,35 +169,35 @@ def test_datetime_unmarshaller(given_input, expected_output):
 @pytest.mark.suite(
     bytes_number=dict(
         given_input=b"1",
-        expected_output=datetime.time(second=1, tzinfo=datetime.timezone.utc),
+        expected_output=datetime.time(second=1, tzinfo=datetime.UTC),
     ),
     string_number=dict(
         given_input="1",
-        expected_output=datetime.time(second=1, tzinfo=datetime.timezone.utc),
+        expected_output=datetime.time(second=1, tzinfo=datetime.UTC),
     ),
     number=dict(
         given_input=1,
-        expected_output=datetime.time(second=1, tzinfo=datetime.timezone.utc),
+        expected_output=datetime.time(second=1, tzinfo=datetime.UTC),
     ),
     date_bytes=dict(
         given_input=b"1969-12-31",
-        expected_output=datetime.time(tzinfo=datetime.timezone.utc),
+        expected_output=datetime.time(tzinfo=datetime.UTC),
     ),
     date_string=dict(
         given_input="1969-12-31",
-        expected_output=datetime.time(tzinfo=datetime.timezone.utc),
+        expected_output=datetime.time(tzinfo=datetime.UTC),
     ),
     date_string_partial=dict(
         given_input="1969-12",
-        expected_output=datetime.time(tzinfo=datetime.timezone.utc),
+        expected_output=datetime.time(tzinfo=datetime.UTC),
     ),
     time_string=dict(
         given_input="01:00:00+00:00",
-        expected_output=datetime.time(hour=1, tzinfo=datetime.timezone.utc),
+        expected_output=datetime.time(hour=1, tzinfo=datetime.UTC),
     ),
     datetime_string=dict(
         given_input="1969-12-31T01:00:00+00:00",
-        expected_output=datetime.time(hour=1, tzinfo=datetime.timezone.utc),
+        expected_output=datetime.time(hour=1, tzinfo=datetime.UTC),
     ),
     datetime=dict(
         given_input=datetime.datetime(1969, 12, 31, minute=1),
@@ -213,11 +205,11 @@ def test_datetime_unmarshaller(given_input, expected_output):
     ),
     date=dict(
         given_input=datetime.date(1969, 12, 31),
-        expected_output=datetime.time(tzinfo=datetime.timezone.utc),
+        expected_output=datetime.time(tzinfo=datetime.UTC),
     ),
     time=dict(
-        given_input=datetime.time(tzinfo=datetime.timezone.utc),
-        expected_output=datetime.time(tzinfo=datetime.timezone.utc),
+        given_input=datetime.time(tzinfo=datetime.UTC),
+        expected_output=datetime.time(tzinfo=datetime.UTC),
     ),
 )
 def test_time_unmarshaller(given_input, expected_output):

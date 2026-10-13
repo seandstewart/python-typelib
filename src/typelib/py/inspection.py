@@ -41,8 +41,8 @@ __all__ = (
     "args",
     "isabstract",
     "isbuiltininstance",
-    "isbuiltintype",
     "isbuiltinsubtype",
+    "isbuiltintype",
     "isbytestype",
     "isclassvartype",
     "iscollectiontype",
@@ -66,12 +66,12 @@ __all__ = (
     "issequencetype",
     "issimpleattribute",
     "isstdlibinstance",
-    "isstdlibtype",
     "isstdlibsubtype",
+    "isstdlibtype",
     "isstringtype",
     "istexttype",
-    "istimetype",
     "istimedeltatype",
+    "istimetype",
     "istupletype",
     "istypeddict",
     "istypedtuple",
@@ -81,8 +81,8 @@ __all__ = (
     "name",
     "normalize_typevar",
     "origin",
-    "should_unwrap",
     "qualname",
+    "should_unwrap",
 )
 
 
@@ -157,7 +157,7 @@ GENERIC_TYPE_MAP: dict[type, type] = {
 }
 
 
-def args(annotation: tp.Any, *, evaluate: bool = False) -> tp.Tuple[tp.Any, ...]:
+def args(annotation: tp.Any, *, evaluate: bool = False) -> tuple[tp.Any, ...]:
     """Get the args supplied to an annotation, normalizing [`typing.TypeVar`][].
 
     Note:
@@ -217,7 +217,7 @@ def normalize_typevar(tvar: tp.TypeVar) -> type[tp.Any]:
 
 
 @compat.cache
-def name(obj: tp.Union[type, refs.ForwardRef, tp.Callable]) -> str:
+def name(obj: type | refs.ForwardRef | tp.Callable) -> str:
     """Safely retrieve the name of either a standard object or a type annotation.
 
     Examples:
@@ -238,7 +238,7 @@ def name(obj: tp.Union[type, refs.ForwardRef, tp.Callable]) -> str:
 
 
 @compat.cache
-def qualname(obj: tp.Union[type, refs.ForwardRef, tp.Callable]) -> str:
+def qualname(obj: type | refs.ForwardRef | tp.Callable) -> str:
     """Safely retrieve the qualname of either a standard object or a type annotation.
 
     Examples:
@@ -306,7 +306,7 @@ cached_signature = compat.cache(signature)
 
 
 def get_type_hints(
-    obj: tp.Union[type, tp.Callable], exhaustive: bool = True
+    obj: type | tp.Callable, exhaustive: bool = True
 ) -> dict[str, type[tp.Any] | tp.ForwardRef]:
     """Wrapper for [`typing.get_type_hints`][].
 
@@ -340,7 +340,7 @@ def get_type_hints(
 
 
 def _hints_from_signature(
-    obj: tp.Union[type, tp.Callable],
+    obj: type | tp.Callable,
 ) -> dict[str, type[tp.Any] | tp.ForwardRef]:
     try:
         params: dict[str, inspect.Parameter] = {**signature(obj).parameters}
@@ -366,7 +366,7 @@ def _hints_from_signature(
 cached_type_hints = compat.cache(get_type_hints)
 
 
-def simple_attributes(t: type) -> tp.Tuple[str, ...]:
+def simple_attributes(t: type) -> tuple[str, ...]:
     """Extract all public, static data-attributes for a given type."""
     # If slots are defined, this is the best way to locate static attributes.
     if hasattr(t, "__slots__") and t.__slots__:
@@ -435,7 +435,7 @@ def tuple_signature(t: type[compat.TupleT]) -> inspect.Signature:
         return sig
     kind = inspect.Parameter.POSITIONAL_ONLY
     params = tuple(
-        inspect.Parameter(name=f"arg{str(i)}", kind=kind, annotation=at)
+        inspect.Parameter(name=f"arg{i!s}", kind=kind, annotation=at)
         for i, at in enumerate(a)
     )
     sig = inspect.Signature(parameters=params)
@@ -563,7 +563,7 @@ def isstdlibinstance(o: tp.Any) -> compat.TypeIs[STDLibtypeT]:
 
 
 @compat.cache
-def isoptionaltype(obj: type[_OT]) -> compat.TypeGuard[tp.Optional[type[_OT]]]:
+def isoptionaltype(obj: type[_OT]) -> compat.TypeGuard[type[_OT] | None]:
     """Test whether an annotation is [`typing.Optional`][], or can be treated as.
 
     [`typing.Optional`][] is an alias for `typing.Union[<T>, None]`, so both are
@@ -628,7 +628,7 @@ def isliteral(obj) -> bool:
 @compat.cache
 def isdatetype(
     obj: type,
-) -> compat.TypeIs[type[tp.Union[datetime.datetime, datetime.date]]]:
+) -> compat.TypeIs[type[datetime.datetime | datetime.date]]:
     """Test whether this annotation is a a date/datetime object.
 
     Examples:
@@ -647,7 +647,7 @@ def isdatetype(
 @compat.cache
 def isdatetimetype(
     obj: type,
-) -> compat.TypeIs[type[tp.Union[datetime.datetime, datetime.date]]]:
+) -> compat.TypeIs[type[datetime.datetime | datetime.date]]:
     """Test whether this annotation is a a date/datetime object.
 
     Examples:

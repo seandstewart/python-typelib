@@ -136,7 +136,7 @@ def test_datetime_marshaller(given_input, expected_output):
 
 @pytest.mark.suite(
     time=dict(
-        given_input=datetime.time(tzinfo=datetime.timezone.utc),
+        given_input=datetime.time(tzinfo=datetime.UTC),
         expected_output="00:00:00+00:00",
     ),
 )

@@ -185,7 +185,7 @@ class AbstractBinding(abc.ABC, tp.Generic[P]):
         hot loops.
     """
 
-    __slots__ = ("binding", "signature", "varkwd", "varpos", "startpos")
+    __slots__ = ("binding", "signature", "startpos", "varkwd", "varpos")
 
     def __init__(
         self,

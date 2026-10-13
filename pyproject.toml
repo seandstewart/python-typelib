@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "A toolkit for marshalling, unmarshalling, and runtime validation leveraging type annotations."
 authors = [{ name = "Sean Stewart", email = "sean.stewart@hey.com" }]
 readme = "README.md"
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.12,<4.0"
 keywords = ["typing", "data", "annotations", "validation", "serdes"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -28,10 +28,9 @@ classifiers = [
 ]
 dependencies = [
     "inflection ~= 0.5",
-    "more-itertools ~= 10.4",
-    "pendulum ~= 3.0",
-    "typing-extensions ~= 4.12",
-    "importlib_metadata >=7.1.0,<8; python_version < '3.10'",
+    "more-itertools ~= 11.2",
+    "pendulum ~= 3.3",
+    "typing-extensions ~= 4.16",
 ]
 [project.optional-dependencies]
 json = ["orjson ~= 3.4"]
@@ -46,10 +45,9 @@ dev = [
     { include-group = "docs" },
     { include-group = "lint" },
     { include-group = "test" },
-    "orjson ~= 3.4",
+    "orjson ~= 3.13",
     "hatch-vcs",
-    "git-cliff>=2.8.0",
-    "ipykernel>=6.29.5",
+    "git-cliff ~= 2.14",
 ]
 docs = [
     "mkdocs-material[imaging]",
@@ -120,14 +118,19 @@ extend-select = [
 [tool.ruff.lint.per-file-ignores]
 # Ignore `E402` (import violations) in all `__init__.py` files
 "__init__.py" = ["E402", "F403"]
+# C408: Unnecessary `dict()` call (rewrite as a literal)
+"tests/**" = ["C408"]
 
 [tool.ruff.lint.isort]
 known-local-folder = ["tests"]
 extra-standard-library = ["typing_extensions", "graphlib"]
 
-[tool.mypy]
-mypy_path = "$MYPY_CONFIG_FILE_DIR/src/"
-python_version = "3.12"
-ignore_missing_imports = true
-follow_imports = "silent"
-exclude = ".*tests/.*|.*docs/.*"
+
+[tool.ty.environment]
+python = ".venv/bin/python"
+
+[[tool.ty.overrides]]
+include = ["tests/**"]
+
+[tool.ty.overrides.rules]
+all = "ignore"

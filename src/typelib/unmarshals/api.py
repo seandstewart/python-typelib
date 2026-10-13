@@ -11,9 +11,9 @@ from typelib.unmarshals import routines
 T = tp.TypeVar("T")
 
 __all__ = (
+    "DelayedUnmarshaller",
     "unmarshal",
     "unmarshaller",
-    "DelayedUnmarshaller",
 )
 
 

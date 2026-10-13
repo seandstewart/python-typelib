@@ -21,29 +21,29 @@ T = tp.TypeVar("T")
 
 __all__ = (
     "AbstractMarshaller",
-    "ContextT",
     "BytesMarshaller",
-    "StringMarshaller",
-    "IntegerMarshaller",
-    "FloatMarshaller",
-    "DecimalMarshaller",
-    "FractionMarshaller",
+    "ContextT",
     "DateMarshaller",
     "DateTimeMarshaller",
-    "TimeMarshaller",
-    "TimeDeltaMarshaller",
-    "UUIDMarshaller",
-    "PathMarshaller",
-    "PatternMarshaller",
-    "MappingMarshaller",
+    "DecimalMarshaller",
+    "EnumMarshaller",
+    "FixedTupleMarshaller",
+    "FloatMarshaller",
+    "FractionMarshaller",
+    "IntegerMarshaller",
     "IterableMarshaller",
     "LiteralMarshaller",
-    "UnionMarshaller",
+    "MappingMarshaller",
+    "PathMarshaller",
+    "PatternMarshaller",
+    "StringMarshaller",
+    "StructuredTypeMarshaller",
     "SubscriptedIterableMarshaller",
     "SubscriptedMappingMarshaller",
-    "FixedTupleMarshaller",
-    "StructuredTypeMarshaller",
-    "EnumMarshaller",
+    "TimeDeltaMarshaller",
+    "TimeMarshaller",
+    "UUIDMarshaller",
+    "UnionMarshaller",
 )
 
 
@@ -71,7 +71,7 @@ class AbstractMarshaller(abc.ABC, tp.Generic[T]):
     context: ContextT
     var: str | None
 
-    __slots__ = ("t", "origin", "context", "var")
+    __slots__ = ("context", "origin", "t", "var")
 
     def __repr__(self):
         return f"<{self.__class__.__name__}(type={self.t!r}, origin={self.origin!r}, var={self.var!r})>"
@@ -262,7 +262,7 @@ class UnionMarshaller(AbstractMarshaller[UnionT], tp.Generic[UnionT]):
         - [`UnionUnmarshaller`][typelib.unmarshals.routines.UnionUnmarshaller]
     """
 
-    __slots__ = ("stack", "ordered_routines", "nullable")
+    __slots__ = ("nullable", "ordered_routines", "stack")
 
     def __init__(self, t: type[UnionT], context: ContextT, *, var: str | None = None):
         """Constructor.

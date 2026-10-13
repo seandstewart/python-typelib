@@ -48,38 +48,30 @@ from tests import models
     datetime=dict(
         given_type=datetime.datetime,
         given_input=0,
-        expected_unmarshal_output=datetime.datetime.fromtimestamp(
-            0, datetime.timezone.utc
-        ),
+        expected_unmarshal_output=datetime.datetime.fromtimestamp(0, datetime.UTC),
         expected_marshal_output=datetime.datetime.fromtimestamp(
-            0, datetime.timezone.utc
+            0, datetime.UTC
         ).isoformat(),
     ),
     date=dict(
         given_type=datetime.date,
         given_input=0,
         expected_unmarshal_output=datetime.datetime.fromtimestamp(
-            0, datetime.timezone.utc
+            0, datetime.UTC
         ).date(),
-        expected_marshal_output=datetime.datetime.fromtimestamp(
-            0, datetime.timezone.utc
-        )
+        expected_marshal_output=datetime.datetime.fromtimestamp(0, datetime.UTC)
         .date()
         .isoformat(),
     ),
     time=dict(
         given_type=datetime.time,
         given_input=0,
-        expected_unmarshal_output=datetime.datetime.fromtimestamp(
-            0, tz=datetime.timezone.utc
-        )
+        expected_unmarshal_output=datetime.datetime.fromtimestamp(0, tz=datetime.UTC)
         .time()
-        .replace(tzinfo=datetime.timezone.utc),
-        expected_marshal_output=datetime.datetime.fromtimestamp(
-            0, tz=datetime.timezone.utc
-        )
+        .replace(tzinfo=datetime.UTC),
+        expected_marshal_output=datetime.datetime.fromtimestamp(0, tz=datetime.UTC)
         .time()
-        .replace(tzinfo=datetime.timezone.utc)
+        .replace(tzinfo=datetime.UTC)
         .isoformat(),
     ),
     timedelta=dict(

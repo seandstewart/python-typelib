@@ -40,15 +40,15 @@ from typelib import constants
 from typelib.py import compat, inspection
 
 __all__ = (
-    "decode",
-    "isoformat",
-    "unixtime",
     "dateparse",
+    "decode",
+    "get_items_iter",
+    "isoformat",
     "iteritems",
     "itervalues",
-    "get_items_iter",
-    "strload",
     "load",
+    "strload",
+    "unixtime",
 )
 
 
@@ -188,7 +188,7 @@ def unixtime(dt: datetime.date | datetime.time | datetime.timedelta) -> float:
             year=dt.year,
             month=dt.month,
             day=dt.day,
-            tzinfo=datetime.timezone.utc,
+            tzinfo=datetime.UTC,
         )
 
     return dt.timestamp()
@@ -250,7 +250,7 @@ def _normalize_number(*, numval: float, td: type[DateTimeT]) -> DateTimeT:
     if issubclass(td, datetime.timedelta):
         return datetime.timedelta(seconds=numval)
     # Parse a datetime from the time-since-epoch as indicated by the value.
-    dt = datetime.datetime.fromtimestamp(numval, tz=datetime.timezone.utc)
+    dt = datetime.datetime.fromtimestamp(numval, tz=datetime.UTC)
     # Return the datetime if the target type is a datetime
     if issubclass(td, datetime.datetime):
         return dt
@@ -458,7 +458,7 @@ def strload(val: str | bytes | bytearray | memoryview) -> PythonValueT:
         val: The string-like input to be decoded.
     """
     with contextlib.suppress(ValueError):
-        return compat.json.loads(val)
+        return compat.json.loads(val)  # type: ignore[arg-type]
 
     decoded = decode(val)
     with contextlib.suppress(ValueError, TypeError, SyntaxError):

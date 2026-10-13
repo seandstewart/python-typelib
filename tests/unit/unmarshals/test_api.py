@@ -45,21 +45,19 @@ from tests import models
     datetime=dict(
         given_type=datetime.datetime,
         given_input=0,
-        expected_output=datetime.datetime.fromtimestamp(0, datetime.timezone.utc),
+        expected_output=datetime.datetime.fromtimestamp(0, datetime.UTC),
     ),
     date=dict(
         given_type=datetime.date,
         given_input=0,
-        expected_output=datetime.datetime.fromtimestamp(
-            0, datetime.timezone.utc
-        ).date(),
+        expected_output=datetime.datetime.fromtimestamp(0, datetime.UTC).date(),
     ),
     time=dict(
         given_type=datetime.time,
         given_input=0,
-        expected_output=datetime.datetime.fromtimestamp(0, tz=datetime.timezone.utc)
+        expected_output=datetime.datetime.fromtimestamp(0, tz=datetime.UTC)
         .time()
-        .replace(tzinfo=datetime.timezone.utc),
+        .replace(tzinfo=datetime.UTC),
     ),
     timedelta=dict(
         given_type=datetime.timedelta,
@@ -146,11 +144,11 @@ from tests import models
         given_type=models.UnionSTDLib,
         given_input={"timestamp": 0},
         expected_output=models.UnionSTDLib(
-            timestamp=datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
+            timestamp=datetime.datetime.fromtimestamp(0, datetime.UTC)
         ),
     ),
     optional_none=dict(
-        given_type=typing.Optional[typing.Union[int, str]],
+        given_type=typing.Optional[int | str],
         given_input=None,
         expected_output=None,
     ),

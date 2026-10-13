@@ -23,7 +23,8 @@ from __future__ import annotations
 import dataclasses
 import sys
 import warnings
-from typing import Callable, MutableSet, TypeVar, overload
+from collections.abc import Callable, MutableSet
+from typing import TypeVar, overload
 
 from typelib import constants
 

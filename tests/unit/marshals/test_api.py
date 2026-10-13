@@ -43,32 +43,30 @@ from tests import models
         expected_output=2,
     ),
     optional_none=dict(
-        given_type=typing.Optional[typing.Union[int, str]],
+        given_type=typing.Optional[int | str],
         given_input=None,
         expected_output=None,
     ),
     datetime=dict(
         given_type=datetime.datetime,
-        given_input=datetime.datetime.fromtimestamp(0, datetime.timezone.utc),
-        expected_output=datetime.datetime.fromtimestamp(
-            0, datetime.timezone.utc
-        ).isoformat(),
+        given_input=datetime.datetime.fromtimestamp(0, datetime.UTC),
+        expected_output=datetime.datetime.fromtimestamp(0, datetime.UTC).isoformat(),
     ),
     date=dict(
         given_type=datetime.date,
-        given_input=datetime.datetime.fromtimestamp(0, datetime.timezone.utc).date(),
-        expected_output=datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
+        given_input=datetime.datetime.fromtimestamp(0, datetime.UTC).date(),
+        expected_output=datetime.datetime.fromtimestamp(0, datetime.UTC)
         .date()
         .isoformat(),
     ),
     time=dict(
         given_type=datetime.time,
-        given_input=datetime.datetime.fromtimestamp(0, tz=datetime.timezone.utc)
+        given_input=datetime.datetime.fromtimestamp(0, tz=datetime.UTC)
         .time()
-        .replace(tzinfo=datetime.timezone.utc),
-        expected_output=datetime.datetime.fromtimestamp(0, tz=datetime.timezone.utc)
+        .replace(tzinfo=datetime.UTC),
+        expected_output=datetime.datetime.fromtimestamp(0, tz=datetime.UTC)
         .time()
-        .replace(tzinfo=datetime.timezone.utc)
+        .replace(tzinfo=datetime.UTC)
         .isoformat(),
     ),
     timedelta=dict(

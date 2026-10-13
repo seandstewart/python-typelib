@@ -11,9 +11,9 @@ from typelib.py import compat, inspection, refs
 T = tp.TypeVar("T")
 
 __all__ = (
+    "DelayedMarshaller",
     "marshal",
     "marshaller",
-    "DelayedMarshaller",
 )
 
 

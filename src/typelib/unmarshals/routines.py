@@ -23,32 +23,32 @@ T = tp.TypeVar("T")
 
 __all__ = (
     "AbstractUnmarshaller",
-    "ContextT",
-    "NoOpUnmarshaller",
-    "NoneTypeUnmarshaller",
     "BytesUnmarshaller",
-    "StringUnmarshaller",
-    "NumberUnmarshaller",
-    "DecimalUnmarshaller",
-    "FractionUnmarshaller",
-    "DateUnmarshaller",
-    "DateTimeUnmarshaller",
-    "TimeUnmarshaller",
-    "TimeDeltaUnmarshaller",
-    "UUIDUnmarshaller",
-    "PathUnmarshaller",
     "CastUnmarshaller",
-    "PatternUnmarshaller",
-    "MappingUnmarshaller",
+    "ContextT",
+    "DateTimeUnmarshaller",
+    "DateUnmarshaller",
+    "DecimalUnmarshaller",
+    "EnumUnmarshaller",
+    "FixedTupleUnmarshaller",
+    "FractionUnmarshaller",
     "IterableUnmarshaller",
     "LiteralUnmarshaller",
-    "UnionUnmarshaller",
-    "SubscriptedIteratorUnmarshaller",
-    "SubscriptedIterableUnmarshaller",
-    "SubscriptedMappingUnmarshaller",
-    "FixedTupleUnmarshaller",
+    "MappingUnmarshaller",
+    "NoOpUnmarshaller",
+    "NoneTypeUnmarshaller",
+    "NumberUnmarshaller",
+    "PathUnmarshaller",
+    "PatternUnmarshaller",
+    "StringUnmarshaller",
     "StructuredTypeUnmarshaller",
-    "EnumUnmarshaller",
+    "SubscriptedIterableUnmarshaller",
+    "SubscriptedIteratorUnmarshaller",
+    "SubscriptedMappingUnmarshaller",
+    "TimeDeltaUnmarshaller",
+    "TimeUnmarshaller",
+    "UUIDUnmarshaller",
+    "UnionUnmarshaller",
     "noop",
 )
 
@@ -77,7 +77,7 @@ class AbstractUnmarshaller(abc.ABC, tp.Generic[T]):
     context: ContextT
     var: str | None
 
-    __slots__ = ("t", "origin", "context", "var")
+    __slots__ = ("context", "origin", "t", "var")
 
     def __repr__(self):
         return f"<{self.__class__.__name__}(type={self.t!r}, origin={self.origin!r}, var={self.var!r})>"
@@ -136,7 +136,6 @@ class NoneTypeUnmarshaller(AbstractUnmarshaller[None]):
         decoded = serdes.decode(val)
         if decoded is not None:
             raise ValueError(f"{val!r} is not of {types.NoneType!r}")
-        return None
 
 
 ContextT: tp.TypeAlias = "ctx.TypeContext[AbstractUnmarshaller]"
@@ -278,7 +277,7 @@ class DateUnmarshaller(AbstractUnmarshaller[DateT], tp.Generic[DateT]):
 
         # Numbers can be treated as time since epoch.
         if isinstance(val, (int, float)):
-            val = datetime.datetime.fromtimestamp(val, tz=datetime.timezone.utc)
+            val = datetime.datetime.fromtimestamp(val, tz=datetime.UTC)
         # Always decode bytes.
         decoded = serdes.decode(val)
         # Parse strings.
@@ -287,7 +286,7 @@ class DateUnmarshaller(AbstractUnmarshaller[DateT], tp.Generic[DateT]):
         )
         # Time-only construct is treated as today.
         if isinstance(date, datetime.time):
-            date = datetime.datetime.now(tz=datetime.timezone.utc).today()
+            date = datetime.datetime.now(tz=datetime.UTC).today()
         # Exact class matching - the parser returns subclasses.
         if date.__class__ is self.t:
             return date  # type: ignore[return-value]
@@ -342,7 +341,7 @@ class DateTimeUnmarshaller(
 
         # Numbers can be treated as time since epoch.
         if isinstance(val, (int, float)):
-            val = datetime.datetime.fromtimestamp(val, tz=datetime.timezone.utc)
+            val = datetime.datetime.fromtimestamp(val, tz=datetime.UTC)
         # Always decode bytes.
         decoded = serdes.decode(val)
         # Parse strings.
@@ -375,9 +374,7 @@ class DateTimeUnmarshaller(
                 fold=dt.fold,
             )
         # Implicit: we have a date object.
-        return self.t(
-            year=dt.year, month=dt.month, day=dt.day, tzinfo=datetime.timezone.utc
-        )
+        return self.t(year=dt.year, month=dt.month, day=dt.day, tzinfo=datetime.UTC)
 
 
 TimeT = tp.TypeVar("TimeT", bound=datetime.time)
@@ -424,10 +421,10 @@ class TimeUnmarshaller(AbstractUnmarshaller[TimeT], tp.Generic[TimeT]):
         decoded = serdes.decode(val)
         if isinstance(decoded, (int, float)):
             decoded = (
-                datetime.datetime.fromtimestamp(val, tz=datetime.timezone.utc)
+                datetime.datetime.fromtimestamp(val, tz=datetime.UTC)
                 .time()
                 # datetime.time() strips tzinfo...
-                .replace(tzinfo=datetime.timezone.utc)
+                .replace(tzinfo=datetime.UTC)
             )
         dt: datetime.datetime | datetime.date | datetime.time = (
             serdes.dateparse(decoded, self.t) if isinstance(decoded, str) else decoded
@@ -437,7 +434,7 @@ class TimeUnmarshaller(AbstractUnmarshaller[TimeT], tp.Generic[TimeT]):
             # datetime.time() strips tzinfo...
             dt = dt.time().replace(tzinfo=dt.tzinfo)
         elif isinstance(dt, datetime.date):
-            dt = self.t(tzinfo=datetime.timezone.utc)
+            dt = self.t(tzinfo=datetime.UTC)
 
         if dt.__class__ is self.t:
             return dt  # type: ignore[return-value]
@@ -671,7 +668,7 @@ class UnionUnmarshaller(AbstractUnmarshaller[UnionT], tp.Generic[UnionT]):
         sorted from most-strict initialization to least-strict.
     """
 
-    __slots__ = ("stack", "ordered_routines")
+    __slots__ = ("ordered_routines", "stack")
 
     def __init__(self, t: type[UnionT], context: ContextT, *, var: str | None = None):
         """Constructor.
@@ -821,7 +818,7 @@ class SubscriptedIterableUnmarshaller(
         # Always decode bytes.
         decoded = serdes.load(val)
         values = self.values
-        return self.origin((values(v) for v in serdes.itervalues(decoded)))  # type: ignore[call-arg]
+        return self.origin(values(v) for v in serdes.itervalues(decoded))  # type: ignore[call-arg]
 
 
 IteratorT = tp.TypeVar("IteratorT", bound=tp.Iterator)

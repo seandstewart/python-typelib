@@ -18,9 +18,9 @@ import types
 from typing import Any, Final
 
 __all__ = (
+    "PKG_NAME",
     "extract",
     "getcaller",
-    "PKG_NAME",
 )
 
 

@@ -11,15 +11,15 @@ __all__ = (
     "AbstractMarshaller",
     "AbstractUnmarshaller",
     "Codec",
+    "codec",
+    "compat",
     "decode",
     "encode",
     "marshal",
     "marshaller",
+    "refs",
     "unmarshal",
     "unmarshaller",
-    "compat",
-    "refs",
-    "codec",
 )
 
 

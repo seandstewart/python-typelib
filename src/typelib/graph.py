@@ -17,6 +17,7 @@ Examples: Typical Usage
 
 from __future__ import annotations
 
+import builtins
 import collections
 import dataclasses
 import graphlib
@@ -26,7 +27,7 @@ import typing
 from typelib import constants
 from typelib.py import classes, compat, inspection, refs
 
-__all__ = ("static_order", "itertypes", "get_type_graph")
+__all__ = ("get_type_graph", "itertypes", "static_order")
 
 
 @compat.cache
@@ -171,9 +172,9 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
 class TypeNode:
     """A "node" in a type graph."""
 
-    type: typing.Type | typing.ForwardRef
+    type: builtins.type | typing.ForwardRef
     """The type annotation for this node."""
-    unwrapped: typing.Type | typing.ForwardRef = None  # type: ignore[assignment]
+    unwrapped: builtins.type | typing.ForwardRef = None  # type: ignore[assignment]
     """The unwrapped type annotation for this node."""
     var: str | None = None
     """The variable or parameter name associated to the type annotation for this node."""
