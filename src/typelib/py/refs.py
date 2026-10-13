@@ -93,7 +93,12 @@ def evaluate(
         return ref.__forward_value__
 
     recursive_guard = recursive_guard or set()
-    return ref._evaluate(globalns, localns, recursive_guard=recursive_guard)  # ty: ignore[invalid-argument-type]
+    return ref._evaluate(
+        globalns,  # ty: ignore[invalid-argument-type]
+        localns,
+        type_params=(),
+        recursive_guard=recursive_guard,  # ty: ignore[invalid-argument-type]
+    )
 
 
 @functools.cache

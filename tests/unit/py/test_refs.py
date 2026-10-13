@@ -7,7 +7,7 @@ from typelib.py import refs
 
 def evaluated_ref(t: str) -> refs.ForwardRef:
     _ref = refs.ForwardRef("str")
-    _ref._evaluate(None, None, recursive_guard=frozenset())
+    refs.evaluate(_ref)
     return _ref
 
 
