@@ -12,9 +12,9 @@ type KeyT = type | refs.ForwardRef
 class TypeContext[ValueT](dict[KeyT, ValueT]):
     """A key-value mapping which can map between forward references and real types."""
 
-    def get[DefaultT](
-        self, key: KeyT, default: ValueT | DefaultT = None
-    ) -> ValueT | DefaultT:  # type: ignore[assignment]
+    def get[DefaultT](  # ty: ignore[invalid-method-override]
+        self, key: KeyT, default: ValueT | DefaultT | None = None
+    ) -> ValueT | DefaultT | None:
         with contextlib.suppress(KeyError):
             return self[key]
 

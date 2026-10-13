@@ -61,7 +61,7 @@ def getcaller(frame: types.FrameType | None = None) -> types.FrameType | None:
         return None
 
     while (f_back := frame.f_back) is not None:
-        frame = f_back  # type: ignore[union-attr]
+        frame = f_back
         module = inspect.getmodule(frame)
         if module and module.__name__.startswith(PKG_NAME):
             continue

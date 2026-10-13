@@ -213,8 +213,8 @@ def normalize_typevar(tvar: tp.TypeVar) -> type[tp.Any]:
     if tvar.__bound__:
         return tvar.__bound__
     elif tvar.__constraints__:
-        return tp.Union[tvar.__constraints__]  # noqa: UP007  # type: ignore[return-value]
-    return tp.Any  # type: ignore[return-value]
+        return tp.Union[tvar.__constraints__]  # noqa: UP007  # ty: ignore[invalid-return-type]
+    return tp.Any
 
 
 @compat.cache
@@ -257,7 +257,7 @@ def qualname(obj: type | refs.ForwardRef | tp.Callable) -> str:
     """
     strobj = str(obj)
     if isinstance(obj, refs.ForwardRef):
-        strobj = str(obj.__forward_arg__)  # type: ignore[union-attr]
+        strobj = str(obj.__forward_arg__)
     is_generic = isgeneric(strobj)
     # We got a typing thing.
     if is_generic:
@@ -286,7 +286,7 @@ def resolve_supertype(annotation: type[tp.Any] | types.FunctionType) -> tp.Any:
         <class 'int'>
     """
     while hasattr(annotation, "__supertype__"):
-        annotation = annotation.__supertype__  # type: ignore[union-attr]
+        annotation = annotation.__supertype__
     return annotation
 
 
@@ -324,8 +324,8 @@ def get_type_hints(
     try:
         t = obj
         if issubscriptedgeneric(t) and not isforwardref(t):
-            t = obj.__origin__  # type: ignore[attr-defined,union-attr]
-            tvar_to_type = dict(zip(obj.__parameters__, obj.__args__, strict=False))  # type: ignore[attr-defined,union-attr]
+            t = obj.__origin__  # ty: ignore[unresolved-attribute]
+            tvar_to_type = dict(zip(obj.__parameters__, obj.__args__, strict=False))  # ty: ignore[unresolved-attribute]
         hints = tp.get_type_hints(t)
     except (NameError, TypeError):
         hints = {}
@@ -374,7 +374,7 @@ def simple_attributes(t: type) -> tuple[str, ...]:
         return (
             *(
                 f
-                for f in t.__slots__
+                for f in t.__slots__  # ty: ignore[not-iterable]
                 if not f.startswith("_")
                 # JIC - check if this is something fancy.
                 and not isinstance(getattr(t, f, ...), _DYNAMIC_ATTRIBUTES)
@@ -591,7 +591,7 @@ def isoptionaltype[OT](obj: type[OT]) -> compat.TypeGuard[type[OT] | None]:
 
 
 @compat.cache
-def isuniontype(obj: type) -> compat.TypeIs[tp.Union]:
+def isuniontype(obj: type) -> bool:
     n = name(origin(obj))
     return n in ("Union", "UnionType")
 
@@ -800,7 +800,7 @@ def istupletype(
         True
     """
     obj = origin(obj)
-    return obj is tuple or issubclass(obj, tuple)  # type: ignore[arg-type]
+    return obj is tuple or issubclass(obj, tuple)
 
 
 @compat.cache
@@ -858,7 +858,7 @@ _COLLECTIONS = {list, set, tuple, frozenset, dict, str, bytes}
 
 @compat.cache
 def issubscriptedcollectiontype[ArgsT](
-    obj: type[tp.Generic[ArgsT]],  # type: ignore[valid-type]
+    obj: type[tp.Generic[ArgsT]],
 ) -> compat.TypeIs[type[tp.Collection[ArgsT]]]:
     """Test whether this annotation is a collection type and is subscripted.
 
@@ -1350,7 +1350,7 @@ def isgeneric(t: tp.Any) -> bool:
     is_generic = (
         strobj.startswith(("typing.", "typing_extensions."))
         or "[" in strobj
-        or _safe_issubclass(t, tp.Generic)  # type: ignore[arg-type]
+        or _safe_issubclass(t, tp.Generic)
     )
     return is_generic
 
@@ -1379,7 +1379,7 @@ def issubscriptedgeneric(t: tp.Any) -> bool:
     return is_generic and is_subscripted
 
 
-@compat.cache  # type: ignore[arg-type]
+@compat.cache
 def iscallable(t: tp.Any) -> compat.TypeIs[tp.Callable]:
     """Test whether the given type is a callable.
 
@@ -1395,7 +1395,7 @@ def iscallable(t: tp.Any) -> compat.TypeIs[tp.Callable]:
         >>> iscallable(1)
         False
     """
-    return inspect.isroutine(t) or t is tp.Callable or _safe_issubclass(t, abc_Callable)  # type: ignore[arg-type]
+    return inspect.isroutine(t) or t is tp.Callable or _safe_issubclass(t, abc_Callable)
 
 
 @compat.cache
@@ -1512,7 +1512,7 @@ def unwrap(t: tp.Any) -> tp.Any:
     while lt is not t:
         if should_unwrap(t):
             lt = t
-            t = t.__args__[0]
+            t = t.__args__[0]  # ty: ignore[unresolved-attribute]
             continue
         if istypealiastype(t):
             tv = t.__value__
@@ -1545,7 +1545,7 @@ def _safe_issubclass(
     cls: type | None, class_or_tuple: type | tuple[type, ...], /
 ) -> bool:
     with contextlib.suppress(TypeError):
-        return issubclass(cls, class_or_tuple)  # type: ignore[arg-type]
+        return issubclass(cls, class_or_tuple)  # ty: ignore[invalid-argument-type]
     return False
 
 
@@ -1555,7 +1555,7 @@ BuiltIntypeT = tp.Union[  # noqa: UP007
     int, bool, float, str, bytes, bytearray, list, set, frozenset, tuple, dict, None
 ]
 BUILTIN_TYPES = frozenset(
-    (type(None), *(t for t in BuiltIntypeT.__args__ if t is not None))  # type: ignore
+    (type(None), *(t for t in BuiltIntypeT.__args__ if t is not None))
 )
 BUILTIN_TYPES_TUPLE = tuple(BUILTIN_TYPES)
 STDLibtypeT = tp.Union[  # noqa: UP007
@@ -1574,6 +1574,6 @@ STDLibtypeT = tp.Union[  # noqa: UP007
     types.MappingProxyType,
 ]
 STDLIB_TYPES = frozenset(
-    (type(None), *(t for t in STDLibtypeT.__args__ if t is not None))  # type: ignore
+    (type(None), *(t for t in STDLibtypeT.__args__ if t is not None))
 )
 STDLIB_TYPES_TUPLE = tuple(STDLIB_TYPES)

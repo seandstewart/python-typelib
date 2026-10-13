@@ -82,7 +82,7 @@ def itertypes(
         ref = refs.forwardref(t) if isinstance(t, str) else t
         t = refs.evaluate(ref)
 
-    graph = get_type_graph(t)  # type: ignore[arg-type]
+    graph = get_type_graph(t)  # ty: ignore[invalid-argument-type]
     yield from graph.static_order()
 
 
@@ -174,7 +174,7 @@ class TypeNode:
 
     type: builtins.type | typing.ForwardRef
     """The type annotation for this node."""
-    unwrapped: builtins.type | typing.ForwardRef = None  # type: ignore[assignment]
+    unwrapped: builtins.type | typing.ForwardRef = None  # ty: ignore[invalid-assignment]
     """The unwrapped type annotation for this node."""
     var: str | None = None
     """The variable or parameter name associated to the type annotation for this node."""

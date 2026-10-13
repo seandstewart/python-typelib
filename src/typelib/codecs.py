@@ -58,8 +58,8 @@ def codec[T](
         cdc = cls(
             marshal=marshal,
             unmarshal=unmarshal,
-            encoder=lambda v: v,  # type: ignore[arg-type,return-value]
-            decoder=lambda v: v,  # type: ignore[arg-type,return-value]
+            encoder=lambda v: v,
+            decoder=lambda v: v,
         )
         return cdc
     cdc = cls(

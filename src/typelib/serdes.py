@@ -53,13 +53,13 @@ __all__ = (
 
 
 @t.overload
-def decode(  # type: ignore[overload-overlap]
+def decode(
     val: bytes | bytearray | memoryview, *, encoding: str = constants.DEFAULT_ENCODING
 ) -> str: ...
 
 
 @t.overload
-def decode[T](val: T) -> T: ...  # type: ignore[overload-overlap]
+def decode[T](val: T) -> T: ...
 
 
 def decode(val: t.Any, *, encoding: str = constants.DEFAULT_ENCODING) -> t.Any:
@@ -217,7 +217,7 @@ def dateparse[DateTimeT: (datetime.date, datetime.time, datetime.timedelta)](
     """
     try:
         # When `exact=False`, the only two possibilities are DateTime and Duration.
-        parsed: pendulum.DateTime | pendulum.Duration = pendulum.parse(val)  # type: ignore[assignment]
+        parsed: pendulum.DateTime | pendulum.Duration = pendulum.parse(val)  # ty: ignore[invalid-assignment]
         normalized = _nomalize_dt(val=val, parsed=parsed, td=t)
         return normalized
     except ValueError:
@@ -231,11 +231,11 @@ def _nomalize_dt[DateTimeT: (datetime.date, datetime.time, datetime.timedelta)](
 ) -> DateTimeT:
     if isinstance(parsed, pendulum.DateTime):
         if issubclass(td, datetime.time):
-            return parsed.time().replace(tzinfo=parsed.tzinfo)
+            return parsed.time().replace(tzinfo=parsed.tzinfo)  # ty: ignore[invalid-return-type]
         if issubclass(td, datetime.datetime):
-            return parsed
+            return parsed  # ty: ignore[invalid-return-type]
         if issubclass(td, datetime.date):
-            return parsed.date()
+            return parsed.date()  # ty: ignore[invalid-return-type]
     if not isinstance(parsed, td):
         raise ValueError(f"Cannot parse {val!r} as {td.__qualname__!r}")  # noqa: TRY004
     return parsed
@@ -246,17 +246,17 @@ def _normalize_number[DateTimeT: (datetime.date, datetime.time, datetime.timedel
 ) -> DateTimeT:
     # Assume the number value is seconds - same logic as time-since-epoch
     if issubclass(td, datetime.timedelta):
-        return datetime.timedelta(seconds=numval)
+        return datetime.timedelta(seconds=numval)  # ty: ignore[invalid-return-type]
     # Parse a datetime from the time-since-epoch as indicated by the value.
     dt = datetime.datetime.fromtimestamp(numval, tz=datetime.UTC)
     # Return the datetime if the target type is a datetime
     if issubclass(td, datetime.datetime):
-        return dt
+        return dt  # ty: ignore[invalid-return-type]
     # If the target type is a time object, just return the time.
     if issubclass(td, datetime.time):
-        return dt.time().replace(tzinfo=dt.tzinfo)
+        return dt.time().replace(tzinfo=dt.tzinfo)  # ty: ignore[invalid-return-type]
     # If the target type is a date object, just return the date.
-    return dt.date()
+    return dt.date()  # ty: ignore[invalid-return-type]
 
 
 def iteritems(val: t.Any) -> t.Iterable[tuple[t.Any, t.Any]]:
@@ -393,7 +393,7 @@ def _make_fields_iterator(
         public_attribs = [k for k in attribs if not k.startswith("_")]
     # If that didn't work, look for `__slots__`.
     if not public_attribs and hasattr(tp, "__slots__"):
-        public_attribs = [s for s in tp.__slots__ if not s.startswith("_")]
+        public_attribs = [s for s in tp.__slots__ if not s.startswith("_")]  # ty: ignore[not-iterable]
     # If we located all public attributes, create a factory function for iterating over
     #   these fields and fetching the value from an instance.
     if public_attribs:
@@ -429,7 +429,7 @@ def load[T](val: T) -> PythonValueT | T:
     Args:
         val: The value to decode.
     """
-    return strload(val) if inspection.istexttype(val.__class__) else val  # type: ignore[arg-type]
+    return strload(val) if inspection.istexttype(val.__class__) else val  # ty: ignore[invalid-argument-type]
 
 
 @compat.lru_cache(maxsize=100_000)
@@ -456,13 +456,13 @@ def strload(val: str | bytes | bytearray | memoryview) -> PythonValueT:
         val: The string-like input to be decoded.
     """
     with contextlib.suppress(ValueError):
-        return compat.json.loads(val)  # type: ignore[arg-type]
+        return compat.json.loads(val)
 
     decoded = decode(val)
     with contextlib.suppress(ValueError, TypeError, SyntaxError):
-        return ast.literal_eval(decoded)
+        return ast.literal_eval(decoded)  # ty: ignore[invalid-argument-type]
 
-    return decoded
+    return decoded  # ty: ignore[invalid-return-type]
 
 
 type PythonPrimitiveT = bool | int | float | str | None

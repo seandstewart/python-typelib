@@ -46,7 +46,7 @@ def forwardref(
         name = inspection.qualname(ref)
         module = module or getattr(ref, "__module__", None)
     else:
-        name = typing.cast(str, ref)
+        name = ref
 
     module = _resolve_module_name(ref, module)
     if module is not None:

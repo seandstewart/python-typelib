@@ -103,7 +103,7 @@ class NoOpMarshaller[T](AbstractMarshaller[T]):
         Args:
             val: The value to marshal.
         """
-        return val  # type: ignore[return-value]
+        return val  # ty: ignore[invalid-return-type]
 
 
 BytesMarshaller = NoOpMarshaller[bytes]
@@ -118,7 +118,7 @@ class CastMarshaller[T](AbstractMarshaller[T]):
         Args:
             val: The value to marshal.
         """
-        cast = tp.cast("serdes.MarshalledValueT", self.origin(val))  # type: ignore[call-arg]
+        cast = tp.cast("serdes.MarshalledValueT", self.origin(val))  # ty: ignore[too-many-positional-arguments]
         return cast
 
 
@@ -234,7 +234,7 @@ class LiteralMarshaller[LiteralT](AbstractMarshaller[LiteralT]):
             ValueError: If `val` is not a member of the bound `Literal` type.
         """
         if val in self.values:
-            return val  # type: ignore[return-value]
+            return val  # ty: ignore[invalid-return-type]
 
         raise ValueError(f"{val!r} is not one of {self.values!r}")
 
@@ -337,7 +337,7 @@ class SubscriptedMappingMarshaller[MappingT: tp.Mapping](AbstractMarshaller[Mapp
     def __call__(self, val: MappingT) -> MarshalledMappingT:
         keys = self.keys
         values = self.values
-        return {keys(k): values(v) for k, v in serdes.iteritems(val)}  # type: ignore[misc]
+        return {keys(k): values(v) for k, v in serdes.iteritems(val)}  # ty: ignore[invalid-return-type]
 
 
 class SubscriptedIterableMarshaller[IterableT: tp.Iterable](
@@ -442,7 +442,7 @@ class StructuredTypeMarshaller[ST](AbstractMarshaller[ST]):
         fields_by_var = {}
         hints = inspection.cached_type_hints(self.t)
         for name, hint in hints.items():
-            resolved = refs.evaluate(hint)
+            resolved = refs.evaluate(hint)  # ty: ignore[invalid-argument-type]
             m = self.context.get(hint) or self.context.get(resolved)
             if m is None:
                 warnings.warn(
@@ -450,7 +450,7 @@ class StructuredTypeMarshaller[ST](AbstractMarshaller[ST]):
                     f"Original ref: {hint}, Resolved ref: {resolved}. Will default to no-op.",
                     stacklevel=5,
                 )
-                fields_by_var[name] = NoOpMarshaller(hint, self.context, var=name)
+                fields_by_var[name] = NoOpMarshaller(hint, self.context, var=name)  # ty: ignore[invalid-argument-type]
                 continue
 
             fields_by_var[name] = m

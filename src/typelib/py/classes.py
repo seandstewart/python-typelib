@@ -126,4 +126,4 @@ def slotted[ClsT: type](  # noqa: C901
     return wrap if _cls is None else wrap(_cls)
 
 
-_stack: MutableSet[type] = set()
+_stack: MutableSet[str] = set()

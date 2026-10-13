@@ -212,17 +212,17 @@ class NumberUnmarshaller[NumberT: numbers.Number](AbstractUnmarshaller[NumberT])
             decoded = serdes.unixtime(val)
         # Treat containers as constructor args.
         if inspection.ismappingtype(decoded.__class__):
-            return self.t(**decoded)
+            return self.t(**decoded)  # ty: ignore[invalid-argument-type]
         if inspection.isiterabletype(decoded.__class__) and not inspection.istexttype(
             decoded.__class__
         ):
-            return self.t(*decoded)
+            return self.t(*decoded)  # ty: ignore[not-iterable]
         # Simple cast for non-containers.
-        return self.t(decoded)  # type: ignore[call-arg]
+        return self.t(decoded)  # ty: ignore[too-many-positional-arguments]
 
 
 DecimalT = tp.TypeVar("DecimalT", bound=decimal.Decimal)
-DecimalUnmarshaller = NumberUnmarshaller[DecimalT]
+DecimalUnmarshaller = NumberUnmarshaller[DecimalT]  # ty: ignore[invalid-type-arguments]
 
 FractionT = tp.TypeVar("FractionT", bound=fractions.Fraction)
 FractionUnmarshaller = NumberUnmarshaller[FractionT]
@@ -277,7 +277,7 @@ class DateUnmarshaller[DateT: datetime.date](AbstractUnmarshaller[DateT]):
             date = datetime.datetime.now(tz=datetime.UTC).today()
         # Exact class matching - the parser returns subclasses.
         if date.__class__ is self.t:
-            return date  # type: ignore[return-value]
+            return date  # ty: ignore[invalid-return-type]
         # Reconstruct as the exact type.
         return self.t(year=date.year, month=date.month, day=date.day)
 
@@ -344,7 +344,7 @@ class DateTimeUnmarshaller[DateTimeT: datetime.datetime](
             )
         # Exact class matching.
         if dt.__class__ is self.t:
-            return dt  # type: ignore[return-value]
+            return dt
         # Subclass check for datetimes.
         if isinstance(dt, datetime.datetime):
             return self.t(
@@ -419,7 +419,7 @@ class TimeUnmarshaller[TimeT: datetime.time](AbstractUnmarshaller[TimeT]):
             dt = self.t(tzinfo=datetime.UTC)
 
         if dt.__class__ is self.t:
-            return dt  # type: ignore[return-value]
+            return dt  # ty: ignore[invalid-return-type]
 
         return self.t(
             hour=dt.hour,
@@ -477,7 +477,7 @@ class TimeDeltaUnmarshaller[TimeDeltaT: datetime.timedelta](
         )
 
         if td.__class__ is self.t:
-            return td  # type: ignore[return-value]
+            return td  # ty: ignore[invalid-return-type]
 
         return self.t(seconds=td.total_seconds())
 
@@ -513,7 +513,7 @@ class UUIDUnmarshaller[UUIDT: uuid.UUID](AbstractUnmarshaller[UUIDT]):
             return self.t(int=decoded)
         if isinstance(decoded, self.t):
             return decoded
-        return self.t(decoded)  # type: ignore[arg-type]
+        return self.t(decoded)  # ty: ignore[invalid-argument-type]
 
 
 class PatternUnmarshaller[PatternT: re.Pattern](AbstractUnmarshaller[PatternT]):
@@ -530,7 +530,7 @@ class PatternUnmarshaller[PatternT: re.Pattern](AbstractUnmarshaller[PatternT]):
 
     def __call__(self, val: tp.Any) -> PatternT:
         decoded = serdes.decode(val)
-        return re.compile(decoded)  # type: ignore[return-value]
+        return re.compile(decoded)  # ty: ignore[invalid-return-type]
 
 
 class CastUnmarshaller[T](AbstractUnmarshaller[T]):
@@ -555,7 +555,7 @@ class CastUnmarshaller[T](AbstractUnmarshaller[T]):
             var: A variable name for the indicated type annotation (unused, optional).
         """
         super().__init__(t, context, var=var)
-        self.caster: tp.Callable[[tp.Any], T] = self.origin  # type: ignore[assignment]
+        self.caster: tp.Callable[[tp.Any], T] = self.origin  # ty: ignore[invalid-assignment]
 
     def __call__(self, val: tp.Any) -> T:
         """Unmarshal a value into the bound `T` type.
@@ -609,7 +609,7 @@ class LiteralUnmarshaller[LiteralT](AbstractUnmarshaller[LiteralT]):
             return val
         decoded = serdes.load(val)
         if decoded in self.values:
-            return decoded  # type: ignore[return-value]
+            return decoded  # ty: ignore[invalid-return-type]
 
         raise ValueError(f"{decoded!r} is not one of {self.values!r}")
 
@@ -724,8 +724,8 @@ class SubscriptedMappingUnmarshaller[MappingT: tp.Mapping](
         decoded = serdes.load(val)
         keys = self.keys
         values = self.values
-        return self.origin(  # type: ignore[call-arg]
-            ((keys(k), values(v)) for k, v in serdes.iteritems(decoded))
+        return self.origin(
+            ((keys(k), values(v)) for k, v in serdes.iteritems(decoded))  # ty: ignore[too-many-positional-arguments]
         )
 
 
@@ -777,7 +777,7 @@ class SubscriptedIterableUnmarshaller[IterableT: tp.Iterable](
         # Always decode bytes.
         decoded = serdes.load(val)
         values = self.values
-        return self.origin(values(v) for v in serdes.itervalues(decoded))  # type: ignore[call-arg]
+        return self.origin(values(v) for v in serdes.itervalues(decoded))  # ty: ignore[too-many-positional-arguments]
 
 
 class SubscriptedIteratorUnmarshaller[IteratorT: tp.Iterator](
@@ -827,7 +827,7 @@ class SubscriptedIteratorUnmarshaller[IteratorT: tp.Iterator](
         # Always decode bytes.
         decoded = serdes.load(val)
         values = self.values
-        it: IteratorT = (values(v) for v in serdes.itervalues(decoded))  # type: ignore[assignment]
+        it: IteratorT = (values(v) for v in serdes.itervalues(decoded))  # ty: ignore[invalid-assignment]
         return it
 
 
@@ -936,7 +936,7 @@ class StructuredTypeUnmarshaller[ST](AbstractUnmarshaller[ST]):
         fields_by_var = {}
         hints = inspection.cached_type_hints(self.t)
         for name, hint in hints.items():
-            resolved = refs.evaluate(hint)
+            resolved = refs.evaluate(hint)  # ty: ignore[invalid-argument-type]
             m = self.context.get(hint) or self.context.get(resolved)
             if m is None:
                 warnings.warn(
@@ -944,7 +944,7 @@ class StructuredTypeUnmarshaller[ST](AbstractUnmarshaller[ST]):
                     f"Original ref: {hint}, Resolved ref: {resolved}. Will default to no-op.",
                     stacklevel=6,
                 )
-                fields_by_var[name] = NoOpUnmarshaller(hint, self.context, var=name)
+                fields_by_var[name] = NoOpUnmarshaller(hint, self.context, var=name)  # ty: ignore[invalid-argument-type]
                 continue
 
             fields_by_var[name] = m

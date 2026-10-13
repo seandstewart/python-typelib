@@ -40,7 +40,7 @@ def unmarshaller[T](
     nodes = graph.static_order(t)
     context: ctx.TypeContext[routines.AbstractUnmarshaller] = ctx.TypeContext()
     if not nodes:
-        return routines.NoOpUnmarshaller(t=t, context=context, var=None)  # type: ignore[arg-type]
+        return routines.NoOpUnmarshaller(t=t, context=context, var=None)  # ty: ignore[invalid-argument-type]
 
     # "root" type will always be the final node in the sequence.
     root = nodes[-1]
@@ -51,7 +51,7 @@ def unmarshaller[T](
     return context[root.type]
 
 
-def _get_unmarshaller[T](  # type: ignore[return]
+def _get_unmarshaller[T](
     node: graph.TypeNode,
     context: routines.ContextT,
 ) -> routines.AbstractUnmarshaller[T]:
@@ -59,7 +59,7 @@ def _get_unmarshaller[T](  # type: ignore[return]
         return context[node.type]
 
     for check, unmarshaller_cls in _HANDLERS.items():
-        if check(node.unwrapped):  # type: ignore[arg-type]
+        if check(node.unwrapped):  # ty: ignore[invalid-argument-type]
             typ = tp.cast("type[T]", node.unwrapped)
             return unmarshaller_cls(typ, context=context, var=node.var)
 
