@@ -194,6 +194,21 @@ from tests import models
         given_input=[models.Node(value=datetime.date(2020, 1, 1), children=[])],
         expected_output=[{"value": "2020-01-01", "children": []}],
     ),
+    recursive_json_alias=dict(
+        given_type=models.JSON,
+        given_input={"a": "x", "b": [1, 2.5, True, None, {"c": "y"}]},
+        expected_output={"a": "x", "b": [1, 2.5, True, None, {"c": "y"}]},
+    ),
+    union_exact_collection_type=dict(
+        given_type=dict[str, int] | list[int],
+        given_input=[1],
+        expected_output=[1],
+    ),
+    union_text_skips_collections=dict(
+        given_type=list[str] | str,
+        given_input="x",
+        expected_output="x",
+    ),
     subscripted_generic=dict(
         given_type=models.DataGeneric[str, int],
         given_input=models.DataGeneric(field="data", value=1),

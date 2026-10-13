@@ -626,18 +626,21 @@ class UnionUnmarshaller[UnionT](AbstractUnmarshaller[UnionT]):
 
         Our algorithm is intentionally simple:
 
-        1. We iterate through each union member from top to bottom and call the
-           resolved unmarshaller, returning the result.
-        2. If any of `(ValueError, TypeError, SyntaxError)`, try again with the
+        1. If the input is not text and its exact type is a union member, we call
+           that member's unmarshaller.
+        2. Otherwise, we iterate through each union member from top to bottom and call
+           the resolved unmarshaller, returning the result. Text that does not decode
+           into a container skips the collection members.
+        3. If any of `(ValueError, TypeError, SyntaxError)`, try again with the
            next unmarshaller.
-        3. If all unmarshallers fail, then we have an invalid input, raise an error.
+        4. If all unmarshallers fail, then we have an invalid input, raise an error.
 
     Tip: TL;DR
         In order to ensure correctness, you should treat your union members as a stack,
         sorted from most-strict initialization to least-strict.
     """
 
-    __slots__ = ("ordered_routines", "stack")
+    __slots__ = ("collections", "exact", "ordered_routines", "stack")
 
     def __init__(self, t: type[UnionT], context: ContextT, *, var: str | None = None):
         """Constructor.
@@ -653,6 +656,8 @@ class UnionUnmarshaller[UnionT](AbstractUnmarshaller[UnionT]):
             self.stack = (self.stack[-1], *self.stack[:-1])
 
         self.ordered_routines = [self.context[typ] for typ in self.stack]
+        self.exact = inspection.union_exact_members(self.stack)
+        self.collections = inspection.union_collection_members(self.stack)
 
     def __call__(self, val: tp.Any) -> UnionT:
         """Unmarshal a value into the bound `UnionT`.
@@ -663,7 +668,14 @@ class UnionUnmarshaller[UnionT](AbstractUnmarshaller[UnionT]):
         Raises:
             ValueError: If `val` cannot be unmarshalled into any member type.
         """
-        for routine in self.ordered_routines:
+        is_text = isinstance(val, _TEXT_TYPES)
+        if not is_text and (i := self.exact.get(type(val))) is not None:
+            return self.ordered_routines[i](val)
+
+        skip = self.collections if is_text and _is_raw_text(val) else frozenset()
+        for i, routine in enumerate(self.ordered_routines):
+            if i in skip:
+                continue
             with contextlib.suppress(
                 ValueError, TypeError, SyntaxError, AttributeError
             ):
@@ -671,6 +683,13 @@ class UnionUnmarshaller[UnionT](AbstractUnmarshaller[UnionT]):
                 return unmarshalled
 
         raise ValueError(f"{val!r} is not one of types {self.stack!r}")
+
+
+_TEXT_TYPES = (str, bytes, bytearray)
+
+
+def _is_raw_text(val: str | bytes | bytearray) -> bool:
+    return isinstance(serdes.load(val), _TEXT_TYPES)
 
 
 class SubscriptedMappingUnmarshaller[MappingT: tp.Mapping](

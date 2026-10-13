@@ -509,6 +509,24 @@ def test_literal_unmarshaller(
         },
         expected_output=datetime.date.today(),
     ),
+    exact_type_over_declared_order=dict(
+        given_input=1,
+        given_union=typing.Union[str, int],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            str: routines.StringUnmarshaller(str, {}),
+        },
+        expected_output=1,
+    ),
+    exact_float_over_int=dict(
+        given_input=2.5,
+        given_union=typing.Union[int, float],
+        given_context={
+            int: routines.NumberUnmarshaller(int, {}),
+            float: routines.NumberUnmarshaller(float, {}),
+        },
+        expected_output=2.5,
+    ),
 )
 def test_union_unmarshaller(given_input, given_union, given_context, expected_output):
     # Given

@@ -197,6 +197,31 @@ from tests import models
         given_input=[{"value": "1", "children": []}],
         expected_output=[models.Node(value=1, children=[])],
     ),
+    recursive_json_alias=dict(
+        given_type=models.JSON,
+        given_input={"a": "x", "b": [1, 2.5, True, None, {"c": "y"}]},
+        expected_output={"a": "x", "b": [1, 2.5, True, None, {"c": "y"}]},
+    ),
+    recursive_json_alias_from_text=dict(
+        given_type=models.JSON,
+        given_input='{"a": [1, "z"]}',
+        expected_output={"a": [1, "z"]},
+    ),
+    union_exact_collection_type=dict(
+        given_type=dict[str, int] | list[int],
+        given_input=[1],
+        expected_output=[1],
+    ),
+    union_raw_text_skips_collections=dict(
+        given_type=list[str] | str,
+        given_input="x",
+        expected_output="x",
+    ),
+    union_decodable_text_keeps_collections=dict(
+        given_type=list[int] | str,
+        given_input="[1]",
+        expected_output=[1],
+    ),
     subscripted_generic=dict(
         given_type=models.DataGeneric[str, int],
         given_input={"field": "data", "value": "1"},

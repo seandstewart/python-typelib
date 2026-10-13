@@ -276,6 +276,24 @@ def test_literal_marshaller(given_input, given_literal, given_context, expected_
         },
         expected_output=datetime.date.today().isoformat(),
     ),
+    exact_type_over_declared_order=dict(
+        given_input=1,
+        given_union=typing.Union[str, int],
+        given_context={
+            int: routines.IntegerMarshaller(int, {}),
+            str: routines.StringMarshaller(str, {}),
+        },
+        expected_output=1,
+    ),
+    exact_float_over_int=dict(
+        given_input=2.5,
+        given_union=typing.Union[int, float],
+        given_context={
+            int: routines.IntegerMarshaller(int, {}),
+            float: routines.FloatMarshaller(float, {}),
+        },
+        expected_output=2.5,
+    ),
 )
 def test_union_marshaller(given_input, given_union, given_context, expected_output):
     # Given

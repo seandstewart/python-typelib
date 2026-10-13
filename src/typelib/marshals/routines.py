@@ -246,7 +246,7 @@ class UnionMarshaller[UnionT](AbstractMarshaller[UnionT]):
         - [`UnionUnmarshaller`][typelib.unmarshals.routines.UnionUnmarshaller]
     """
 
-    __slots__ = ("nullable", "ordered_routines", "stack")
+    __slots__ = ("collections", "exact", "nullable", "ordered_routines", "stack")
 
     def __init__(self, t: type[UnionT], context: ContextT, *, var: str | None = None):
         """Constructor.
@@ -260,6 +260,8 @@ class UnionMarshaller[UnionT](AbstractMarshaller[UnionT]):
         self.stack = inspection.args(t, evaluate=True)
         self.nullable = inspection.isoptionaltype(t)
         self.ordered_routines = [self.context[typ] for typ in self.stack]
+        self.exact = inspection.union_exact_members(self.stack)
+        self.collections = inspection.union_collection_members(self.stack)
 
     def __call__(self, val: UnionT) -> serdes.MarshalledValueT:
         """Marshal a value into the bound `UnionT`.
@@ -273,7 +275,14 @@ class UnionMarshaller[UnionT](AbstractMarshaller[UnionT]):
         if self.nullable and val is None:
             return val
 
-        for routine in self.ordered_routines:
+        is_text = isinstance(val, (str, bytes, bytearray))
+        if not is_text and (i := self.exact.get(type(val))) is not None:
+            return self.ordered_routines[i](val)
+
+        skip = self.collections if is_text else frozenset()
+        for i, routine in enumerate(self.ordered_routines):
+            if i in skip:
+                continue
             with contextlib.suppress(
                 ValueError, TypeError, SyntaxError, AttributeError
             ):

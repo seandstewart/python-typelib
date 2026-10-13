@@ -62,6 +62,7 @@ __all__ = (
     "isliteral",
     "ismappingtype",
     "isnamedtuple",
+    "isnontextcollectiontype",
     "isoptionaltype",
     "isproperty",
     "issequencetype",
@@ -85,6 +86,8 @@ __all__ = (
     "origin",
     "qualname",
     "should_unwrap",
+    "union_collection_members",
+    "union_exact_members",
 )
 
 
@@ -327,7 +330,7 @@ def get_type_hints(
     try:
         t = obj
         if issubscriptedgeneric(t) and not isforwardref(t):
-            t = obj.__origin__  # ty: ignore[unresolved-attribute]
+            t = tp.get_origin(obj)
             tvar_to_type = dict(
                 zip(getattr(t, "__parameters__", ()), tp.get_args(obj), strict=False)
             )
@@ -1510,6 +1513,63 @@ def istypealias(t: tp.Any) -> bool:
         False
     """
     return istypealiastype(t) or istypealiastype(tp.get_origin(t))
+
+
+@functools.cache
+def isnontextcollectiontype(t: tp.Any) -> bool:
+    """Test whether the given type unwraps to a collection which is not text or bytes.
+
+    Examples:
+        >>> isnontextcollectiontype(list[int])
+        True
+        >>> isnontextcollectiontype(dict[str, int])
+        True
+        >>> isnontextcollectiontype(str)
+        False
+    """
+    u = unwrap(t)
+    return iscollectiontype(u) and not istexttype(u)
+
+
+def union_exact_members(stack: tp.Sequence[tp.Any]) -> dict[type, int]:
+    """Map the origin class of each union member to its first index in `stack`.
+
+    Examples:
+        >>> union_exact_members((list[int], str, list[str]))
+        {<class 'list'>: 0, <class 'str'>: 1}
+    """
+    exact: dict[type, int] = {}
+    for i, member in enumerate(stack):
+        resolved = _resolve_union_member(member)
+        if resolved is not None:
+            exact.setdefault(origin(resolved), i)
+    return exact
+
+
+def union_collection_members(stack: tp.Sequence[tp.Any]) -> frozenset[int]:
+    """Get the indices of union members in `stack` which are non-text collections.
+
+    Examples:
+        >>> union_collection_members((list[int], str, dict[str, int]))
+        frozenset({0, 2})
+    """
+    return frozenset(
+        i
+        for i, member in enumerate(stack)
+        if (resolved := _resolve_union_member(member)) is not None
+        and isnontextcollectiontype(resolved)
+    )
+
+
+def _resolve_union_member(member: tp.Any) -> tp.Any | None:
+    """Unwrap a union member, evaluating forward references. `None` if unresolvable."""
+    resolved = unwrap(member)
+    if isforwardref(resolved):
+        try:
+            resolved = unwrap(refs.evaluate(resolved))
+        except (NameError, TypeError, SyntaxError):
+            return None
+    return None if isforwardref(resolved) else resolved
 
 
 def _resolve_generic_alias(t: tp.Any) -> tp.Any:

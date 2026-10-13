@@ -166,3 +166,4 @@ type Tree[T] = dict[str, Tree[T] | T]
 type Forest[T] = list[Node[T]]
 type MutualList = list[MutualMap | int]
 type MutualMap = dict[str, MutualList]
+type JSON = dict[str, JSON] | list[JSON] | str | int | float | bool | None
