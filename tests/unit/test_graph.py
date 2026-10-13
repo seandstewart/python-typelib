@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-import sys
 import typing
 from unittest import mock
 
@@ -131,7 +130,6 @@ class NoTypes:
         ],
     ),
 )
-@pytest.mark.skipif(sys.version_info < (3, 10), reason="py3.10+")
 def test_static_order(given_type, expected_nodes):
     # When
     nodes = graph.static_order(given_type)

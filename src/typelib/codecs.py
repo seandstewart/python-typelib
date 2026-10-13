@@ -3,15 +3,16 @@
 from __future__ import annotations
 
 import dataclasses
+import functools
 import typing as t
 
 from typelib import marshals, serdes, unmarshals
-from typelib.py import classes, compat, inspection
+from typelib.py import compat, inspection
 
 __all__ = ("Codec", "codec")
 
 
-@compat.cache
+@functools.cache
 def codec[T](
     t: type[T],
     *,
@@ -71,8 +72,7 @@ def codec[T](
     return cdc
 
 
-@classes.slotted(dict=False, weakref=False)
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class Codec[T]:
     """A standard wire protocol (codec).
 

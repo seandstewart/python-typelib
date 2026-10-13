@@ -11,7 +11,7 @@ import uuid
 import pytest
 
 from typelib.marshals import api
-from typelib.py import compat, refs
+from typelib.py import refs
 
 from tests import models
 
@@ -203,9 +203,7 @@ def test_marshal(given_type, given_input, expected_output):
 
 def test_type_alias_type_marshal():
     # Given
-    # Can't reliably test the `type` statement till 3.12 is the min version.
-    # type IntList = list[int]
-    IntList = compat.TypeAliasType("IntList", "list[int]")
+    type IntList = list[int]
     given_input = [1, 2]
     expected_output = [1, 2]
     # When

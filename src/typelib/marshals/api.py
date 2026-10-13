@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import functools
 import typing as tp
 
 from typelib import ctx, graph, serdes
 from typelib.marshals import routines
-from typelib.py import compat, inspection, refs
+from typelib.py import inspection, refs
 
 __all__ = (
     "DelayedMarshaller",
@@ -32,9 +33,9 @@ def marshal[T](
     return unmarshalled
 
 
-@compat.cache
+@functools.cache
 def marshaller[T](
-    t: type[T] | refs.ForwardRef | compat.TypeAliasType | str,
+    t: type[T] | refs.ForwardRef | tp.TypeAliasType | str,
 ) -> routines.AbstractMarshaller[T]:
     """Get a marshaller routine for a given type.
 

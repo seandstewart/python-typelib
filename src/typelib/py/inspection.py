@@ -87,7 +87,7 @@ __all__ = (
 )
 
 
-@compat.cache
+@functools.cache
 def origin(annotation: tp.Any) -> tp.Any:
     """Get the highest-order 'origin'-type for a given type definition.
 
@@ -196,7 +196,7 @@ def _normalize_typevars(*args: tp.Any) -> tp.Iterable:
     yield from (normalize_typevar(t) if type(t) is tp.TypeVar else t for t in args)
 
 
-@compat.cache
+@functools.cache
 def normalize_typevar(tvar: tp.TypeVar) -> type[tp.Any]:
     """Reduce a TypeVar to a simple type.
 
@@ -217,7 +217,7 @@ def normalize_typevar(tvar: tp.TypeVar) -> type[tp.Any]:
     return tp.Any
 
 
-@compat.cache
+@functools.cache
 def name(obj: type | refs.ForwardRef | tp.Callable) -> str:
     """Safely retrieve the name of either a standard object or a type annotation.
 
@@ -238,7 +238,7 @@ def name(obj: type | refs.ForwardRef | tp.Callable) -> str:
     return strobj.rsplit(".")[-1]
 
 
-@compat.cache
+@functools.cache
 def qualname(obj: type | refs.ForwardRef | tp.Callable) -> str:
     """Safely retrieve the qualname of either a standard object or a type annotation.
 
@@ -273,7 +273,7 @@ def qualname(obj: type | refs.ForwardRef | tp.Callable) -> str:
     return strobj
 
 
-@compat.cache
+@functools.cache
 def resolve_supertype(annotation: type[tp.Any] | types.FunctionType) -> tp.Any:
     """Get the highest-order supertype for a NewType.
 
@@ -303,7 +303,7 @@ def signature(obj: tp.Callable[..., tp.Any] | type[tp.Any]) -> inspect.Signature
     return inspect.signature(obj)
 
 
-cached_signature = compat.cache(signature)
+cached_signature = functools.cache(signature)
 
 
 def get_type_hints(
@@ -331,7 +331,7 @@ def get_type_hints(
         hints = {}
     # KW_ONLY is a special sentinel to denote kw-only params in a dataclass.
     #  We don't want to do anything with this hint/field. It's not real.
-    hints = {f: t for f, t in hints.items() if t is not compat.KW_ONLY}
+    hints = {f: t for f, t in hints.items() if t is not dataclasses.KW_ONLY}
     if not hints and exhaustive:
         hints = _hints_from_signature(obj)
 
@@ -364,7 +364,7 @@ def _hints_from_signature(
     return hints
 
 
-cached_type_hints = compat.cache(get_type_hints)
+cached_type_hints = functools.cache(get_type_hints)
 
 
 def simple_attributes(t: type) -> tuple[str, ...]:
@@ -393,7 +393,7 @@ def simple_attributes(t: type) -> tuple[str, ...]:
 
 
 _DYNAMIC_ATTRIBUTES = (contrib.SQLAMetaData, contrib.sqla_registry)
-cached_simple_attributes = compat.cache(simple_attributes)
+cached_simple_attributes = functools.cache(simple_attributes)
 
 
 def typed_dict_signature(obj: tp.Callable) -> inspect.Signature:
@@ -419,7 +419,7 @@ def typed_dict_signature(obj: tp.Callable) -> inspect.Signature:
     )
 
 
-def tuple_signature(t: type[compat.TupleT]) -> inspect.Signature:
+def tuple_signature(t: type[tuple[tp.Any, ...]]) -> inspect.Signature:
     """A little faker for getting the "signature" of a [`tuple`][].
 
     Note:
@@ -443,7 +443,7 @@ def tuple_signature(t: type[compat.TupleT]) -> inspect.Signature:
     return sig
 
 
-@compat.cache
+@functools.cache
 def safe_get_params(obj: type) -> tp.Mapping[str, inspect.Parameter]:
     """Try to extract the parameters of the given object.
 
@@ -459,7 +459,7 @@ def safe_get_params(obj: type) -> tp.Mapping[str, inspect.Parameter]:
     return params
 
 
-@compat.cache
+@functools.cache
 def isbuiltintype(
     obj: type | types.FunctionType,
 ) -> compat.TypeIs[type[BuiltIntypeT]]:
@@ -496,7 +496,7 @@ def isbuiltintype(
     )
 
 
-@compat.cache
+@functools.cache
 def isstdlibtype(obj: type) -> compat.TypeIs[type[STDLibtypeT]]:
     if isoptionaltype(obj):
         nargs = tp.get_args(obj)[:-1]
@@ -511,7 +511,7 @@ def isstdlibtype(obj: type) -> compat.TypeIs[type[STDLibtypeT]]:
     )
 
 
-@compat.cache
+@functools.cache
 def isbuiltinsubtype(t: type) -> compat.TypeIs[type[BuiltIntypeT]]:
     """Check whether the provided type is a subclass of a builtin-type.
 
@@ -533,7 +533,7 @@ def isbuiltinsubtype(t: type) -> compat.TypeIs[type[BuiltIntypeT]]:
     return issubclass(resolve_supertype(t), BUILTIN_TYPES_TUPLE)
 
 
-@compat.cache
+@functools.cache
 def isstdlibsubtype(t: type) -> compat.TypeIs[type[STDLibtypeT]]:
     """Test whether the given type is a subclass of a standard-lib type.
 
@@ -563,8 +563,8 @@ def isstdlibinstance(o: tp.Any) -> compat.TypeIs[STDLibtypeT]:
     return builtins.isinstance(o, STDLIB_TYPES_TUPLE)
 
 
-@compat.cache
-def isoptionaltype[OT](obj: type[OT]) -> compat.TypeGuard[type[OT] | None]:
+@functools.cache
+def isoptionaltype[OT](obj: type[OT]) -> tp.TypeGuard[type[OT] | None]:
     """Test whether an annotation is [`typing.Optional`][], or can be treated as.
 
     [`typing.Optional`][] is an alias for `typing.Union[<T>, None]`, so both are
@@ -590,28 +590,28 @@ def isoptionaltype[OT](obj: type[OT]) -> compat.TypeGuard[type[OT] | None]:
     return isoptional
 
 
-@compat.cache
+@functools.cache
 def isuniontype(obj: type) -> bool:
     n = name(origin(obj))
     return n in ("Union", "UnionType")
 
 
-@compat.cache
+@functools.cache
 def isfinal(obj: type) -> bool:
     """Test whether an annotation is [`typing.Final`][].
 
     Examples:
         >>> from typing import NewType
-        >>> from typelib.py.compat import Final
+        >>> from typing import Final
         >>> isfinal(Final[str])
         True
         >>> isfinal(NewType("Foo", Final[str]))
         True
     """
-    return origin(obj) is compat.Final
+    return origin(obj) is tp.Final
 
 
-@compat.cache
+@functools.cache
 def isliteral(obj) -> bool:
     """Test whether an annotation is [`typing.Literal`][].
 
@@ -623,7 +623,7 @@ def isliteral(obj) -> bool:
     )
 
 
-@compat.cache
+@functools.cache
 def isdatetype(
     obj: type,
 ) -> compat.TypeIs[type[datetime.datetime | datetime.date]]:
@@ -642,7 +642,7 @@ def isdatetype(
     return builtins.issubclass(origin(obj), datetime.date)
 
 
-@compat.cache
+@functools.cache
 def isdatetimetype(
     obj: type,
 ) -> compat.TypeIs[type[datetime.datetime | datetime.date]]:
@@ -661,7 +661,7 @@ def isdatetimetype(
     return builtins.issubclass(origin(obj), datetime.datetime)
 
 
-@compat.cache
+@functools.cache
 def istimetype(obj: type) -> compat.TypeIs[type[datetime.time]]:
     """Test whether this annotation is a a date/datetime object.
 
@@ -676,7 +676,7 @@ def istimetype(obj: type) -> compat.TypeIs[type[datetime.time]]:
     return builtins.issubclass(origin(obj), datetime.time)
 
 
-@compat.cache
+@functools.cache
 def istimedeltatype(obj: type) -> compat.TypeIs[type[datetime.timedelta]]:
     """Test whether this annotation is a a date/datetime object.
 
@@ -691,7 +691,7 @@ def istimedeltatype(obj: type) -> compat.TypeIs[type[datetime.timedelta]]:
     return builtins.issubclass(origin(obj), datetime.timedelta)
 
 
-@compat.cache
+@functools.cache
 def isdecimaltype(obj: type) -> compat.TypeIs[type[decimal.Decimal]]:
     """Test whether this annotation is a Decimal object.
 
@@ -706,7 +706,7 @@ def isdecimaltype(obj: type) -> compat.TypeIs[type[decimal.Decimal]]:
     return builtins.issubclass(origin(obj), decimal.Decimal)
 
 
-@compat.cache
+@functools.cache
 def isfractiontype(obj: type) -> compat.TypeIs[type[fractions.Fraction]]:
     """Test whether this annotation is a Decimal object.
 
@@ -721,7 +721,7 @@ def isfractiontype(obj: type) -> compat.TypeIs[type[fractions.Fraction]]:
     return builtins.issubclass(origin(obj), fractions.Fraction)
 
 
-@compat.cache
+@functools.cache
 def isuuidtype(obj: type) -> compat.TypeIs[type[uuid.UUID]]:
     """Test whether this annotation is a a date/datetime object.
 
@@ -740,7 +740,7 @@ def isuuidtype(obj: type) -> compat.TypeIs[type[uuid.UUID]]:
     return builtins.issubclass(origin(obj), uuid.UUID)
 
 
-@compat.cache
+@functools.cache
 def isiterabletype(obj: type) -> compat.TypeIs[type[tp.Iterable]]:
     """Test whether the given type is iterable.
 
@@ -761,7 +761,7 @@ def isiterabletype(obj: type) -> compat.TypeIs[type[tp.Iterable]]:
     return builtins.issubclass(obj, tp.Iterable)
 
 
-@compat.cache
+@functools.cache
 def isiteratortype(obj: type) -> compat.TypeIs[type[tp.Iterator]]:
     """Check whether the given object is a subclass of an Iterator.
 
@@ -781,7 +781,7 @@ def isiteratortype(obj: type) -> compat.TypeIs[type[tp.Iterator]]:
     return builtins.issubclass(obj, tp.Iterator)
 
 
-@compat.cache
+@functools.cache
 def istupletype(
     obj: tp.Callable[..., tp.Any] | type[tp.Any],
 ) -> compat.TypeIs[type[tuple]]:
@@ -803,7 +803,7 @@ def istupletype(
     return obj is tuple or issubclass(obj, tuple)
 
 
-@compat.cache
+@functools.cache
 def issequencetype(obj: type) -> compat.TypeIs[type[tp.Collection]]:
     """Test whether this annotation is a subclass of [`typing.Collection`][].
 
@@ -828,7 +828,7 @@ def issequencetype(obj: type) -> compat.TypeIs[type[tp.Collection]]:
     return obj in _COLLECTIONS or builtins.issubclass(obj, tp.Sequence)
 
 
-@compat.cache
+@functools.cache
 def iscollectiontype(obj: type) -> compat.TypeIs[type[tp.Collection]]:
     """Test whether this annotation is a subclass of [`typing.Collection`][].
 
@@ -856,7 +856,7 @@ def iscollectiontype(obj: type) -> compat.TypeIs[type[tp.Collection]]:
 _COLLECTIONS = {list, set, tuple, frozenset, dict, str, bytes}
 
 
-@compat.cache
+@functools.cache
 def issubscriptedcollectiontype[ArgsT](
     obj: type[tp.Generic[ArgsT]],
 ) -> compat.TypeIs[type[tp.Collection[ArgsT]]]:
@@ -876,7 +876,7 @@ def issubscriptedcollectiontype[ArgsT](
     return iscollectiontype(obj) and issubscriptedgeneric(obj)
 
 
-@compat.cache
+@functools.cache
 def ismappingtype(obj: type) -> compat.TypeIs[type[tp.Mapping]]:
     """Test whether this annotation is a subtype of [`typing.Mapping`][].
 
@@ -910,7 +910,7 @@ def ismappingtype(obj: type) -> compat.TypeIs[type[tp.Mapping]]:
 _MAPPING_TYPES = (dict, sqlite3.Row, types.MappingProxyType)
 
 
-@compat.cache
+@functools.cache
 def isenumtype(obj: type) -> compat.TypeIs[type[enum.Enum]]:
     """Test whether this annotation is a subclass of [`enum.Enum`][]
 
@@ -925,7 +925,7 @@ def isenumtype(obj: type) -> compat.TypeIs[type[enum.Enum]]:
     return _safe_issubclass(obj, enum.Enum)
 
 
-@compat.cache
+@functools.cache
 def isclassvartype(obj: type) -> bool:
     """Test whether an annotation is a ClassVar annotation.
 
@@ -946,7 +946,7 @@ _UNWRAPPABLE = (
 )
 
 
-@compat.cache
+@functools.cache
 def should_unwrap(obj: type) -> bool:
     """Test whether we should use the __args__ attr for resolving the type.
 
@@ -955,7 +955,7 @@ def should_unwrap(obj: type) -> bool:
     return (not isliteral(obj)) and any(x(obj) for x in _UNWRAPPABLE)
 
 
-@compat.cache
+@functools.cache
 def isfromdictclass(obj: type) -> compat.TypeIs[type[_FromDict]]:
     """Test whether this annotation is a class with a `from_dict()` method."""
     return inspect.isclass(obj) and hasattr(obj, "from_dict")
@@ -963,10 +963,10 @@ def isfromdictclass(obj: type) -> compat.TypeIs[type[_FromDict]]:
 
 class _FromDict(tp.Protocol):
     @classmethod
-    def from_dict(cls: type[compat.Self], *args, **kwargs) -> compat.Self: ...
+    def from_dict(cls: type[tp.Self], *args, **kwargs) -> tp.Self: ...
 
 
-@compat.cache
+@functools.cache
 def isfrozendataclass(obj: type) -> compat.TypeIs[type[_FrozenDataclass]]:
     """Test whether this is a dataclass and whether it's frozen."""
     return getattr(getattr(obj, "__dataclass_params__", None), "frozen", False)
@@ -976,7 +976,7 @@ class _FrozenDataclass(tp.Protocol):
     __dataclass_params__: dataclasses._DataclassParams  # type: ignore
 
 
-cached_issubclass = compat.cache(issubclass)
+cached_issubclass = functools.cache(issubclass)
 
 
 __hashgetter = attrgetter("__hash__")
@@ -999,7 +999,7 @@ def ishashable(obj: tp.Any) -> compat.TypeIs[tp.Hashable]:
     return __hashgetter(obj) is not None
 
 
-@compat.cache
+@functools.cache
 def istypeddict(obj: tp.Any) -> bool:
     """Check whether an object is a [`typing.TypedDict`][].
 
@@ -1019,7 +1019,7 @@ def istypeddict(obj: tp.Any) -> bool:
     )
 
 
-@compat.cache
+@functools.cache
 def istypedtuple(obj: type) -> compat.TypeIs[type[tp.NamedTuple]]:
     """Check whether an object is a "typed" tuple ([`typing.NamedTuple`][]).
 
@@ -1039,7 +1039,7 @@ def istypedtuple(obj: type) -> compat.TypeIs[type[tp.NamedTuple]]:
     )
 
 
-@compat.cache
+@functools.cache
 def isnamedtuple(obj: type) -> compat.TypeIs[type[tp.NamedTuple]]:
     """Check whether an object is a "named" tuple ([`collections.namedtuple`][]).
 
@@ -1053,7 +1053,7 @@ def isnamedtuple(obj: type) -> compat.TypeIs[type[tp.NamedTuple]]:
     return inspect.isclass(obj) and issubclass(obj, tuple) and hasattr(obj, "_fields")
 
 
-@compat.cache
+@functools.cache
 def isfixedtupletype(obj: type) -> compat.TypeIs[type[tuple]]:
     """Check whether an object is a "fixed" tuple, e.g., `tuple[int, int]`.
 
@@ -1205,7 +1205,7 @@ def isabstract(o) -> compat.TypeIs[abc.ABC]:
 _ABCS = frozenset({numbers.Number})
 
 
-@compat.cache
+@functools.cache
 def istexttype(t: type[tp.Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
     """Test whether the given type is a subclass of text or bytes.
 
@@ -1218,7 +1218,7 @@ def istexttype(t: type[tp.Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
     return _safe_issubclass(t, (str, bytes, bytearray, memoryview))
 
 
-@compat.cache
+@functools.cache
 def isstringtype(t: type[tp.Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
     """Test whether the given type is a subclass of text or bytes.
 
@@ -1231,7 +1231,7 @@ def isstringtype(t: type[tp.Any]) -> compat.TypeIs[type[str | bytes | bytearray]
     return _safe_issubclass(t, str)
 
 
-@compat.cache
+@functools.cache
 def isbytestype(t: type[tp.Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
     """Test whether the given type is a subclass of text or bytes.
 
@@ -1244,7 +1244,7 @@ def isbytestype(t: type[tp.Any]) -> compat.TypeIs[type[str | bytes | bytearray]]
     return _safe_issubclass(t, (bytes, bytearray, memoryview))
 
 
-@compat.cache
+@functools.cache
 def isnumbertype(t: type[tp.Any]) -> compat.TypeIs[type[numbers.Number]]:
     """Test whether `t` is a subclass of the [`numbers.Number`][] protocol.
 
@@ -1261,7 +1261,7 @@ def isnumbertype(t: type[tp.Any]) -> compat.TypeIs[type[numbers.Number]]:
     return _safe_issubclass(t, numbers.Number)
 
 
-@compat.cache
+@functools.cache
 def isintegertype(t: type[tp.Any]) -> compat.TypeIs[type[int]]:
     """Test whether `t` is a subclass of the [`numbers.Number`][] protocol.
 
@@ -1278,7 +1278,7 @@ def isintegertype(t: type[tp.Any]) -> compat.TypeIs[type[int]]:
     return _safe_issubclass(t, int)
 
 
-@compat.cache
+@functools.cache
 def isfloattype(t: type[tp.Any]) -> compat.TypeIs[type[float]]:
     """Test whether `t` is a subclass of the [`numbers.Number`][] protocol.
 
@@ -1295,7 +1295,7 @@ def isfloattype(t: type[tp.Any]) -> compat.TypeIs[type[float]]:
     return _safe_issubclass(t, float)
 
 
-@compat.cache
+@functools.cache
 def isstructuredtype(t: type[tp.Any]) -> bool:
     """Test whether the given type has a fixed set of fields.
 
@@ -1329,7 +1329,7 @@ def isstructuredtype(t: type[tp.Any]) -> bool:
     )
 
 
-@compat.cache
+@functools.cache
 def isgeneric(t: tp.Any) -> bool:
     """Test whether the given type is a typing generic.
 
@@ -1355,7 +1355,7 @@ def isgeneric(t: tp.Any) -> bool:
     return is_generic
 
 
-@compat.cache
+@functools.cache
 def issubscriptedgeneric(t: tp.Any) -> bool:
     """Test whether the given type is a typing generic.
 
@@ -1379,7 +1379,7 @@ def issubscriptedgeneric(t: tp.Any) -> bool:
     return is_generic and is_subscripted
 
 
-@compat.cache
+@functools.cache
 def iscallable(t: tp.Any) -> compat.TypeIs[tp.Callable]:
     """Test whether the given type is a callable.
 
@@ -1398,7 +1398,7 @@ def iscallable(t: tp.Any) -> compat.TypeIs[tp.Callable]:
     return inspect.isroutine(t) or t is tp.Callable or _safe_issubclass(t, abc_Callable)
 
 
-@compat.cache
+@functools.cache
 def isunresolvable(t: tp.Any) -> bool:
     """Test whether the given type is unresolvable.
 
@@ -1427,7 +1427,7 @@ _UNRESOLVABLE = (
 )
 
 
-@compat.cache
+@functools.cache
 def isnonetype(t: tp.Any) -> compat.TypeIs[None]:
     """Detect if the given type is a [`types.NoneType`][].
 
@@ -1442,7 +1442,7 @@ def isnonetype(t: tp.Any) -> compat.TypeIs[None]:
     return t in (None, type(None))
 
 
-@compat.cache
+@functools.cache
 def ispatterntype(t: tp.Any) -> compat.TypeIs[re.Pattern]:
     """Detect if the given type is a [`re.Pattern`][].
 
@@ -1456,7 +1456,7 @@ def ispatterntype(t: tp.Any) -> compat.TypeIs[re.Pattern]:
     return _safe_issubclass(t, re.Pattern)
 
 
-@compat.cache
+@functools.cache
 def ispathtype(t: tp.Any) -> compat.TypeIs[pathlib.Path]:
     """Detect if the given type is a [`pathlib.Path`][].
 
@@ -1470,15 +1470,15 @@ def ispathtype(t: tp.Any) -> compat.TypeIs[pathlib.Path]:
     return _safe_issubclass(t, pathlib.PurePath)
 
 
-@compat.cache
-def istypealiastype(t: tp.Any) -> compat.TypeIs[compat.TypeAliasType]:
+@functools.cache
+def istypealiastype(t: tp.Any) -> compat.TypeIs[tp.TypeAliasType]:
     """Detect if the given object is a [`typing.TypeAliasType`][].
 
     Examples:
         >>> type IntList = list[int]
         >>> istypealiastype(IntList)
         True
-        >>> IntList = compat.TypeAliasType("IntList", list[int])
+        >>> IntList = tp.TypeAliasType("IntList", list[int])
         >>> istypealiastype(IntList)
         True
 
@@ -1490,23 +1490,22 @@ def istypealiastype(t: tp.Any) -> compat.TypeIs[compat.TypeAliasType]:
 _TYPE_ALIAS_TYPES = (tp.TypeAliasType, te.TypeAliasType)
 
 
-@compat.cache
-def istypevartype(t: tp.Any) -> compat.TypeIs[compat.TypeVar]:
-    """Detect if the given object is a [`typing.TypeAliasType`][].
+@functools.cache
+def istypevartype(t: tp.Any) -> compat.TypeIs[tp.TypeVar]:
+    """Detect if the given object is a [`typing.TypeVar`][].
 
     Examples:
-        >>> type IntList = list[int]
-        >>> istypealiastype(IntList)
+        >>> T = tp.TypeVar("T")
+        >>> istypevartype(T)
         True
-        >>> IntList = compat.TypeAliasType("IntList", list[int])
-        >>> istypealiastype(IntList)
-        True
+        >>> istypevartype(int)
+        False
 
     """
     return isinstance(t, tp.TypeVar)
 
 
-@compat.cache
+@functools.cache
 def unwrap(t: tp.Any) -> tp.Any:
     lt = None
     while lt is not t:

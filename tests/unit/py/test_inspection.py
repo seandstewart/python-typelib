@@ -13,7 +13,6 @@ import ipaddress
 import numbers
 import pathlib
 import sqlite3
-import sys
 import types
 import typing
 import typing as t
@@ -172,7 +171,6 @@ StructuredTuple = t.Tuple[str]
 VarTuple = t.Tuple[str, ...]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 9), reason="3.8 doesn't handle ForwardRef.")
 @pytest.mark.suite(
     user_class=dict(
         annotation=FieldClass,

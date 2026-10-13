@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import functools
 import typing as tp
 
 from typelib import ctx, graph
-from typelib.py import compat, inspection, refs
+from typelib.py import inspection, refs
 from typelib.unmarshals import routines
 
 __all__ = (
@@ -27,9 +28,9 @@ def unmarshal[T](t: type[T] | refs.ForwardRef | str, value: tp.Any) -> T:
     return unmarshalled
 
 
-@compat.cache
+@functools.cache
 def unmarshaller[T](
-    t: type[T] | refs.ForwardRef | compat.TypeAliasType | str,
+    t: type[T] | refs.ForwardRef | tp.TypeAliasType | str,
 ) -> routines.AbstractUnmarshaller[T]:
     """Get an un-marshaller routine for a given type.
 

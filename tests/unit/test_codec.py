@@ -9,7 +9,7 @@ import uuid
 import pytest
 
 import typelib
-from typelib.py import compat, refs
+from typelib.py import refs
 
 from tests import models
 
@@ -159,7 +159,7 @@ from tests import models
         expected_marshal_output={"indirect": {"cycle": {"indirect": {"cycle": None}}}},
     ),
     type_alias_type=dict(
-        given_type=compat.TypeAliasType("IntList", "list[int]"),
+        given_type=typing.TypeAliasType("IntList", "list[int]"),
         given_input='["1", "2"]',
         expected_unmarshal_output=[1, 2],
         expected_marshal_output=[1, 2],

@@ -20,19 +20,20 @@ from __future__ import annotations
 import builtins
 import collections
 import dataclasses
+import functools
 import graphlib
 import inspect
 import typing
 
 from typelib import constants
-from typelib.py import classes, compat, inspection, refs
+from typelib.py import inspection, refs
 
 __all__ = ("get_type_graph", "itertypes", "static_order")
 
 
-@compat.cache
+@functools.cache
 def static_order(
-    t: type | str | refs.ForwardRef | compat.TypeAliasType,
+    t: type | str | refs.ForwardRef | typing.TypeAliasType,
 ) -> typing.Sequence[TypeNode]:
     """Get an ordered iterable of types which resolve into the root type provided.
 
@@ -60,7 +61,7 @@ def static_order(
 
 
 def itertypes(
-    t: type | str | refs.ForwardRef | compat.TypeAliasType,
+    t: type | str | refs.ForwardRef | typing.TypeAliasType,
 ) -> typing.Iterable[TypeNode]:
     """Iterate over the type-graph represented by `t` from edges to root.
 
@@ -167,8 +168,7 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
     return graph
 
 
-@classes.slotted(dict=False, weakref=True)
-@dataclasses.dataclass(unsafe_hash=True)
+@dataclasses.dataclass(unsafe_hash=True, slots=True, weakref_slot=True)
 class TypeNode:
     """A "node" in a type graph."""
 

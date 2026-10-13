@@ -127,7 +127,7 @@ extend-select = [
 
 [tool.ruff.lint.isort]
 known-local-folder = ["tests"]
-extra-standard-library = ["typing_extensions", "graphlib"]
+extra-standard-library = ["typing_extensions"]
 
 
 [tool.ty.environment]

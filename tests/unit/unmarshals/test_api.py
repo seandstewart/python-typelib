@@ -10,7 +10,7 @@ import uuid
 
 import pytest
 
-from typelib.py import compat, refs
+from typelib.py import refs
 from typelib.unmarshals import api
 
 from tests import models
@@ -131,7 +131,7 @@ from tests import models
         ),
     ),
     type_alias_type=dict(
-        given_type=compat.TypeAliasType("IntList", "list[int]"),
+        given_type=typing.TypeAliasType("IntList", "list[int]"),
         given_input='["1", "2"]',
         expected_output=[1, 2],
     ),

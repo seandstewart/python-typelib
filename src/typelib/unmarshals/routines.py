@@ -17,7 +17,7 @@ import uuid
 import warnings
 
 from typelib import constants, ctx, serdes
-from typelib.py import compat, inspection, refs
+from typelib.py import inspection, refs
 
 __all__ = (
     "AbstractUnmarshaller",
@@ -831,7 +831,7 @@ class SubscriptedIteratorUnmarshaller[IteratorT: tp.Iterator](
         return it
 
 
-class FixedTupleUnmarshaller(AbstractUnmarshaller[compat.TupleT]):
+class FixedTupleUnmarshaller(AbstractUnmarshaller[tuple[tp.Any, ...]]):
     """Unmarshaller for a "fixed" tuple (e.g., `tuple[int, str, float]`).
 
     Note:
@@ -864,7 +864,7 @@ class FixedTupleUnmarshaller(AbstractUnmarshaller[compat.TupleT]):
     __slots__ = ("ordered_routines", "stack")
 
     def __init__(
-        self, t: type[compat.TupleT], context: ContextT, *, var: str | None = None
+        self, t: type[tuple[tp.Any, ...]], context: ContextT, *, var: str | None = None
     ):
         """Constructor.
 
@@ -877,7 +877,7 @@ class FixedTupleUnmarshaller(AbstractUnmarshaller[compat.TupleT]):
         self.stack = inspection.args(t, evaluate=True)
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
-    def __call__(self, val: tp.Any) -> compat.TupleT:
+    def __call__(self, val: tp.Any) -> tuple[tp.Any, ...]:
         """Unmarshal a value into the bound [`tuple`][] structure.
 
         Args:

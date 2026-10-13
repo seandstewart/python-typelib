@@ -5,8 +5,6 @@ import datetime
 import enum
 import typing
 
-from typelib.py import compat
-
 
 @dataclasses.dataclass
 class RecursiveType:
@@ -103,7 +101,7 @@ class ChildIntersect:
     b: int
 
 
-ListAlias = compat.TypeAliasType("ListAlias", list[int])
+type ListAlias = list[int]
 
 
 @dataclasses.dataclass
@@ -111,13 +109,16 @@ class NestedTypeAliasType:
     alias: ListAlias
 
 
-ValueAlias = compat.TypeAliasType("ValueAlias", int)
-RecursiveAlias = compat.TypeAliasType(
+type ValueAlias = int
+RecursiveAlias = typing.TypeAliasType(  # noqa: UP040
     "RecursiveAlias", "dict[str, RecursiveAlias | ValueAlias]"
 )
 
-ScalarValue = compat.TypeAliasType("ScalarValue", "int | float | str | bool | None")
-Record = compat.TypeAliasType(
+# String-valued aliases cover the string `__value__` path.
+ScalarValue = typing.TypeAliasType(  # noqa: UP040
+    "ScalarValue", "int | float | str | bool | None"
+)
+Record = typing.TypeAliasType(  # noqa: UP040
     "Record", "dict[str, list[Record] | list[ScalarValue] | Record | ScalarValue]"
 )
 

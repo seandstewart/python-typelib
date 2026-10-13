@@ -22,7 +22,7 @@ import inspect
 import typing as tp
 
 from typelib import unmarshals
-from typelib.py import classes, compat, inspection
+from typelib.py import inspection
 
 type BindingT = tp.MutableMapping[str | int, unmarshals.AbstractUnmarshaller]
 
@@ -89,8 +89,7 @@ def wrap[**P, R](obj: tp.Callable[P, R]) -> tp.Callable[..., R]:
     return binding_wrapper
 
 
-@classes.slotted(dict=False, weakref=True)
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True, weakref_slot=True)
 class BoundRoutine[**P, R]:
     """A type-enforced, bound routine for a callable object."""
 
@@ -107,7 +106,7 @@ class BoundRoutine[**P, R]:
         return self.call(*bargs, **bkwargs)
 
 
-@compat.cache
+@functools.cache
 def _get_binding(obj: tp.Callable) -> AbstractBinding:
     sig = inspection.cached_signature(obj)
     params = sig.parameters

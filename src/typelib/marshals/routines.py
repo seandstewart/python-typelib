@@ -15,7 +15,7 @@ import uuid
 import warnings
 
 from typelib import ctx, serdes
-from typelib.py import compat, inspection, refs
+from typelib.py import inspection, refs
 
 __all__ = (
     "AbstractMarshaller",
@@ -379,7 +379,7 @@ class SubscriptedIterableMarshaller[IterableT: tp.Iterable](
         return [values(v) for v in serdes.itervalues(val)]
 
 
-class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
+class FixedTupleMarshaller(AbstractMarshaller[tuple[tp.Any, ...]]):
     """A marshaller for dumping a "fixed" tuple to a simple [`list`][].
 
     Values are marshalled according to the value-type in the order they are defined.
@@ -391,7 +391,7 @@ class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
     __slots__ = ("ordered_routines", "stack")
 
     def __init__(
-        self, t: type[compat.TupleT], context: ContextT, *, var: str | None = None
+        self, t: type[tuple[tp.Any, ...]], context: ContextT, *, var: str | None = None
     ):
         """Constructor.
 
@@ -404,7 +404,7 @@ class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
         self.stack = inspection.args(t, evaluate=True)
         self.ordered_routines = [self.context[vt] for vt in self.stack]
 
-    def __call__(self, val: compat.TupleT) -> MarshalledIterableT:
+    def __call__(self, val: tuple[tp.Any, ...]) -> MarshalledIterableT:
         """Marshal a tuple into a simple [`list`][].
 
         Args:

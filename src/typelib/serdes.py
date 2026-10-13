@@ -30,6 +30,7 @@ import ast
 import contextlib
 import dataclasses
 import datetime
+import functools
 import operator
 import typing as t
 
@@ -86,7 +87,7 @@ def decode(val: t.Any, *, encoding: str = constants.DEFAULT_ENCODING) -> t.Any:
     return val
 
 
-@compat.lru_cache(maxsize=100_000)
+@functools.lru_cache(maxsize=100_000)
 def isoformat(dt: datetime.date | datetime.time | datetime.timedelta) -> str:
     """Format any date/time object into an ISO-8601 string.
 
@@ -191,7 +192,7 @@ def unixtime(dt: datetime.date | datetime.time | datetime.timedelta) -> float:
     return dt.timestamp()
 
 
-@compat.lru_cache(maxsize=100_000)
+@functools.lru_cache(maxsize=100_000)
 def dateparse[DateTimeT: (datetime.date, datetime.time, datetime.timedelta)](
     val: str, t: type[DateTimeT]
 ) -> DateTimeT:
@@ -341,7 +342,7 @@ def itervalues(val: t.Any) -> t.Iterator[t.Any]:
     return (v for k, v in iterate(val))
 
 
-@compat.cache
+@functools.cache
 def get_items_iter(tp: type) -> t.Callable[[t.Any], t.Iterable[tuple[t.Any, t.Any]]]:
     """Given a type, return a callable which will produce an iterator over (field, value) pairs.
 
@@ -432,7 +433,7 @@ def load[T](val: T) -> PythonValueT | T:
     return strload(val) if inspection.istexttype(val.__class__) else val  # ty: ignore[invalid-argument-type]
 
 
-@compat.lru_cache(maxsize=100_000)
+@functools.lru_cache(maxsize=100_000)
 def strload(val: str | bytes | bytearray | memoryview) -> PythonValueT:
     """Attempt to decode a string-like input into a Python value.
 
