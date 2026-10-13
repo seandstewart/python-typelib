@@ -129,6 +129,32 @@ class NoTypes:
             graph.TypeNode(type=models.LegacyNestedGeneric[int]),
         ],
     ),
+    recursive_generic_alias=dict(
+        given_type=models.Tree[int],
+        expected_nodes=[
+            graph.TypeNode(type=str),
+            graph.TypeNode(
+                type=models.Tree[int], unwrapped=models.Tree[int], cyclic=True
+            ),
+            graph.TypeNode(type=int),
+            graph.TypeNode(type=models.Tree[int] | int),
+            graph.TypeNode(
+                type=models.Tree[int], unwrapped=dict[str, models.Tree[int] | int]
+            ),
+        ],
+    ),
+    recursive_generic_class=dict(
+        given_type=models.Node[int],
+        expected_nodes=[
+            graph.TypeNode(type=int),
+            graph.TypeNode(type=int, var="value"),
+            graph.TypeNode(
+                type=models.Node[int], unwrapped=models.Node[int], cyclic=True
+            ),
+            graph.TypeNode(type=list[models.Node[int]], var="children"),
+            graph.TypeNode(type=models.Node[int]),
+        ],
+    ),
 )
 def test_static_order(given_type, expected_nodes):
     # When

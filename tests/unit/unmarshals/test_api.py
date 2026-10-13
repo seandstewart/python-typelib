@@ -170,6 +170,33 @@ from tests import models
         given_input={"cycle": {"cycle": {"cycle": "1"}}},
         expected_output={"cycle": {"cycle": {"cycle": 1}}},
     ),
+    string_recursive_alias=dict(
+        given_type=models.StringRecursiveAlias,
+        given_input={"cycle": {"cycle": {"cycle": "1"}}},
+        expected_output={"cycle": {"cycle": {"cycle": 1}}},
+    ),
+    mutually_recursive_alias=dict(
+        given_type=models.MutualList,
+        given_input=[{"key": ["1"]}, "2"],
+        expected_output=[{"key": [1]}, 2],
+    ),
+    recursive_generic_alias=dict(
+        given_type=models.Tree[int],
+        given_input={"branch": {"leaf": "1"}, "leaf": "2"},
+        expected_output={"branch": {"leaf": 1}, "leaf": 2},
+    ),
+    recursive_generic_class=dict(
+        given_type=models.Node[int],
+        given_input={"value": "1", "children": [{"value": "2", "children": []}]},
+        expected_output=models.Node(
+            value=1, children=[models.Node(value=2, children=[])]
+        ),
+    ),
+    generic_alias_of_recursive_generic_class=dict(
+        given_type=models.Forest[int],
+        given_input=[{"value": "1", "children": []}],
+        expected_output=[models.Node(value=1, children=[])],
+    ),
     subscripted_generic=dict(
         given_type=models.DataGeneric[str, int],
         given_input={"field": "data", "value": "1"},
@@ -223,3 +250,14 @@ def test_unmarshal(given_type, given_input, expected_output):
     output = api.unmarshal(given_type, given_input)
     # Then
     assert output == expected_output
+
+
+def test_unmarshal_local_recursive_alias():
+    # Given
+    type LocalTree = list[LocalTree | int]
+    given_input = [["1"], "2"]
+    expected_output = [[1], 2]
+    # When
+    actual_output = api.unmarshal(LocalTree, given_input)
+    # Then
+    assert actual_output == expected_output

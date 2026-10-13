@@ -139,7 +139,11 @@ def get_type_graph(t: type) -> graphlib.TopologicalSorter[TypeNode]:
             # We detected a cyclic type,
             #   wrap in a ForwardRef and don't add it to the stack
             #   This will terminate this edge to prevent infinite cycles.
-            if is_visited and can_be_cyclic:
+            # Aliases and subscripted generics keep their real type, since a
+            #   name-based reference would lose type arguments and local scope.
+            if is_visited and can_be_cyclic and _keeps_type_on_cycle(child):
+                node = TypeNode(type=child, unwrapped=child, var=var, cyclic=True)
+            elif is_visited and can_be_cyclic:
                 qualname = inspection.qualname(child)
                 *rest, refname = qualname.split(".", maxsplit=1)
                 is_argument = var is not None
@@ -178,12 +182,16 @@ class TypeNode:
     """The unwrapped type annotation for this node."""
     var: str | None = None
     """The variable or parameter name associated to the type annotation for this node."""
-    cyclic: bool = dataclasses.field(default=False, hash=False, compare=False)
+    cyclic: bool = False
     """Whether this type annotation is cyclic."""
 
     def __post_init__(self):
         if self.unwrapped is None:
             self.unwrapped = self.type
+
+
+def _keeps_type_on_cycle(t: typing.Any) -> bool:
+    return inspection.istypealias(t) or inspection.issubscriptedgeneric(t)
 
 
 def _level(

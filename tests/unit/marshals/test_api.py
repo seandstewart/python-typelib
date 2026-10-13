@@ -163,6 +163,37 @@ from tests import models
         given_input={"cycle": {"cycle": {"cycle": 1}}},
         expected_output={"cycle": {"cycle": {"cycle": 1}}},
     ),
+    string_recursive_alias=dict(
+        given_type=models.StringRecursiveAlias,
+        given_input={"cycle": {"cycle": {"cycle": 1}}},
+        expected_output={"cycle": {"cycle": {"cycle": 1}}},
+    ),
+    mutually_recursive_alias=dict(
+        given_type=models.MutualList,
+        given_input=[{"key": [1]}, 2],
+        expected_output=[{"key": [1]}, 2],
+    ),
+    recursive_generic_alias=dict(
+        given_type=models.Tree[datetime.date],
+        given_input={"branch": {"leaf": datetime.date(2020, 1, 1)}},
+        expected_output={"branch": {"leaf": "2020-01-01"}},
+    ),
+    recursive_generic_class=dict(
+        given_type=models.Node[datetime.date],
+        given_input=models.Node(
+            value=datetime.date(2020, 1, 1),
+            children=[models.Node(value=datetime.date(2020, 1, 2), children=[])],
+        ),
+        expected_output={
+            "value": "2020-01-01",
+            "children": [{"value": "2020-01-02", "children": []}],
+        },
+    ),
+    generic_alias_of_recursive_generic_class=dict(
+        given_type=models.Forest[datetime.date],
+        given_input=[models.Node(value=datetime.date(2020, 1, 1), children=[])],
+        expected_output=[{"value": "2020-01-01", "children": []}],
+    ),
     subscripted_generic=dict(
         given_type=models.DataGeneric[str, int],
         given_input=models.DataGeneric(field="data", value=1),
@@ -214,6 +245,17 @@ def test_marshal(given_type, given_input, expected_output):
     output = api.marshal(given_input, t=given_type)
     # Then
     assert output == expected_output
+
+
+def test_marshal_local_recursive_alias():
+    # Given
+    type LocalTree = list[LocalTree | datetime.date]
+    given_input = [[datetime.date(2020, 1, 1)]]
+    expected_output = [["2020-01-01"]]
+    # When
+    actual_output = api.marshal(given_input, t=LocalTree)
+    # Then
+    assert actual_output == expected_output
 
 
 def test_type_alias_type_marshal():

@@ -158,6 +158,23 @@ from tests import models
         ),
         expected_marshal_output={"indirect": {"cycle": {"indirect": {"cycle": None}}}},
     ),
+    recursive_generic_alias=dict(
+        given_type=models.Tree[int],
+        given_input='{"branch": {"leaf": "1"}}',
+        expected_unmarshal_output={"branch": {"leaf": 1}},
+        expected_marshal_output={"branch": {"leaf": 1}},
+    ),
+    recursive_generic_class=dict(
+        given_type=models.Node[int],
+        given_input='{"value": "1", "children": [{"value": "2", "children": []}]}',
+        expected_unmarshal_output=models.Node(
+            value=1, children=[models.Node(value=2, children=[])]
+        ),
+        expected_marshal_output={
+            "value": 1,
+            "children": [{"value": 2, "children": []}],
+        },
+    ),
     type_alias_type=dict(
         given_type=typing.TypeAliasType("IntList", "list[int]"),
         given_input='["1", "2"]',

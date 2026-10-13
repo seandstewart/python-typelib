@@ -110,8 +110,9 @@ class NestedTypeAliasType:
 
 
 type ValueAlias = int
-RecursiveAlias = typing.TypeAliasType(  # noqa: UP040
-    "RecursiveAlias", "dict[str, RecursiveAlias | ValueAlias]"
+type RecursiveAlias = dict[str, RecursiveAlias | ValueAlias]
+StringRecursiveAlias = typing.TypeAliasType(  # noqa: UP040
+    "StringRecursiveAlias", "dict[str, StringRecursiveAlias | ValueAlias]"
 )
 
 # String-valued aliases cover the string `__value__` path.
@@ -159,3 +160,9 @@ class Leaf[T]:
 class Node[T]:
     value: T
     children: list[Node[T]]
+
+
+type Tree[T] = dict[str, Tree[T] | T]
+type Forest[T] = list[Node[T]]
+type MutualList = list[MutualMap | int]
+type MutualMap = dict[str, MutualList]

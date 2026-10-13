@@ -56,8 +56,13 @@ def _get_unmarshaller[T](
     node: graph.TypeNode,
     context: routines.ContextT,
 ) -> routines.AbstractUnmarshaller[T]:
-    if node.type in context:
+    # A cyclic placeholder must not stand in for the type it refers to.
+    if node.type in context and not isinstance(context[node.type], DelayedUnmarshaller):
         return context[node.type]
+
+    if node.cyclic and not inspection.isforwardref(node.type):
+        typ = tp.cast("type[T]", node.type)
+        return DelayedUnmarshaller(typ, context=context, var=node.var)
 
     for check, unmarshaller_cls in _HANDLERS.items():
         if check(node.unwrapped):  # ty: ignore[invalid-argument-type]
