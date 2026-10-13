@@ -144,3 +144,18 @@ class LegacySimpleGeneric(typing.Generic[TVar]):  # noqa: UP046
 @dataclasses.dataclass
 class LegacyNestedGeneric(typing.Generic[TVar]):  # noqa: UP046
     gen: LegacySimpleGeneric[TVar]
+
+
+type Box[T] = list[T]
+type Swap[A, B] = dict[B, A]
+
+
+@dataclasses.dataclass
+class Leaf[T]:
+    value: T
+
+
+@dataclasses.dataclass
+class Node[T]:
+    value: T
+    children: list[Node[T]]

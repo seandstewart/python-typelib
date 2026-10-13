@@ -202,6 +202,21 @@ from tests import models
             gen=models.LegacySimpleGeneric(field=1)
         ),
     ),
+    generic_alias=dict(
+        given_type=models.Box[int],
+        given_input=["1", "2"],
+        expected_output=[1, 2],
+    ),
+    generic_alias_reordered_params=dict(
+        given_type=models.Swap[int, str],
+        given_input={"key": "1"},
+        expected_output={"key": 1},
+    ),
+    generic_unbound_typevar=dict(
+        given_type=models.Leaf[int],
+        given_input={"value": "1"},
+        expected_output=models.Leaf(value=1),
+    ),
 )
 def test_unmarshal(given_type, given_input, expected_output):
     # When

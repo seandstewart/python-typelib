@@ -74,6 +74,7 @@ __all__ = (
     "istimedeltatype",
     "istimetype",
     "istupletype",
+    "istypealias",
     "istypeddict",
     "istypedtuple",
     "isuniontype",
@@ -111,6 +112,8 @@ def origin(annotation: tp.Any) -> tp.Any:
     """
     # Resolve custom NewTypes.
     actual = resolve_supertype(annotation)
+    # Resolve subscripted generic aliases.
+    actual = _resolve_generic_alias(actual)
 
     # Unwrap optional/classvar
     if isclassvartype(actual):
@@ -325,7 +328,9 @@ def get_type_hints(
         t = obj
         if issubscriptedgeneric(t) and not isforwardref(t):
             t = obj.__origin__  # ty: ignore[unresolved-attribute]
-            tvar_to_type = dict(zip(obj.__parameters__, obj.__args__, strict=False))  # ty: ignore[unresolved-attribute]
+            tvar_to_type = dict(
+                zip(getattr(t, "__parameters__", ()), tp.get_args(obj), strict=False)
+            )
         hints = tp.get_type_hints(t)
     except (NameError, TypeError):
         hints = {}
@@ -336,7 +341,7 @@ def get_type_hints(
         hints = _hints_from_signature(obj)
 
     for name, annotation in hints.items():
-        hints[name] = tvar_to_type.get(annotation, annotation)
+        hints[name] = _substitute(annotation, tvar_to_type)
     return hints
 
 
@@ -1491,6 +1496,44 @@ _TYPE_ALIAS_TYPES = (tp.TypeAliasType, te.TypeAliasType)
 
 
 @functools.cache
+def istypealias(t: tp.Any) -> bool:
+    """Detect if the given object is a type alias or a subscripted generic type alias.
+
+    Examples:
+        >>> type IntList = list[int]
+        >>> type Box[T] = list[T]
+        >>> istypealias(IntList)
+        True
+        >>> istypealias(Box[int])
+        True
+        >>> istypealias(list[int])
+        False
+    """
+    return istypealiastype(t) or istypealiastype(tp.get_origin(t))
+
+
+def _resolve_generic_alias(t: tp.Any) -> tp.Any:
+    """Substitute the args of a subscripted generic type alias into its value."""
+    alias = tp.get_origin(t)
+    if not istypealiastype(alias):
+        return t
+    mapping = dict(zip(alias.__type_params__, tp.get_args(t), strict=False))
+    return _substitute(alias.__value__, mapping)
+
+
+def _substitute(value: tp.Any, mapping: dict[tp.Any, tp.Any]) -> tp.Any:
+    """Replace the type variables in `value` with their mapped types."""
+    if not mapping:
+        return value
+    if istypevartype(value):
+        return mapping.get(value, value)
+    params = getattr(value, "__parameters__", ())
+    if not params or not isinstance(params, tuple):
+        return value
+    return value[tuple(mapping.get(p, p) for p in params)]
+
+
+@functools.cache
 def istypevartype(t: tp.Any) -> compat.TypeIs[tp.TypeVar]:
     """Detect if the given object is a [`typing.TypeVar`][].
 
@@ -1512,6 +1555,10 @@ def unwrap(t: tp.Any) -> tp.Any:
         if should_unwrap(t):
             lt = t
             t = t.__args__[0]  # ty: ignore[unresolved-attribute]
+            continue
+        if istypealiastype(tp.get_origin(t)):
+            lt = t
+            t = _resolve_generic_alias(t)
             continue
         if istypealiastype(t):
             tv = t.__value__

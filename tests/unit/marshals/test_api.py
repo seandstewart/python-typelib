@@ -193,6 +193,21 @@ from tests import models
         given_input=models.LegacyNestedGeneric(gen=models.LegacySimpleGeneric(field=1)),
         expected_output={"gen": {"field": 1}},
     ),
+    generic_alias=dict(
+        given_type=models.Box[datetime.date],
+        given_input=[datetime.date(2020, 1, 1)],
+        expected_output=["2020-01-01"],
+    ),
+    generic_alias_reordered_params=dict(
+        given_type=models.Swap[datetime.date, str],
+        given_input={"key": datetime.date(2020, 1, 1)},
+        expected_output={"key": "2020-01-01"},
+    ),
+    generic_unbound_typevar=dict(
+        given_type=models.Leaf[datetime.date],
+        given_input=models.Leaf(value=datetime.date(2020, 1, 1)),
+        expected_output={"value": "2020-01-01"},
+    ),
 )
 def test_marshal(given_type, given_input, expected_output):
     # When

@@ -24,6 +24,8 @@ import pytest
 
 from typelib.py import inspection, refs
 
+from tests import models
+
 
 class MyClass: ...
 
@@ -46,6 +48,10 @@ class MyClass: ...
     class_var_subscripted=dict(annotation=t.ClassVar[str], expected=str),
     class_var_unsubsripted=dict(annotation=t.ClassVar, expected=t.ClassVar),
     type_alias_type=dict(annotation=te.TypeAliasType("T", dict), expected=dict),
+    generic_type_alias=dict(annotation=models.Box[int], expected=list),
+    generic_type_alias_reordered_params=dict(
+        annotation=models.Swap[int, str], expected=dict
+    ),
 )
 def test_origin(annotation, expected):
     # When
@@ -142,12 +148,56 @@ class BadHints:
     bad_hints_exhaustive=dict(
         given_obj=BadHints, given_exhaustive=True, expected_type_hints={}
     ),
+    generic_unbound_typevar=dict(
+        given_obj=models.Leaf[int],
+        given_exhaustive=False,
+        expected_type_hints={"value": int},
+    ),
+    generic_nested_typevar=dict(
+        given_obj=models.Node[int],
+        given_exhaustive=False,
+        expected_type_hints={"value": int, "children": list[models.Node[int]]},
+    ),
 )
 def test_get_type_hints(given_obj, given_exhaustive, expected_type_hints):
     # When
     type_hints = inspection.get_type_hints(given_obj, given_exhaustive)
     # Then
     assert type_hints == expected_type_hints
+
+
+@pytest.mark.suite(
+    type_alias=dict(given_type=models.ListAlias, expected_unwrapped=list[int]),
+    generic_type_alias=dict(given_type=models.Box[int], expected_unwrapped=list[int]),
+    generic_type_alias_reordered_params=dict(
+        given_type=models.Swap[int, str], expected_unwrapped=dict[str, int]
+    ),
+    nested_generic_type_alias=dict(
+        given_type=models.Box[models.Box[int]],
+        expected_unwrapped=list[models.Box[int]],
+    ),
+)
+def test_unwrap(given_type, expected_unwrapped):
+    # When
+    actual_unwrapped = inspection.unwrap(given_type)
+    # Then
+    assert actual_unwrapped == expected_unwrapped
+
+
+@pytest.mark.suite(
+    type_alias=dict(given_type=models.ListAlias, expected_is_type_alias=True),
+    generic_type_alias=dict(given_type=models.Box[int], expected_is_type_alias=True),
+    unsubscripted_generic_type_alias=dict(
+        given_type=models.Box, expected_is_type_alias=True
+    ),
+    subscripted_builtin=dict(given_type=list[int], expected_is_type_alias=False),
+    user_class=dict(given_type=MyClass, expected_is_type_alias=False),
+)
+def test_istypealias(given_type, expected_is_type_alias):
+    # When
+    actual_is_type_alias = inspection.istypealias(given_type)
+    # Then
+    assert actual_is_type_alias is expected_is_type_alias
 
 
 @dataclasses.dataclass
