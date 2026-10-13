@@ -60,7 +60,13 @@ StrVar = typing.TypeVar("StrVar", bound=str)
 
 
 @dataclasses.dataclass
-class DataGeneric(typing.Generic[StrVar, IntVar]):
+class DataGeneric[StrVarT: str, IntVarT: int]:
+    field: StrVarT
+    value: IntVarT
+
+
+@dataclasses.dataclass
+class LegacyDataGeneric(typing.Generic[StrVar, IntVar]):  # noqa: UP046
     field: StrVar
     value: IntVar
 
@@ -120,10 +126,20 @@ TVar = typing.TypeVar("TVar", bound=int)
 
 
 @dataclasses.dataclass
-class SimpleGeneric(typing.Generic[TVar]):
+class SimpleGeneric[TVarT: int]:
+    field: TVarT
+
+
+@dataclasses.dataclass
+class NestedGeneric[TVarT: int]:
+    gen: SimpleGeneric[TVarT]
+
+
+@dataclasses.dataclass
+class LegacySimpleGeneric(typing.Generic[TVar]):  # noqa: UP046
     field: TVar
 
 
 @dataclasses.dataclass
-class NestedGeneric(typing.Generic[TVar]):
-    gen: SimpleGeneric[TVar]
+class LegacyNestedGeneric(typing.Generic[TVar]):  # noqa: UP046
+    gen: LegacySimpleGeneric[TVar]

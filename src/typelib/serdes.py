@@ -59,7 +59,7 @@ def decode(  # type: ignore[overload-overlap]
 
 
 @t.overload
-def decode(val: _T) -> _T: ...  # type: ignore[overload-overlap]
+def decode[T](val: T) -> T: ...  # type: ignore[overload-overlap]
 
 
 def decode(val: t.Any, *, encoding: str = constants.DEFAULT_ENCODING) -> t.Any:
@@ -143,9 +143,6 @@ def isoformat(dt: datetime.date | datetime.time | datetime.timedelta) -> str:
     return period
 
 
-_T = t.TypeVar("_T")
-
-
 def unixtime(dt: datetime.date | datetime.time | datetime.timedelta) -> float:
     """Convert a date/time object to a unix timestamp.
 
@@ -194,11 +191,10 @@ def unixtime(dt: datetime.date | datetime.time | datetime.timedelta) -> float:
     return dt.timestamp()
 
 
-DateTimeT = t.TypeVar("DateTimeT", datetime.date, datetime.time, datetime.timedelta)
-
-
 @compat.lru_cache(maxsize=100_000)
-def dateparse(val: str, t: type[DateTimeT]) -> DateTimeT:
+def dateparse[DateTimeT: (datetime.date, datetime.time, datetime.timedelta)](
+    val: str, t: type[DateTimeT]
+) -> DateTimeT:
     """Parse a date string into a datetime object.
 
     Examples:
@@ -230,7 +226,7 @@ def dateparse(val: str, t: type[DateTimeT]) -> DateTimeT:
         raise
 
 
-def _nomalize_dt(
+def _nomalize_dt[DateTimeT: (datetime.date, datetime.time, datetime.timedelta)](
     *, val: str, parsed: pendulum.DateTime | pendulum.Duration, td: type[DateTimeT]
 ) -> DateTimeT:
     if isinstance(parsed, pendulum.DateTime):
@@ -245,7 +241,9 @@ def _nomalize_dt(
     return parsed
 
 
-def _normalize_number(*, numval: float, td: type[DateTimeT]) -> DateTimeT:
+def _normalize_number[DateTimeT: (datetime.date, datetime.time, datetime.timedelta)](
+    *, numval: float, td: type[DateTimeT]
+) -> DateTimeT:
     # Assume the number value is seconds - same logic as time-since-epoch
     if issubclass(td, datetime.timedelta):
         return datetime.timedelta(seconds=numval)
@@ -412,7 +410,7 @@ def _make_fields_iterator(
     return _itervars
 
 
-def load(val: _T) -> PythonValueT | _T:
+def load[T](val: T) -> PythonValueT | T:
     """Attempt to decode `val` if it is a text-like object.
 
     Otherwise, return `val` unchanged.
@@ -467,17 +465,19 @@ def strload(val: str | bytes | bytearray | memoryview) -> PythonValueT:
     return decoded
 
 
-PythonPrimitiveT: t.TypeAlias = "bool | int | float | str | None"
+type PythonPrimitiveT = bool | int | float | str | None
 """Type alias for serializable, non-container Python types."""
-PythonValueT: t.TypeAlias = (
-    "PythonPrimitiveT | "
-    "dict[PythonPrimitiveT, PythonValueT] | "
-    "list[PythonValueT] | "
-    "tuple[PythonValueT, ...] | "
-    "set[PythonValueT]"
+type PythonValueT = (
+    PythonPrimitiveT
+    | dict[PythonPrimitiveT, PythonValueT]
+    | list[PythonValueT]
+    | tuple[PythonValueT, ...]
+    | set[PythonValueT]
 )
 """Type alias for any Python builtin type."""
-MarshalledValueT: t.TypeAlias = "PythonPrimitiveT | dict[PythonPrimitiveT, MarshalledValueT] | list[MarshalledValueT]"
+type MarshalledValueT = (
+    PythonPrimitiveT | dict[PythonPrimitiveT, MarshalledValueT] | list[MarshalledValueT]
+)
 """Type alias for a Python value which is ready for over-the-wire serialization."""
 
 

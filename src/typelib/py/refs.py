@@ -21,7 +21,7 @@ from typelib.py import frames, inspection
 
 __all__ = ("ForwardRef", "evaluate", "forwardref")
 
-ForwardRef: typing.TypeAlias = typing.ForwardRef
+ForwardRef = typing.ForwardRef
 
 
 def forwardref(

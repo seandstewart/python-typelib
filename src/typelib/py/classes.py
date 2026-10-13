@@ -24,29 +24,29 @@ import dataclasses
 import sys
 import warnings
 from collections.abc import Callable, MutableSet
-from typing import TypeVar, overload
+from typing import overload
 
 from typelib import constants
 
-_ClsT = TypeVar("_ClsT", bound=type)
-
 
 @overload
-def slotted(
+def slotted[ClsT: type](
     *, dict: bool = False, weakref: bool = True
-) -> Callable[[_ClsT], _ClsT]: ...
+) -> Callable[[ClsT], ClsT]: ...
 
 
 @overload
-def slotted(_cls: _ClsT, *, dict: bool = False, weakref: bool = True) -> _ClsT: ...
+def slotted[ClsT: type](
+    _cls: ClsT, *, dict: bool = False, weakref: bool = True
+) -> ClsT: ...
 
 
-def slotted(  # noqa: C901
-    _cls: _ClsT | None = None,
+def slotted[ClsT: type](  # noqa: C901
+    _cls: ClsT | None = None,
     *,
     dict: bool = False,
     weakref: bool = True,
-) -> Callable[[_ClsT], _ClsT] | _ClsT:
+) -> Callable[[ClsT], ClsT] | ClsT:
     """Decorator to create a "slotted" version of the provided class.
 
     Args:

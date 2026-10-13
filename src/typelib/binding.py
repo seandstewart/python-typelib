@@ -24,15 +24,10 @@ import typing as tp
 from typelib import unmarshals
 from typelib.py import classes, compat, inspection
 
-P = compat.ParamSpec("P")
-R = tp.TypeVar("R")
-BindingT = compat.TypeAliasType(
-    "BindingT",
-    "tp.MutableMapping[str | int, unmarshals.AbstractUnmarshaller]",
-)
+type BindingT = tp.MutableMapping[str | int, unmarshals.AbstractUnmarshaller]
 
 
-def bind(obj: tp.Callable[P, R]) -> BoundRoutine[P, R]:
+def bind[**P, R](obj: tp.Callable[P, R]) -> BoundRoutine[P, R]:
     """Create a type-enforced, bound routine for a callable object.
 
     Note:
@@ -58,7 +53,7 @@ def bind(obj: tp.Callable[P, R]) -> BoundRoutine[P, R]:
     return routine
 
 
-def wrap(obj: tp.Callable[P, R]) -> tp.Callable[..., R]:
+def wrap[**P, R](obj: tp.Callable[P, R]) -> tp.Callable[..., R]:
     """Wrap a callable object for runtime type coercion of inputs.
 
     Note:
@@ -96,7 +91,7 @@ def wrap(obj: tp.Callable[P, R]) -> tp.Callable[..., R]:
 
 @classes.slotted(dict=False, weakref=True)
 @dataclasses.dataclass
-class BoundRoutine(tp.Generic[P, R]):
+class BoundRoutine[**P, R]:
     """A type-enforced, bound routine for a callable object."""
 
     call: tp.Callable[P, R]
@@ -164,7 +159,7 @@ def _get_binding(obj: tp.Callable) -> AbstractBinding:
     )
 
 
-class AbstractBinding(abc.ABC, tp.Generic[P]):
+class AbstractBinding[**P](abc.ABC):
     """The abstract base class for all type-enforced bindings.
 
     Note:
@@ -228,7 +223,7 @@ class AbstractBinding(abc.ABC, tp.Generic[P]):
         """
 
 
-class AnyParamKindBinding(AbstractBinding[P], tp.Generic[P]):
+class AnyParamKindBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -251,7 +246,7 @@ class AnyParamKindBinding(AbstractBinding[P], tp.Generic[P]):
         return umargs, umkwargs
 
 
-class PosArgsKwargsBinding(AbstractBinding[P], tp.Generic[P]):
+class PosArgsKwargsBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -272,7 +267,7 @@ class PosArgsKwargsBinding(AbstractBinding[P], tp.Generic[P]):
         return umargs, umkwargs
 
 
-class PosKwdKwargsBinding(AbstractBinding[P], tp.Generic[P]):
+class PosKwdKwargsBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -286,7 +281,7 @@ class PosKwdKwargsBinding(AbstractBinding[P], tp.Generic[P]):
         return umargs, umkwargs
 
 
-class PosKwdArgsBinding(AbstractBinding[P], tp.Generic[P]):
+class PosKwdArgsBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -308,7 +303,7 @@ class PosKwdArgsBinding(AbstractBinding[P], tp.Generic[P]):
         return umargs, umkwargs
 
 
-class PosKwargsBinding(AbstractBinding[P], tp.Generic[P]):
+class PosKwargsBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -322,7 +317,7 @@ class PosKwargsBinding(AbstractBinding[P], tp.Generic[P]):
         return umargs, umkwargs
 
 
-class PosKwdBinding(AbstractBinding[P], tp.Generic[P]):
+class PosKwdBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -335,7 +330,7 @@ class PosKwdBinding(AbstractBinding[P], tp.Generic[P]):
         return umargs, umkwargs
 
 
-class PosArgsBinding(AbstractBinding[P], tp.Generic[P]):
+class PosArgsBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -354,7 +349,7 @@ class PosArgsBinding(AbstractBinding[P], tp.Generic[P]):
         return umargs, kwargs
 
 
-class PosBinding(AbstractBinding[P], tp.Generic[P]):
+class PosBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -365,7 +360,7 @@ class PosBinding(AbstractBinding[P], tp.Generic[P]):
         return umargs, kwargs
 
 
-class KwdArgsKwargsBinding(AbstractBinding[P], tp.Generic[P]):
+class KwdArgsKwargsBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -380,7 +375,7 @@ class KwdArgsKwargsBinding(AbstractBinding[P], tp.Generic[P]):
         return umargs, umkwargs
 
 
-class KwdArgsBinding(AbstractBinding[P], tp.Generic[P]):
+class KwdArgsBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -394,7 +389,7 @@ class KwdArgsBinding(AbstractBinding[P], tp.Generic[P]):
         return umargs, umkwargs
 
 
-class KwdKwargsBinding(AbstractBinding[P], tp.Generic[P]):
+class KwdKwargsBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -405,7 +400,7 @@ class KwdKwargsBinding(AbstractBinding[P], tp.Generic[P]):
         return args, umkwargs
 
 
-class KwdBinding(AbstractBinding[P], tp.Generic[P]):
+class KwdBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -415,7 +410,7 @@ class KwdBinding(AbstractBinding[P], tp.Generic[P]):
         return args, umkwargs
 
 
-class ArgsKwargsBinding(AbstractBinding[P], tp.Generic[P]):
+class ArgsKwargsBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -429,7 +424,7 @@ class ArgsKwargsBinding(AbstractBinding[P], tp.Generic[P]):
         return umargs, umkwargs
 
 
-class KwargsBinding(AbstractBinding[P], tp.Generic[P]):
+class KwargsBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -440,7 +435,7 @@ class KwargsBinding(AbstractBinding[P], tp.Generic[P]):
         return args, umkwargs
 
 
-class ArgsBinding(AbstractBinding[P], tp.Generic[P]):
+class ArgsBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]
@@ -451,7 +446,7 @@ class ArgsBinding(AbstractBinding[P], tp.Generic[P]):
         return umargs, kwargs
 
 
-class PosOrKwdBinding(AbstractBinding[P], tp.Generic[P]):
+class PosOrKwdBinding[**P](AbstractBinding[P]):
     def __call__(
         self, args: tuple[tp.Any], kwargs: dict[str, tp.Any]
     ) -> tuple[P.args, P.kwargs]:  # type: ignore[valid-type]

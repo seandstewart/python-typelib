@@ -17,8 +17,6 @@ import warnings
 from typelib import ctx, serdes
 from typelib.py import compat, inspection, refs
 
-T = tp.TypeVar("T")
-
 __all__ = (
     "AbstractMarshaller",
     "BytesMarshaller",
@@ -47,7 +45,7 @@ __all__ = (
 )
 
 
-class AbstractMarshaller(abc.ABC, tp.Generic[T]):
+class AbstractMarshaller[T](abc.ABC):
     """Abstract base class defining the common interface for marshallers.
 
     Marshallers are custom callables which maintain type-specific information. They
@@ -93,10 +91,10 @@ class AbstractMarshaller(abc.ABC, tp.Generic[T]):
     def __call__(self, val: T) -> serdes.MarshalledValueT: ...
 
 
-ContextT: tp.TypeAlias = "ctx.TypeContext[AbstractMarshaller]"
+type ContextT = "ctx.TypeContext[AbstractMarshaller]"
 
 
-class NoOpMarshaller(AbstractMarshaller[T], tp.Generic[T]):
+class NoOpMarshaller[T](AbstractMarshaller[T]):
     """A marshaller that does nothing."""
 
     def __call__(self, val: T) -> serdes.MarshalledValueT:
@@ -111,7 +109,7 @@ class NoOpMarshaller(AbstractMarshaller[T], tp.Generic[T]):
 BytesMarshaller = NoOpMarshaller[bytes]
 
 
-class CastMarshaller(AbstractMarshaller[T], tp.Generic[T]):
+class CastMarshaller[T](AbstractMarshaller[T]):
     """A marshaller that casts a value to a specific type."""
 
     def __call__(self, val: T) -> serdes.MarshalledValueT:
@@ -128,7 +126,7 @@ IntegerMarshaller = CastMarshaller[int]
 FloatMarshaller = CastMarshaller[float]
 
 
-class ToStringMarshaller(AbstractMarshaller[T], tp.Generic[T]):
+class ToStringMarshaller[T](AbstractMarshaller[T]):
     """A marshaller that converts a value to a string."""
 
     def __call__(self, val: T) -> str:
@@ -154,10 +152,8 @@ UUIDMarshaller = ToStringMarshaller[UUIDT]
 PathT = tp.TypeVar("PathT", bound=pathlib.Path)
 PathMarshaller = ToStringMarshaller[PathT]
 
-EnumT = tp.TypeVar("EnumT", bound=enum.Enum)
 
-
-class EnumMarshaller(AbstractMarshaller[EnumT], tp.Generic[EnumT]):
+class EnumMarshaller[EnumT: enum.Enum](AbstractMarshaller[EnumT]):
     """A marshaller that converts an [`enum.Enum`][] instance to its assigned value."""
 
     def __call__(self, val: EnumT) -> serdes.MarshalledValueT:
@@ -169,10 +165,7 @@ class EnumMarshaller(AbstractMarshaller[EnumT], tp.Generic[EnumT]):
         return val.value
 
 
-PatternT = tp.TypeVar("PatternT", bound=re.Pattern)
-
-
-class PatternMarshaller(AbstractMarshaller[PatternT]):
+class PatternMarshaller[PatternT: re.Pattern](AbstractMarshaller[PatternT]):
     """A marshaller that converts a [`re.Pattern`][] to a string."""
 
     def __call__(self, val: PatternT) -> str:
@@ -184,12 +177,9 @@ class PatternMarshaller(AbstractMarshaller[PatternT]):
         return val.pattern
 
 
-DateOrTimeT = tp.TypeVar(
-    "DateOrTimeT", datetime.date, datetime.time, datetime.timedelta
-)
-
-
-class ToISOTimeMarshaller(AbstractMarshaller[DateOrTimeT], tp.Generic[DateOrTimeT]):
+class ToISOTimeMarshaller[
+    DateOrTimeT: (datetime.date, datetime.time, datetime.timedelta)
+](AbstractMarshaller[DateOrTimeT]):
     """A marshaller that converts any date/time object to a ISO time string.
 
     See Also:
@@ -218,10 +208,7 @@ TimeDeltaT = tp.TypeVar("TimeDeltaT", bound=datetime.timedelta)
 TimeDeltaMarshaller = ToISOTimeMarshaller[TimeDeltaT]
 
 
-LiteralT = tp.TypeVar("LiteralT")
-
-
-class LiteralMarshaller(AbstractMarshaller[LiteralT], tp.Generic[LiteralT]):
+class LiteralMarshaller[LiteralT](AbstractMarshaller[LiteralT]):
     """A marshaller that enforces the given value be one of the values in the defined [`typing.Literal`][]"""
 
     __slots__ = ("values",)
@@ -252,10 +239,7 @@ class LiteralMarshaller(AbstractMarshaller[LiteralT], tp.Generic[LiteralT]):
         raise ValueError(f"{val!r} is not one of {self.values!r}")
 
 
-UnionT = tp.TypeVar("UnionT")
-
-
-class UnionMarshaller(AbstractMarshaller[UnionT], tp.Generic[UnionT]):
+class UnionMarshaller[UnionT](AbstractMarshaller[UnionT]):
     """A marshaller for dumping a given value via one of the types in the defined bound union.
 
     See Also:
@@ -299,10 +283,7 @@ class UnionMarshaller(AbstractMarshaller[UnionT], tp.Generic[UnionT]):
         raise ValueError(f"{val!r} is not one of types {self.stack!r}")
 
 
-MappingT = tp.TypeVar("MappingT", bound=tp.Mapping)
-
-
-class MappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[MappingT]):
+class MappingMarshaller[MappingT: tp.Mapping](AbstractMarshaller[MappingT]):
     """A marshaller for dumping any mapping into a simple [`dict`][]."""
 
     def __call__(self, val: MappingT) -> MarshalledMappingT:
@@ -314,10 +295,7 @@ class MappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[MappingT]):
         return {**val}
 
 
-IterableT = tp.TypeVar("IterableT", bound=tp.Iterable)
-
-
-class IterableMarshaller(AbstractMarshaller[IterableT], tp.Generic[IterableT]):
+class IterableMarshaller[IterableT: tp.Iterable](AbstractMarshaller[IterableT]):
     """A marshaller for dumping any iterable into a simple [`list`][]."""
 
     def __call__(self, val: IterableT) -> MarshalledIterableT:
@@ -329,7 +307,7 @@ class IterableMarshaller(AbstractMarshaller[IterableT], tp.Generic[IterableT]):
         return [*val]
 
 
-class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[MappingT]):
+class SubscriptedMappingMarshaller[MappingT: tp.Mapping](AbstractMarshaller[MappingT]):
     """A marshaller for dumping a subscripted mapping into a simple [`dict`][].
 
     Keys are marshalled according to the defined key-type, values according to the defined value-type.
@@ -362,8 +340,8 @@ class SubscriptedMappingMarshaller(AbstractMarshaller[MappingT], tp.Generic[Mapp
         return {keys(k): values(v) for k, v in serdes.iteritems(val)}  # type: ignore[misc]
 
 
-class SubscriptedIterableMarshaller(
-    AbstractMarshaller[IterableT], tp.Generic[IterableT]
+class SubscriptedIterableMarshaller[IterableT: tp.Iterable](
+    AbstractMarshaller[IterableT]
 ):
     """A marshaller for dumping a subscripted iterable into a simple [`list`][].
 
@@ -440,10 +418,7 @@ class FixedTupleMarshaller(AbstractMarshaller[compat.TupleT]):
         ]
 
 
-_ST = tp.TypeVar("_ST")
-
-
-class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
+class StructuredTypeMarshaller[ST](AbstractMarshaller[ST]):
     """A marshaller for dumping a structured (user-defined) type to a simple [`dict`][].
 
     See Also:
@@ -452,7 +427,7 @@ class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
 
     __slots__ = ("fields_by_var",)
 
-    def __init__(self, t: type[_ST], context: ContextT, *, var: str | None = None):
+    def __init__(self, t: type[ST], context: ContextT, *, var: str | None = None):
         """Constructor.
 
         Args:
@@ -482,7 +457,7 @@ class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
 
         return fields_by_var
 
-    def __call__(self, val: _ST) -> MarshalledMappingT:
+    def __call__(self, val: ST) -> MarshalledMappingT:
         """Marshal a structured type into a simple [`dict`][].
 
         Args:
@@ -492,7 +467,5 @@ class StructuredTypeMarshaller(AbstractMarshaller[_ST]):
         return {f: fields[f](v) for f, v in serdes.iteritems(val) if f in fields}
 
 
-MarshalledMappingT: tp.TypeAlias = dict[
-    serdes.PythonPrimitiveT, serdes.MarshalledValueT
-]
-MarshalledIterableT: tp.TypeAlias = list[serdes.MarshalledValueT]
+type MarshalledMappingT = dict[serdes.PythonPrimitiveT, serdes.MarshalledValueT]
+type MarshalledIterableT = list[serdes.MarshalledValueT]

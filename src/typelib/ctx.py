@@ -3,20 +3,18 @@
 from __future__ import annotations
 
 import contextlib
-import typing as tp
-import typing_extensions as te
 
 from typelib.py import inspection, refs
 
-ValueT = tp.TypeVar("ValueT")
-DefaultT = tp.TypeVar("DefaultT")
-KeyT = te.TypeAliasType("KeyT", "type | refs.ForwardRef")
+type KeyT = type | refs.ForwardRef
 
 
-class TypeContext(dict[KeyT, ValueT], tp.Generic[ValueT]):
+class TypeContext[ValueT](dict[KeyT, ValueT]):
     """A key-value mapping which can map between forward references and real types."""
 
-    def get(self, key: KeyT, default: ValueT | DefaultT = None) -> ValueT | DefaultT:  # type: ignore[assignment]
+    def get[DefaultT](
+        self, key: KeyT, default: ValueT | DefaultT = None
+    ) -> ValueT | DefaultT:  # type: ignore[assignment]
         with contextlib.suppress(KeyError):
             return self[key]
 

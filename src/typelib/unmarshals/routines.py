@@ -19,8 +19,6 @@ import warnings
 from typelib import constants, ctx, serdes
 from typelib.py import compat, inspection, refs
 
-T = tp.TypeVar("T")
-
 __all__ = (
     "AbstractUnmarshaller",
     "BytesUnmarshaller",
@@ -53,7 +51,7 @@ __all__ = (
 )
 
 
-class AbstractUnmarshaller(abc.ABC, tp.Generic[T]):
+class AbstractUnmarshaller[T](abc.ABC):
     """Abstract base class defining the common interface for unmarshallers.
 
     Unmarshallers are custom callables which maintain type-specific information. They
@@ -103,7 +101,7 @@ class AbstractUnmarshaller(abc.ABC, tp.Generic[T]):
         """
 
 
-class NoOpUnmarshaller(AbstractUnmarshaller[T]):
+class NoOpUnmarshaller[T](AbstractUnmarshaller[T]):
     """Unmarshaller that does nothing."""
 
     def __call__(self, val: tp.Any) -> T:
@@ -138,11 +136,10 @@ class NoneTypeUnmarshaller(AbstractUnmarshaller[None]):
             raise ValueError(f"{val!r} is not of {types.NoneType!r}")
 
 
-ContextT: tp.TypeAlias = "ctx.TypeContext[AbstractUnmarshaller]"
-BytesT = tp.TypeVar("BytesT", bound=bytes)
+type ContextT = "ctx.TypeContext[AbstractUnmarshaller]"
 
 
-class BytesUnmarshaller(AbstractUnmarshaller[BytesT], tp.Generic[BytesT]):
+class BytesUnmarshaller[BytesT: bytes](AbstractUnmarshaller[BytesT]):
     """Unmarshaller that encodes an input to bytes.
 
     Note:
@@ -161,10 +158,7 @@ class BytesUnmarshaller(AbstractUnmarshaller[BytesT], tp.Generic[BytesT]):
         return self.t(str(val).encode(constants.DEFAULT_ENCODING))
 
 
-StringT = tp.TypeVar("StringT", bound=str)
-
-
-class StringUnmarshaller(AbstractUnmarshaller[StringT], tp.Generic[StringT]):
+class StringUnmarshaller[StringT: str](AbstractUnmarshaller[StringT]):
     """Unmarshaller that converts an input to a string.
 
     Note:
@@ -185,10 +179,7 @@ class StringUnmarshaller(AbstractUnmarshaller[StringT], tp.Generic[StringT]):
         return self.t(decoded)
 
 
-NumberT = tp.TypeVar("NumberT", bound=numbers.Number)
-
-
-class NumberUnmarshaller(AbstractUnmarshaller[NumberT], tp.Generic[NumberT]):
+class NumberUnmarshaller[NumberT: numbers.Number](AbstractUnmarshaller[NumberT]):
     """Unmarshaller that converts an input to a number.
 
     Note:
@@ -237,10 +228,7 @@ FractionT = tp.TypeVar("FractionT", bound=fractions.Fraction)
 FractionUnmarshaller = NumberUnmarshaller[FractionT]
 
 
-DateT = tp.TypeVar("DateT", bound=datetime.date)
-
-
-class DateUnmarshaller(AbstractUnmarshaller[DateT], tp.Generic[DateT]):
+class DateUnmarshaller[DateT: datetime.date](AbstractUnmarshaller[DateT]):
     """Unmarshaller that converts an input to a [`datetime.date`][] (or subclasses).
 
     Notes:
@@ -294,11 +282,8 @@ class DateUnmarshaller(AbstractUnmarshaller[DateT], tp.Generic[DateT]):
         return self.t(year=date.year, month=date.month, day=date.day)
 
 
-DateTimeT = tp.TypeVar("DateTimeT", bound=datetime.datetime)
-
-
-class DateTimeUnmarshaller(
-    AbstractUnmarshaller[datetime.datetime], tp.Generic[DateTimeT]
+class DateTimeUnmarshaller[DateTimeT: datetime.datetime](
+    AbstractUnmarshaller[datetime.datetime]
 ):
     """Unmarshaller that converts an input to a [`datetime.datetime`][] (or subclasses).
 
@@ -377,10 +362,7 @@ class DateTimeUnmarshaller(
         return self.t(year=dt.year, month=dt.month, day=dt.day, tzinfo=datetime.UTC)
 
 
-TimeT = tp.TypeVar("TimeT", bound=datetime.time)
-
-
-class TimeUnmarshaller(AbstractUnmarshaller[TimeT], tp.Generic[TimeT]):
+class TimeUnmarshaller[TimeT: datetime.time](AbstractUnmarshaller[TimeT]):
     """Unmarshaller that converts an input to a[`datetime.time`][] (or subclasses).
 
     Notes:
@@ -449,10 +431,9 @@ class TimeUnmarshaller(AbstractUnmarshaller[TimeT], tp.Generic[TimeT]):
         )
 
 
-TimeDeltaT = tp.TypeVar("TimeDeltaT", bound=datetime.timedelta)
-
-
-class TimeDeltaUnmarshaller(AbstractUnmarshaller[TimeDeltaT], tp.Generic[TimeDeltaT]):
+class TimeDeltaUnmarshaller[TimeDeltaT: datetime.timedelta](
+    AbstractUnmarshaller[TimeDeltaT]
+):
     """Unmarshaller that converts an input to a [`datetime.timedelta`][] (or subclasses).
 
     Notes:
@@ -501,10 +482,7 @@ class TimeDeltaUnmarshaller(AbstractUnmarshaller[TimeDeltaT], tp.Generic[TimeDel
         return self.t(seconds=td.total_seconds())
 
 
-UUIDT = tp.TypeVar("UUIDT", bound=uuid.UUID)
-
-
-class UUIDUnmarshaller(AbstractUnmarshaller[UUIDT], tp.Generic[UUIDT]):
+class UUIDUnmarshaller[UUIDT: uuid.UUID](AbstractUnmarshaller[UUIDT]):
     """Unmarshaller that converts an input to a [`uuid.UUID`][] (or subclasses).
 
     Note:
@@ -538,10 +516,7 @@ class UUIDUnmarshaller(AbstractUnmarshaller[UUIDT], tp.Generic[UUIDT]):
         return self.t(decoded)  # type: ignore[arg-type]
 
 
-PatternT = tp.TypeVar("PatternT", bound=re.Pattern)
-
-
-class PatternUnmarshaller(AbstractUnmarshaller[PatternT], tp.Generic[PatternT]):
+class PatternUnmarshaller[PatternT: re.Pattern](AbstractUnmarshaller[PatternT]):
     """Unmarshaller that converts an input to a [`re.Pattern`][].
 
     Note:
@@ -558,7 +533,7 @@ class PatternUnmarshaller(AbstractUnmarshaller[PatternT], tp.Generic[PatternT]):
         return re.compile(decoded)  # type: ignore[return-value]
 
 
-class CastUnmarshaller(AbstractUnmarshaller[T]):
+class CastUnmarshaller[T](AbstractUnmarshaller[T]):
     """Unmarshaller that converts an input to an instance of `T` with a direct cast.
 
     Note:
@@ -605,10 +580,7 @@ EnumT = tp.TypeVar("EnumT", bound=enum.Enum)
 EnumUnmarshaller = CastUnmarshaller[EnumT]
 
 
-LiteralT = tp.TypeVar("LiteralT")
-
-
-class LiteralUnmarshaller(AbstractUnmarshaller[LiteralT], tp.Generic[LiteralT]):
+class LiteralUnmarshaller[LiteralT](AbstractUnmarshaller[LiteralT]):
     """Unmarshaller that will enforce an input conform to a defined [`typing.Literal`][].
 
     Note:
@@ -642,10 +614,7 @@ class LiteralUnmarshaller(AbstractUnmarshaller[LiteralT], tp.Generic[LiteralT]):
         raise ValueError(f"{decoded!r} is not one of {self.values!r}")
 
 
-UnionT = tp.TypeVar("UnionT")
-
-
-class UnionUnmarshaller(AbstractUnmarshaller[UnionT], tp.Generic[UnionT]):
+class UnionUnmarshaller[UnionT](AbstractUnmarshaller[UnionT]):
     """Unmarshaller that will convert an input to one of the types defined in a [`typing.Union`][].
 
     Note:
@@ -704,15 +673,8 @@ class UnionUnmarshaller(AbstractUnmarshaller[UnionT], tp.Generic[UnionT]):
         raise ValueError(f"{val!r} is not one of types {self.stack!r}")
 
 
-_KT = tp.TypeVar("_KT")
-_VT = tp.TypeVar("_VT")
-
-
-MappingT = tp.TypeVar("MappingT", bound=tp.Mapping)
-
-
-class SubscriptedMappingUnmarshaller(
-    AbstractUnmarshaller[MappingT], tp.Generic[MappingT]
+class SubscriptedMappingUnmarshaller[MappingT: tp.Mapping](
+    AbstractUnmarshaller[MappingT]
 ):
     """Unmarshaller for a subscripted mapping type.
 
@@ -767,11 +729,8 @@ class SubscriptedMappingUnmarshaller(
         )
 
 
-IterableT = tp.TypeVar("IterableT", bound=tp.Iterable)
-
-
-class SubscriptedIterableUnmarshaller(
-    AbstractUnmarshaller[IterableT], tp.Generic[IterableT]
+class SubscriptedIterableUnmarshaller[IterableT: tp.Iterable](
+    AbstractUnmarshaller[IterableT]
 ):
     """Unmarshaller for a subscripted iterable type.
 
@@ -821,11 +780,8 @@ class SubscriptedIterableUnmarshaller(
         return self.origin(values(v) for v in serdes.itervalues(decoded))  # type: ignore[call-arg]
 
 
-IteratorT = tp.TypeVar("IteratorT", bound=tp.Iterator)
-
-
-class SubscriptedIteratorUnmarshaller(
-    AbstractUnmarshaller[IteratorT], tp.Generic[IteratorT]
+class SubscriptedIteratorUnmarshaller[IteratorT: tp.Iterator](
+    AbstractUnmarshaller[IteratorT]
 ):
     """Unmarshaller for a subscripted iterator type.
 
@@ -936,10 +892,7 @@ class FixedTupleUnmarshaller(AbstractUnmarshaller[compat.TupleT]):
         )
 
 
-_ST = tp.TypeVar("_ST")
-
-
-class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
+class StructuredTypeUnmarshaller[ST](AbstractUnmarshaller[ST]):
     """Unmarshaller for a "structured" (user-defined) type.
 
     Note:
@@ -968,7 +921,7 @@ class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
 
     __slots__ = ("fields_by_var",)
 
-    def __init__(self, t: type[_ST], context: ContextT, *, var: str | None = None):
+    def __init__(self, t: type[ST], context: ContextT, *, var: str | None = None):
         """Constructor.
 
         Args:
@@ -998,7 +951,7 @@ class StructuredTypeUnmarshaller(AbstractUnmarshaller[_ST]):
 
         return fields_by_var
 
-    def __call__(self, val: tp.Any) -> _ST:
+    def __call__(self, val: tp.Any) -> ST:
         """Unmarshal a value into the bound type.
 
         Args:

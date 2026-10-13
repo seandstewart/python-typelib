@@ -185,6 +185,23 @@ from tests import models
         given_input={"gen": {"field": "1"}},
         expected_output=models.NestedGeneric(gen=models.SimpleGeneric(field=1)),
     ),
+    legacy_subscripted_generic=dict(
+        given_type=models.LegacyDataGeneric[str, int],
+        given_input={"field": "data", "value": "1"},
+        expected_output=models.LegacyDataGeneric(field="data", value=1),
+    ),
+    legacy_unsubscripted_generic=dict(
+        given_type=models.LegacyDataGeneric,
+        given_input={"field": "data", "value": "1"},
+        expected_output=models.LegacyDataGeneric(field="data", value=1),
+    ),
+    legacy_nested_generic=dict(
+        given_type=models.LegacyNestedGeneric[int],
+        given_input={"gen": {"field": "1"}},
+        expected_output=models.LegacyNestedGeneric(
+            gen=models.LegacySimpleGeneric(field=1)
+        ),
+    ),
 )
 def test_unmarshal(given_type, given_input, expected_output):
     # When

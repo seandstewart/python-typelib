@@ -844,13 +844,17 @@ def test_isstructuredtype(given_type, expected_is_structured_type):
 T = t.TypeVar("T")
 
 
-class MyGeneric(t.Generic[T]): ...
+class MyGeneric[GenericT]: ...
+
+
+class LegacyGeneric(t.Generic[T]): ...  # noqa: UP046
 
 
 @pytest.mark.suite(
     typing_tuple=dict(given_type=t.Tuple, expected_is_generic=True),
     tuple=dict(given_type=tuple, expected_is_generic=False),
     generic=dict(given_type=MyGeneric, expected_is_generic=True),
+    legacy_generic=dict(given_type=LegacyGeneric, expected_is_generic=True),
 )
 def test_isgeneric(given_type, expected_is_generic):
     # When
@@ -866,6 +870,12 @@ def test_isgeneric(given_type, expected_is_generic):
     ),
     generic=dict(given_type=MyGeneric, expected_is_subscripted_generic=False),
     generic_sub=dict(given_type=MyGeneric[int], expected_is_subscripted_generic=True),
+    legacy_generic=dict(
+        given_type=LegacyGeneric, expected_is_subscripted_generic=False
+    ),
+    legacy_generic_sub=dict(
+        given_type=LegacyGeneric[int], expected_is_subscripted_generic=True
+    ),
 )
 def test_issubscriptedgeneric(given_type, expected_is_subscripted_generic):
     # When

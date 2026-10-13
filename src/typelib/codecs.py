@@ -11,11 +11,8 @@ from typelib.py import classes, compat, inspection
 __all__ = ("Codec", "codec")
 
 
-T = t.TypeVar("T")
-
-
 @compat.cache
-def codec(
+def codec[T](
     t: type[T],
     *,
     marshaller: marshals.AbstractMarshaller[T] | None = None,
@@ -76,7 +73,7 @@ def codec(
 
 @classes.slotted(dict=False, weakref=False)
 @dataclasses.dataclass(frozen=True)
-class Codec(t.Generic[T]):
+class Codec[T]:
     """A standard wire protocol (codec).
 
     This codec enables you to directly encode and decode your data model into your wire protocol.
@@ -120,9 +117,9 @@ class Codec(t.Generic[T]):
         return unmarshalled
 
 
-CodecT = compat.TypeAliasType("CodecT", Codec, type_params=(T,))
+type CodecT[T] = Codec[T]
 """Generic type alias with an upper bound of [`Codec`][typelib.Codec]."""
-EncoderT: t.TypeAlias = t.Callable[[serdes.MarshalledValueT], bytes]
+type EncoderT = t.Callable[[serdes.MarshalledValueT], bytes]
 """Protocol for a wire serializer."""
-DecoderT: t.TypeAlias = t.Callable[[bytes], serdes.MarshalledValueT]
+type DecoderT = t.Callable[[bytes], serdes.MarshalledValueT]
 """Protocol for a wire deserializer."""

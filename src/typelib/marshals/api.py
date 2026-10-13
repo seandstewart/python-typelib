@@ -8,8 +8,6 @@ from typelib import ctx, graph, serdes
 from typelib.marshals import routines
 from typelib.py import compat, inspection, refs
 
-T = tp.TypeVar("T")
-
 __all__ = (
     "DelayedMarshaller",
     "marshal",
@@ -17,7 +15,7 @@ __all__ = (
 )
 
 
-def marshal(
+def marshal[T](
     value: tp.Any, *, t: type[T] | refs.ForwardRef | str | None = None
 ) -> serdes.MarshalledValueT:
     """Marshal `value` from `typ` into [`MarshalledValueT`][typelib.serdes.MarshalledValueT].
@@ -35,7 +33,7 @@ def marshal(
 
 
 @compat.cache
-def marshaller(
+def marshaller[T](
     t: type[T] | refs.ForwardRef | compat.TypeAliasType | str,
 ) -> routines.AbstractMarshaller[T]:
     """Get a marshaller routine for a given type.
@@ -59,7 +57,7 @@ def marshaller(
     return context[root.type]
 
 
-def _get_unmarshaller(  # type: ignore[return]
+def _get_unmarshaller[T](  # type: ignore[return]
     node: graph.TypeNode,
     context: routines.ContextT,
 ) -> routines.AbstractMarshaller[T]:
@@ -75,7 +73,7 @@ def _get_unmarshaller(  # type: ignore[return]
     return routines.StructuredTypeMarshaller(typ, context=context, var=node.var)
 
 
-class DelayedMarshaller(routines.AbstractMarshaller[T]):
+class DelayedMarshaller[T](routines.AbstractMarshaller[T]):
     """Delayed proxy for a given type's marshaller, used when we encounter a [`typing.ForwardRef`][].
 
     Notes:
@@ -105,7 +103,7 @@ class DelayedMarshaller(routines.AbstractMarshaller[T]):
 
 # Order is IMPORTANT! This is a FIFO queue.
 _HANDLERS: tp.Mapping[
-    tp.Callable[[type[T]], bool], type[routines.AbstractMarshaller]
+    tp.Callable[[type[tp.Any]], bool], type[routines.AbstractMarshaller]
 ] = {
     # Short-circuit forward refs
     inspection.isforwardref: DelayedMarshaller,

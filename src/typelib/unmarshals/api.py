@@ -8,8 +8,6 @@ from typelib import ctx, graph
 from typelib.py import compat, inspection, refs
 from typelib.unmarshals import routines
 
-T = tp.TypeVar("T")
-
 __all__ = (
     "DelayedUnmarshaller",
     "unmarshal",
@@ -17,7 +15,7 @@ __all__ = (
 )
 
 
-def unmarshal(t: type[T] | refs.ForwardRef | str, value: tp.Any) -> T:
+def unmarshal[T](t: type[T] | refs.ForwardRef | str, value: tp.Any) -> T:
     """Unmarshal `value` into `typ`.
 
     Args:
@@ -30,7 +28,7 @@ def unmarshal(t: type[T] | refs.ForwardRef | str, value: tp.Any) -> T:
 
 
 @compat.cache
-def unmarshaller(
+def unmarshaller[T](
     t: type[T] | refs.ForwardRef | compat.TypeAliasType | str,
 ) -> routines.AbstractUnmarshaller[T]:
     """Get an un-marshaller routine for a given type.
@@ -53,7 +51,7 @@ def unmarshaller(
     return context[root.type]
 
 
-def _get_unmarshaller(  # type: ignore[return]
+def _get_unmarshaller[T](  # type: ignore[return]
     node: graph.TypeNode,
     context: routines.ContextT,
 ) -> routines.AbstractUnmarshaller[T]:
@@ -69,7 +67,7 @@ def _get_unmarshaller(  # type: ignore[return]
     return routines.StructuredTypeUnmarshaller(typ, context=context, var=node.var)
 
 
-class DelayedUnmarshaller(routines.AbstractUnmarshaller[T]):
+class DelayedUnmarshaller[T](routines.AbstractUnmarshaller[T]):
     """Delayed proxy for a given type's unmarshaller, used when we encounter a [`typing.ForwardRef`][].
 
     Notes:
@@ -99,7 +97,7 @@ class DelayedUnmarshaller(routines.AbstractUnmarshaller[T]):
 
 # Order is IMPORTANT! This is a FIFO queue.
 _HANDLERS: tp.Mapping[
-    tp.Callable[[type[T]], bool], type[routines.AbstractUnmarshaller]
+    tp.Callable[[type[tp.Any]], bool], type[routines.AbstractUnmarshaller]
 ] = {
     # Short-circuit forward refs
     inspection.isforwardref: DelayedUnmarshaller,

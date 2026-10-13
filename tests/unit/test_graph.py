@@ -114,6 +114,22 @@ class NoTypes:
             graph.TypeNode(type=models.NestedGeneric[int]),
         ],
     ),
+    legacy_nested_generic=dict(
+        given_type=models.LegacyNestedGeneric[int],
+        expected_nodes=[
+            graph.TypeNode(type=int),
+            graph.TypeNode(
+                type=mock.ANY,  # The bound typevar, which is hard to replicate
+                unwrapped=int,
+                var="field",
+            ),
+            graph.TypeNode(
+                type=models.LegacySimpleGeneric[mock.ANY],
+                var="gen",
+            ),
+            graph.TypeNode(type=models.LegacyNestedGeneric[int]),
+        ],
+    ),
 )
 @pytest.mark.skipif(sys.version_info < (3, 10), reason="py3.10+")
 def test_static_order(given_type, expected_nodes):

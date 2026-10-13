@@ -564,7 +564,7 @@ def isstdlibinstance(o: tp.Any) -> compat.TypeIs[STDLibtypeT]:
 
 
 @compat.cache
-def isoptionaltype(obj: type[_OT]) -> compat.TypeGuard[type[_OT] | None]:
+def isoptionaltype[OT](obj: type[OT]) -> compat.TypeGuard[type[OT] | None]:
     """Test whether an annotation is [`typing.Optional`][], or can be treated as.
 
     [`typing.Optional`][] is an alias for `typing.Union[<T>, None]`, so both are
@@ -588,9 +588,6 @@ def isoptionaltype(obj: type[_OT]) -> compat.TypeGuard[type[_OT] | None]:
         nullarg is not ... and tname in ("Union", "UnionType", "Literal")
     )
     return isoptional
-
-
-_OT = tp.TypeVar("_OT")
 
 
 @compat.cache
@@ -860,9 +857,9 @@ _COLLECTIONS = {list, set, tuple, frozenset, dict, str, bytes}
 
 
 @compat.cache
-def issubscriptedcollectiontype(
-    obj: type[tp.Generic[_ArgsT]],  # type: ignore[valid-type]
-) -> compat.TypeIs[type[tp.Collection[_ArgsT]]]:
+def issubscriptedcollectiontype[ArgsT](
+    obj: type[tp.Generic[ArgsT]],  # type: ignore[valid-type]
+) -> compat.TypeIs[type[tp.Collection[ArgsT]]]:
     """Test whether this annotation is a collection type and is subscripted.
 
     Examples:
@@ -877,9 +874,6 @@ def issubscriptedcollectiontype(
         True
     """
     return iscollectiontype(obj) and issubscriptedgeneric(obj)
-
-
-_ArgsT = tp.TypeVar("_ArgsT")
 
 
 @compat.cache
@@ -1131,26 +1125,21 @@ def isdescriptor(obj) -> compat.TypeIs[DescriptorT]:
 _DESCRIPTOR_METHODS = frozenset(("__get__", "__set__", "__delete__", "__set_name__"))
 
 
-_VT_in = tp.TypeVar("_VT_in")
-_VT_co = tp.TypeVar("_VT_co", covariant=True)
-_VT_cont = tp.TypeVar("_VT_cont", contravariant=True)
-
-
-class GetDescriptor(tp.Protocol[_VT_co]):
+class GetDescriptor[VT](tp.Protocol):
     @tp.overload
     def __get__(self, instance: None, owner: tp.Any) -> GetDescriptor: ...
 
     @tp.overload
-    def __get__(self, instance: object, owner: tp.Any) -> _VT_co: ...
+    def __get__(self, instance: object, owner: tp.Any) -> VT: ...
 
-    def __get__(self, instance: tp.Any, owner: tp.Any) -> GetDescriptor | _VT_co: ...
-
-
-class SetDescriptor(tp.Protocol[_VT_cont]):
-    def __set__(self, instance: tp.Any, value: _VT_cont): ...
+    def __get__(self, instance: tp.Any, owner: tp.Any) -> GetDescriptor | VT: ...
 
 
-class DeleteDescriptor(tp.Protocol[_VT_co]):
+class SetDescriptor[VT](tp.Protocol):
+    def __set__(self, instance: tp.Any, value: VT): ...
+
+
+class DeleteDescriptor[VT](tp.Protocol):
     def __delete__(self, instance: tp.Any): ...
 
 

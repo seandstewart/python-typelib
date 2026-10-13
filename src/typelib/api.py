@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import typing as t
-
 from typelib.codecs import Codec, DecoderT, EncoderT, codec
 from typelib.marshals import AbstractMarshaller, marshal, marshaller
 from typelib.py import compat, refs
@@ -23,10 +21,7 @@ __all__ = (
 )
 
 
-T = t.TypeVar("T")
-
-
-def encode(
+def encode[T](
     value: T,
     *,
     t: type[T] | refs.ForwardRef | str | None = None,
@@ -44,7 +39,7 @@ def encode(
     return encoded
 
 
-def decode(
+def decode[T](
     t: type[T] | refs.ForwardRef | str,
     value: bytes,
     *,
