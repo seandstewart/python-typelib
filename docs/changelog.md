@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1][0.3.1] - 2026-10-14
+
+### <!-- 1 -->🐛 Bug Fixes
+- Skip non-class members in union lookups
+- Type-check forward ref evaluation on every Python version
+
+### <!-- 3 -->📚 Documentation
+- Regenerate 0.3.0 changelog
+
+### <!-- 7 -->⚙️ Miscellaneous Tasks
+- Lint each matrix Python version and skip hooks for changelog commits
+- Build release notes from the latest tag
+- Deduplicate pipelines for repeated push events
+- Read release version from job env in publish
+- Lint GitHub workflows with actionlint
+
+
 ## [0.3.0][0.3.0] - 2026-10-14
 
 ### <!-- 0 -->🚀 Features
@@ -253,6 +270,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * @invalid-email-address made their first contribution
 * @seandstewart made their first contribution
 
+[0.3.1]: https://github.com/seandstewart/python-typelib/compare/v0.3.0..v0.3.1
 [0.3.0]: https://github.com/seandstewart/python-typelib/compare/v0.2.0..v0.3.0
 [0.2.0]: https://github.com/seandstewart/python-typelib/compare/v0.1.13..v0.2.0
 [0.1.13]: https://github.com/seandstewart/python-typelib/compare/v0.1.12..v0.1.13
