@@ -27,8 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### <!-- 7 -->⚙️ Miscellaneous Tasks
 - Resolve ruff 0.17 findings outside PEP 695
 
-## New Contributors
-* @ made their first contribution
 
 ## [0.2.0][0.2.0] - 2025-09-22
 
