@@ -18,6 +18,12 @@ repos:
     rev: v0.0.86
     hooks:
       - id: ty
+  - repo: https://github.com/Mateusz-Grzelinski/actionlint-py
+    # actionlint version.
+    rev: v1.7.12.25
+    hooks:
+      - id: actionlint
+        stages: [pre-commit, manual]
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.4.0
     hooks:
