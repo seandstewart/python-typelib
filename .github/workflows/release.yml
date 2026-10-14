@@ -7,6 +7,10 @@ on:
     tags-ignore:
     - '**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 defaults:
   run:
     shell: bash
@@ -30,15 +34,24 @@ jobs:
         token: ${{ steps.app-token.outputs.token }}
         fetch-depth: 0
         fetch-tags: true
+    - name: Check for existing tag
+      id: existing-tag
+      run: |
+        if git tag --points-at HEAD | grep -q '^v'; then
+          echo "skip=true" >> "$GITHUB_OUTPUT"
+        fi
     - uses: ./.github/actions/bootstrap-environ
+      if: steps.existing-tag.outputs.skip != 'true'
       id: bootstrap-environ
       with:
         python-version: ${{ matrix.python-version }}
         runner: ${{ matrix.os }}
     # In order to make a commit, we need to initialize a user.
     - name: Initialize mandatory git config
+      if: steps.existing-tag.outputs.skip != 'true'
       run: |
         git config user.name "GitHub actions"
         git config user.email noreply@github.com
     - name: Tag New Version
+      if: steps.existing-tag.outputs.skip != 'true'
       run: make release-version ref=${{ github.ref_name }}
