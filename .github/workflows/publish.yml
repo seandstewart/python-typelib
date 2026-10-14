@@ -97,7 +97,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         body_path: release-notes.md
-        tag_name: ${{ github.env.RELEASE_VERSION }}
-        target_commitish: ${{ github.env.TARGET_COMMITISH }}
+        tag_name: ${{ env.RELEASE_VERSION }}
+        target_commitish: ${{ env.TARGET_COMMITISH }}
         make_latest: true
         files: dist/*
