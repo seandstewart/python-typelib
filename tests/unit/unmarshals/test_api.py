@@ -274,6 +274,11 @@ from tests import models
         given_input={"value": "hello"},
         expected_output=models.Leaf(value="hello"),
     ),
+    literal_in_union=dict(
+        given_type=typing.Literal[1] | None,
+        given_input="1",
+        expected_output=1,
+    ),
 )
 def test_unmarshal(given_type, given_input, expected_output):
     # When

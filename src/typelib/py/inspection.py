@@ -1559,14 +1559,20 @@ def union_collection_members(stack: tp.Sequence[tp.Any]) -> frozenset[int]:
 
 
 def _resolve_union_member(member: tp.Any) -> tp.Any | None:
-    """Unwrap a union member, evaluating forward references. `None` if unresolvable."""
+    """Unwrap a union member, evaluating forward references. `None` if not a class."""
     resolved = unwrap(member)
     if isforwardref(resolved):
         try:
             resolved = unwrap(refs.evaluate(resolved))
         except (NameError, TypeError, SyntaxError):
             return None
-    return None if isforwardref(resolved) else resolved
+    if (
+        resolved in (tp.Any, te.Any)
+        or isliteral(resolved)
+        or not inspect.isclass(origin(resolved))
+    ):
+        return None
+    return resolved
 
 
 def _resolve_generic_alias(t: tp.Any) -> tp.Any:

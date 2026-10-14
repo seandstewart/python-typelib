@@ -959,3 +959,31 @@ def test_safe_get_params(given_type, expected_params):
     params = inspection.safe_get_params(given_type)
     # Then
     assert params == expected_params
+
+
+@pytest.mark.suite(
+    literal=dict(
+        given_stack=(t.Literal[1], type(None)),
+        expected_members={type(None): 1},
+    ),
+    any=dict(given_stack=(t.Any, int), expected_members={int: 1}),
+)
+def test_union_exact_members(given_stack, expected_members):
+    # When
+    actual_members = inspection.union_exact_members(given_stack)
+    # Then
+    assert actual_members == expected_members
+
+
+@pytest.mark.suite(
+    literal=dict(
+        given_stack=(t.Literal[1], list[int]),
+        expected_members=frozenset({1}),
+    ),
+    any=dict(given_stack=(t.Any, list[int]), expected_members=frozenset({1})),
+)
+def test_union_collection_members(given_stack, expected_members):
+    # When
+    actual_members = inspection.union_collection_members(given_stack)
+    # Then
+    assert actual_members == expected_members
