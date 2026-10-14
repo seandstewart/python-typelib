@@ -61,44 +61,69 @@ def forwardref(
     )
 
 
-def evaluate(
-    ref: ForwardRef,
-    *,
-    globalns: typing.Mapping[str, typing.Any] | None = None,
-    localns: typing.Mapping[str, typing.Any] | None = None,
-    recursive_guard: set | None = None,
-) -> typing.Any:
-    """Evaluate the [`typing.ForwardRef`][] instance into a proper type.
+if sys.version_info >= (3, 14):
 
-    Note:
-        Most of the time you will not need to provide anything but `ref`.
+    def evaluate(
+        ref: ForwardRef,
+        *,
+        globalns: typing.Mapping[str, typing.Any] | None = None,
+        localns: typing.Mapping[str, typing.Any] | None = None,
+        recursive_guard: set | None = None,
+    ) -> typing.Any:
+        """Evaluate the [`typing.ForwardRef`][] instance into a proper type.
 
-    Args:
-        ref: The [`typing.ForwardRef`][] instance to evaluate.
-        globalns: A mapping of global variable names to values (optional).
-        localns: A mapping of local variable names to values (optional).
-        recursive_guard:
-            A set instance to prevent recursion during evaluation (optional).
-            Ignored on Python 3.14+.
-    """
-    if type(ref) is not ForwardRef:
-        return ref
-    if sys.version_info >= (3, 14):
+        Note:
+            Most of the time you will not need to provide anything but `ref`.
+
+        Args:
+            ref: The [`typing.ForwardRef`][] instance to evaluate.
+            globalns: A mapping of global variable names to values (optional).
+            localns: A mapping of local variable names to values (optional).
+            recursive_guard:
+                A set instance to prevent recursion during evaluation (optional).
+                Ignored on Python 3.14+.
+        """
+        if type(ref) is not ForwardRef:
+            return ref
         return typing.evaluate_forward_ref(
             ref,
-            globals=globalns,
+            globals=dict(globalns) if globalns is not None else None,
             locals=localns,
         )
-    if ref.__forward_evaluated__:
-        return ref.__forward_value__
 
-    recursive_guard = recursive_guard or set()
-    return ref._evaluate(
-        globalns,  # ty: ignore[invalid-argument-type]
-        localns,
-        type_params=(),
-        recursive_guard=recursive_guard,  # ty: ignore[invalid-argument-type]
-    )
+else:
+
+    def evaluate(
+        ref: ForwardRef,
+        *,
+        globalns: typing.Mapping[str, typing.Any] | None = None,
+        localns: typing.Mapping[str, typing.Any] | None = None,
+        recursive_guard: set | None = None,
+    ) -> typing.Any:
+        """Evaluate the [`typing.ForwardRef`][] instance into a proper type.
+
+        Note:
+            Most of the time you will not need to provide anything but `ref`.
+
+        Args:
+            ref: The [`typing.ForwardRef`][] instance to evaluate.
+            globalns: A mapping of global variable names to values (optional).
+            localns: A mapping of local variable names to values (optional).
+            recursive_guard:
+                A set instance to prevent recursion during evaluation (optional).
+                Ignored on Python 3.14+.
+        """
+        if type(ref) is not ForwardRef:
+            return ref
+        if ref.__forward_evaluated__:
+            return ref.__forward_value__
+
+        return ref._evaluate(
+            dict(globalns) if globalns is not None else None,
+            localns,
+            type_params=(),
+            recursive_guard=frozenset(recursive_guard or ()),
+        )
 
 
 @functools.cache
