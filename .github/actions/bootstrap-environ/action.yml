@@ -20,7 +20,7 @@ runs:
       # Configure a relative location for the uv cache
       UV_CACHE_DIR: ~/.cache/uv
     with:
-      python-version: ${{ matrix.python-version }}
+      python-version: ${{ inputs.python-version }}
   - uses: actions/setup-python@v5
     with:
       python-version: ${{ inputs.python-version }}
