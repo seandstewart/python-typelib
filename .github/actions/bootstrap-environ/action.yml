@@ -15,13 +15,13 @@ runs:
       git config user.email github-actions@github.com
       git config pull.ff true
     shell: bash
+  - uses: actions/setup-python@v5
+    with:
+      python-version: ${{ inputs.python-version }}
   - uses: astral-sh/setup-uv@v5
     env:
       # Configure a relative location for the uv cache
       UV_CACHE_DIR: ~/.cache/uv
-    with:
-      python-version: ${{ inputs.python-version }}
-  - uses: actions/setup-python@v5
     with:
       python-version: ${{ inputs.python-version }}
   - uses: actions/cache@v4
