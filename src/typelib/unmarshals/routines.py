@@ -171,12 +171,12 @@ class StringUnmarshaller[StringT: str](AbstractUnmarshaller[StringT]):
     def __call__(self, val: tp.Any) -> StringT:
         # Always decode bytes.
         decoded = serdes.decode(val)
-        if isinstance(decoded, self.t):
+        if isinstance(decoded, self.origin):
             return decoded
         # Always encode date/time as ISO strings.
         if isinstance(val, (datetime.date, datetime.time, datetime.timedelta)):
             decoded = serdes.isoformat(val)
-        return self.t(decoded)
+        return self.origin(decoded)
 
 
 class NumberUnmarshaller[NumberT: numbers.Number](AbstractUnmarshaller[NumberT]):

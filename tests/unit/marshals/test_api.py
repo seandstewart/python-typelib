@@ -254,6 +254,11 @@ from tests import models
         given_input=models.Leaf(value=datetime.date(2020, 1, 1)),
         expected_output={"value": "2020-01-01"},
     ),
+    literal_string=dict(
+        given_type=models.Leaf[typing.LiteralString],
+        given_input=models.Leaf(value="hello"),
+        expected_output={"value": "hello"},
+    ),
 )
 def test_marshal(given_type, given_input, expected_output):
     # When

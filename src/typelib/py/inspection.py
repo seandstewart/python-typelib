@@ -14,6 +14,7 @@ from __future__ import annotations
 import abc
 import builtins
 import collections
+import collections.abc as c
 import contextlib
 import dataclasses
 import datetime
@@ -31,7 +32,6 @@ import types
 import typing as tp
 import typing_extensions as te
 import uuid
-from collections.abc import Callable as abc_Callable
 from operator import attrgetter
 
 from typelib import constants
@@ -142,25 +142,17 @@ def _check_generics(hint: tp.Any):
     return GENERIC_TYPE_MAP.get(hint, hint)
 
 
-GENERIC_TYPE_MAP: dict[type, type] = {
-    tp.Sequence: list,
-    tp.MutableSequence: list,
-    collections.abc.Sequence: list,
-    collections.abc.MutableSequence: list,
-    tp.Collection: list,
-    collections.abc.Collection: list,
-    tp.Iterable: list,
-    collections.abc.Iterable: list,
-    tp.AbstractSet: set,
-    tp.MutableSet: set,
-    collections.abc.Set: set,
-    collections.abc.MutableSet: set,
-    tp.Mapping: dict,
-    tp.MutableMapping: dict,
-    collections.abc.Mapping: dict,
-    collections.abc.MutableMapping: dict,
-    tp.Hashable: str,
-    collections.abc.Hashable: str,
+GENERIC_TYPE_MAP: dict[tp.Any, type] = {
+    c.Sequence: tuple,
+    c.MutableSequence: list,
+    c.Collection: list,
+    c.Iterable: list,
+    c.Set: set,
+    c.MutableSet: set,
+    c.Mapping: dict,
+    c.MutableMapping: dict,
+    c.Hashable: str,
+    tp.LiteralString: str,
 }
 
 
@@ -1214,7 +1206,9 @@ _ABCS = frozenset({numbers.Number})
 
 
 @functools.cache
-def istexttype(t: type[tp.Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
+def istexttype(
+    t: type[tp.Any],
+) -> compat.TypeIs[type[str | bytes | bytearray | tp.LiteralString]]:
     """Test whether the given type is a subclass of text or bytes.
 
     Examples:
@@ -1223,11 +1217,14 @@ def istexttype(t: type[tp.Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
         >>> istexttype(MyStr)
         True
     """
-    return _safe_issubclass(t, (str, bytes, bytearray, memoryview))
+    return (
+        _safe_issubclass(t, (str, bytes, bytearray, memoryview))
+        or t is tp.LiteralString
+    )
 
 
 @functools.cache
-def isstringtype(t: type[tp.Any]) -> compat.TypeIs[type[str | bytes | bytearray]]:
+def isstringtype(t: type[tp.Any]) -> compat.TypeIs[type[str | tp.LiteralString]]:
     """Test whether the given type is a subclass of text or bytes.
 
     Examples:
@@ -1236,7 +1233,7 @@ def isstringtype(t: type[tp.Any]) -> compat.TypeIs[type[str | bytes | bytearray]
         >>> istexttype(MyStr)
         True
     """
-    return _safe_issubclass(t, str)
+    return _safe_issubclass(t, str) or t is tp.LiteralString
 
 
 @functools.cache
@@ -1403,7 +1400,7 @@ def iscallable(t: tp.Any) -> compat.TypeIs[tp.Callable]:
         >>> iscallable(1)
         False
     """
-    return inspect.isroutine(t) or t is tp.Callable or _safe_issubclass(t, abc_Callable)
+    return inspect.isroutine(t) or t is tp.Callable or _safe_issubclass(t, c.Callable)
 
 
 @functools.cache
@@ -1428,7 +1425,7 @@ _UNRESOLVABLE = (
     re.Match,
     constants.empty,
     tp.Callable,
-    abc_Callable,
+    c.Callable,
     inspect.Parameter.empty,
     type(Ellipsis),
     Ellipsis,
