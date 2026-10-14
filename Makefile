@@ -90,7 +90,7 @@ changelog:  ## Compile the latest changelog for the current branch.
 .PHONY: changelog
 
 release-notes:  ## Compile release notes for VCS
-	@$(RUN_PREFIX) git-cliff --bump --unreleased -o release-notes.md
+	@$(RUN_PREFIX) git-cliff --latest --strip all -o release-notes.md
 .PHONY: release-notes
 
 # endregion
