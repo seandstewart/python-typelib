@@ -3,6 +3,7 @@ from __future__ import annotations
 import dataclasses
 import datetime
 import enum
+import types
 import typing
 
 
@@ -145,6 +146,10 @@ class LegacySimpleGeneric(typing.Generic[TVar]):  # noqa: UP046
 @dataclasses.dataclass
 class LegacyNestedGeneric(typing.Generic[TVar]):  # noqa: UP046
     gen: LegacySimpleGeneric[TVar]
+
+
+class AnnotatedNamespace(types.SimpleNamespace):
+    a: int
 
 
 type Box[T] = list[T]

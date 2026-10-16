@@ -10,6 +10,7 @@ import enum
 import fractions
 import pathlib
 import re
+import types
 import typing as tp
 import uuid
 import warnings
@@ -32,6 +33,7 @@ __all__ = (
     "IterableMarshaller",
     "LiteralMarshaller",
     "MappingMarshaller",
+    "NamespaceMarshaller",
     "PathMarshaller",
     "PatternMarshaller",
     "StringMarshaller",
@@ -302,6 +304,18 @@ class MappingMarshaller[MappingT: tp.Mapping](AbstractMarshaller[MappingT]):
             val: The mapping object to marshal.
         """
         return {**val}
+
+
+class NamespaceMarshaller(AbstractMarshaller[types.SimpleNamespace]):
+    """A marshaller for dumping a [`types.SimpleNamespace`][] into a simple [`dict`][]."""
+
+    def __call__(self, val: types.SimpleNamespace) -> MarshalledMappingT:
+        """Marshal a namespace into a simple [`dict`][].
+
+        Args:
+            val: The namespace to marshal.
+        """
+        return dict(serdes.iteritems(val))
 
 
 class IterableMarshaller[IterableT: tp.Iterable](AbstractMarshaller[IterableT]):

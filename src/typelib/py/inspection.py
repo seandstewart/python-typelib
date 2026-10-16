@@ -62,6 +62,7 @@ __all__ = (
     "isliteral",
     "ismappingtype",
     "isnamedtuple",
+    "isnamespacetype",
     "isnontextcollectiontype",
     "isoptionaltype",
     "isproperty",
@@ -1051,6 +1052,26 @@ def isnamedtuple(obj: type) -> compat.TypeIs[type[tp.NamedTuple]]:
         True
     """
     return inspect.isclass(obj) and issubclass(obj, tuple) and hasattr(obj, "_fields")
+
+
+@functools.cache
+def isnamespacetype(obj: type) -> compat.TypeIs[type[types.SimpleNamespace]]:
+    """Check whether an object is an unannotated [`types.SimpleNamespace`][].
+
+    Examples:
+        >>> import types
+        >>>
+        >>> isnamespacetype(types.SimpleNamespace)
+        True
+        >>> class Config(types.SimpleNamespace):
+        ...     a: int
+        ...
+        >>> isnamespacetype(Config)
+        False
+    """
+    return _safe_issubclass(origin(obj), types.SimpleNamespace) and not (
+        get_type_hints(obj, exhaustive=False)
+    )
 
 
 @functools.cache

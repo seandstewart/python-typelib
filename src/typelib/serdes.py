@@ -31,6 +31,7 @@ import contextlib
 import dataclasses
 import datetime
 import functools
+import inspect
 import operator
 import typing as t
 
@@ -390,7 +391,7 @@ def _make_fields_iterator(
         ]
     # Otherwise, try using the public type-hints.
     else:
-        attribs = inspection.get_type_hints(tp)
+        attribs = inspection.get_type_hints(tp, exhaustive=False) or _keyword_params(tp)
         public_attribs = [k for k in attribs if not k.startswith("_")]
     # If that didn't work, look for `__slots__`.
     if not public_attribs and hasattr(tp, "__slots__"):
@@ -409,6 +410,23 @@ def _make_fields_iterator(
         return ((k, v) for k, v in vars(val).items() if not k.startswith("_"))
 
     return _itervars
+
+
+_KEYWORD_PARAM_KINDS = frozenset(
+    (
+        inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        inspect.Parameter.KEYWORD_ONLY,
+    )
+)
+
+
+def _keyword_params(tp: type) -> list[str]:
+    # Positional-only, `*args`, and `**kwargs` params are not attributes.
+    try:
+        params = inspection.cached_signature(tp).parameters.values()
+    except (TypeError, ValueError):
+        return []
+    return [p.name for p in params if p.kind in _KEYWORD_PARAM_KINDS]
 
 
 def load[T](val: T) -> PythonValueT | T:

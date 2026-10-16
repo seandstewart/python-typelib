@@ -5,6 +5,7 @@ import decimal
 import fractions
 import pathlib
 import re
+import types
 import typing
 import uuid
 
@@ -278,6 +279,21 @@ from tests import models
         given_type=typing.Literal[1] | None,
         given_input="1",
         expected_output=1,
+    ),
+    namespace_from_dict=dict(
+        given_type=types.SimpleNamespace,
+        given_input={"a": 1, "b": "x"},
+        expected_output=types.SimpleNamespace(a=1, b="x"),
+    ),
+    namespace_from_json=dict(
+        given_type=types.SimpleNamespace,
+        given_input='{"a": 1}',
+        expected_output=types.SimpleNamespace(a=1),
+    ),
+    annotated_namespace=dict(
+        given_type=models.AnnotatedNamespace,
+        given_input={"a": "1"},
+        expected_output=models.AnnotatedNamespace(a=1),
     ),
 )
 def test_unmarshal(given_type, given_input, expected_output):
