@@ -3,6 +3,7 @@ import decimal
 import fractions
 import pathlib
 import re
+import types
 import typing
 import uuid
 
@@ -180,6 +181,12 @@ from tests import models
         given_input='["1", "2"]',
         expected_unmarshal_output=[1, 2],
         expected_marshal_output=[1, 2],
+    ),
+    namespace=dict(
+        given_type=types.SimpleNamespace,
+        given_input='{"a": 1, "b": "x"}',
+        expected_unmarshal_output=types.SimpleNamespace(a=1, b="x"),
+        expected_marshal_output={"a": 1, "b": "x"},
     ),
 )
 def test_protocol(

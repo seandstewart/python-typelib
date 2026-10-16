@@ -741,6 +741,21 @@ def test_isnamedtuple(given_type, expected_is_namedtuple):
 
 
 @pytest.mark.suite(
+    namespace=dict(given_type=types.SimpleNamespace, expected_is_namespace=True),
+    annotated_namespace=dict(
+        given_type=models.AnnotatedNamespace, expected_is_namespace=False
+    ),
+    dict=dict(given_type=dict, expected_is_namespace=False),
+    plain_class=dict(given_type=MyClass, expected_is_namespace=False),
+)
+def test_isnamespacetype(given_type, expected_is_namespace):
+    # When
+    actual_is_namespace = inspection.isnamespacetype(given_type)
+    # Then
+    assert actual_is_namespace == expected_is_namespace
+
+
+@pytest.mark.suite(
     fixed=dict(given_type=t.Tuple[str, int], expected_is_fixed_tuple=True),
     unfixed=dict(given_type=t.Tuple[str, ...], expected_is_fixed_tuple=False),
 )

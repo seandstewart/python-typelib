@@ -33,6 +33,7 @@ __all__ = (
     "IterableUnmarshaller",
     "LiteralUnmarshaller",
     "MappingUnmarshaller",
+    "NamespaceUnmarshaller",
     "NoOpUnmarshaller",
     "NoneTypeUnmarshaller",
     "NumberUnmarshaller",
@@ -578,6 +579,26 @@ IterableUnmarshaller = CastUnmarshaller[tp.Iterable]
 
 EnumT = tp.TypeVar("EnumT", bound=enum.Enum)
 EnumUnmarshaller = CastUnmarshaller[EnumT]
+
+
+class NamespaceUnmarshaller(AbstractUnmarshaller[types.SimpleNamespace]):
+    """An unmarshaller that loads a [`types.SimpleNamespace`][] from a mapping.
+
+    Note:
+        We will attempt to decode the value into a real Python object first.
+
+    See Also:
+        - [`typelib.serdes.load`][]
+    """
+
+    def __call__(self, val: tp.Any) -> types.SimpleNamespace:
+        """Unmarshal a value into the bound namespace type.
+
+        Args:
+            val: The input value to unmarshal.
+        """
+        decoded = serdes.load(val)
+        return self.origin(**dict(serdes.iteritems(decoded)))
 
 
 class LiteralUnmarshaller[LiteralT](AbstractUnmarshaller[LiteralT]):

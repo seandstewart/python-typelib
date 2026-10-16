@@ -142,6 +142,7 @@ _HANDLERS: tp.Mapping[
     (
         lambda t: inspection.issubscriptedgeneric(t) and inspection.isiterabletype(t)
     ): routines.SubscriptedIterableUnmarshaller,
+    inspection.isnamespacetype: routines.NamespaceUnmarshaller,
     # A mapping is a collection so must come before that check.
     inspection.ismappingtype: routines.MappingUnmarshaller,
     # Generic iterator handler
